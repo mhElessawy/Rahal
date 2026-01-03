@@ -1,7 +1,10 @@
 ﻿@model List<EmployeeInfo>
 
 @{
-    ViewData["Title"] = "نتائج البحث";
+    var documentType = ViewBag.DocumentType ?? "permit";
+    var documentName = documentType == "renewal" ? "تجديد رخصة سوق" : "تصريح إجرة جوالة";
+    var generateAction = documentType == "renewal" ? "GenerateRenewal" : "Generate";
+    ViewData["Title"] = "نتائج البحث - " + documentName;
 }
 
 <div class="container mt-4" dir="rtl">
@@ -34,9 +37,9 @@
                                     <td>@employee.Nationality?.DeffName</td>
                                     <td>@employee.JobTitle?.DeffName</td>
                                     <td>
-                                        <a asp-action="Generate" asp-route-id="@employee.Id"
+                                        <a asp-action="@generateAction" asp-route-id="@employee.Id"
                                            class="btn btn-sm btn-primary">
-                                            <i class="fas fa-file-word"></i> إنشاء
+                                            <i class="fas fa-file-word"></i> @(documentType == "renewal" ? "تجديد" : "إنشاء")
                                         </a>
                                     </td>
                                 </tr>
@@ -53,8 +56,8 @@
             }
 
             <div class="text-center mt-3">
-                <a asp-action="Search" class="btn btn-secondary">بحث جديد</a>
-                <a asp-action="Index" class="btn btn-primary">الصفحة الرئيسية</a>
+                <a asp-action="Search" asp-route-documentType="@documentType" class="btn btn-secondary">بحث جديد</a>
+                <a asp-action="@(documentType == "renewal" ? "IndexRenewal" : "Index")" class="btn btn-primary">الصفحة الرئيسية</a>
             </div>
         </div>
     </div>

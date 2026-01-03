@@ -28,14 +28,15 @@ public class PermitGenerationController : Controller
     }
 
     // GET: Search page
-    public IActionResult Search()
+    public IActionResult Search(string documentType = "permit")
     {
+        ViewBag.DocumentType = documentType;
         return View();
     }
 
     // POST: Search for employees
     [HttpPost]
-    public IActionResult Search(string searchTerm, string searchType)
+    public IActionResult Search(string searchTerm, string searchType, string documentType = "permit")
     {
         IQueryable<EmployeeInfo> query = _context.EmployeeInfos
             .Include(e => e.Nationality)
@@ -76,6 +77,7 @@ public class PermitGenerationController : Controller
 
         ViewBag.SearchTerm = searchTerm;
         ViewBag.SearchType = searchType;
+        ViewBag.DocumentType = documentType;
 
         return View("SearchResults", employees);
     }
