@@ -23,6 +23,8 @@
                 <input type="hidden" asp-for="EmpId" />
                 <input type="hidden" asp-for="FromDate" />
                 <input type="hidden" asp-for="ToDate" />
+                <input type="hidden" id="oldFromDate" name="OldFromDate" value="@Model.FromDate" />
+                <input type="hidden" id="oldToDate" name="OldToDate" value="@Model.ToDate" />
                 <input type="hidden" asp-for="DeleteFlag" />
                 <input type="hidden" asp-for="VacationPayed" />
                 <input type="hidden" asp-for="VacationStatus" />
@@ -51,8 +53,25 @@
                     <span asp-validation-for="FromDate" class="text-danger small"></span>
                 </div> *@
 
+                <div class="col-md-12 mt-2">
+                    <h5 class="border-bottom pb-2">التاريخ الحالي للأجازة</h5>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">من تاريخ (الحالي)</label>
+                    <input type="text" class="form-control bg-light" readonly value="@Model.FromDate?.ToString("dd/MM/yyyy")" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">إلى تاريخ (الحالي)</label>
+                    <input type="text" class="form-control bg-light" readonly value="@Model.ToDate?.ToString("dd/MM/yyyy")" />
+                </div>
+
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">التاريخ الجديد للأجازة</h5>
+                </div>
+
                 <div class="col-md-3">
-                    <label class="form-label">تاريخ الأجازة الجديد</label>
+                    <label class="form-label">اختيار شهر الأجازة الجديد</label>
                     @Html.DropDownList("ContractDetailsId", ViewBag.WorkMonth as SelectList,
                     "-- اختيار شهر الأجازة --", new { @class = "form-control", id = "vacationMonth", required = "required" })
                  </div>
