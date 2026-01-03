@@ -1,0 +1,69 @@
+﻿@model RahalWeb.Models.CompanyDebit
+
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+<div class="company-info-container" dir="rtl">
+    <div class="company-info-header">
+        <h4>بيانات الديون</h4>
+        <div class="action-buttons">
+            @*  <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">تعديل</a> *@
+            <a asp-action="Index" class="btn btn-secondary">العوده لصفحة الديون</a>
+        </div>
+    </div>
+
+    <div class="company-info-body" dir="rtl">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>البيانات العامة</h5>
+                    <div class="info-item">
+                        <label>رقم فاتورة الدين</label>
+                        <span>@Html.DisplayFor(model => model.CompDebitNo)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>تاريخ الدين</label>
+                        <span>@Html.DisplayFor(model => model.DebitDate)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>اسم السائق </label>
+                        <span>@Html.DisplayFor(model => model.Employee!.FullNameAr)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>تفاصيل الدين</h5>
+
+                    
+
+                    <div class="info-item">
+                        <label>المبلغ </label>
+                        <span>@Html.DisplayFor(model => model.DebitQty)</span>
+                    </div>
+
+                    <div class="info-item">
+                        <label>المدفوع </label>
+                        <span>@Html.DisplayFor(model => model.PayedQty)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>الباقي </label>
+                        <span>@Html.DisplayFor(model => model.ReminderQty)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>السبب </label>
+                        <span>@Html.DisplayFor(model => model.DebitReson)</span>
+                    </div>
+                    <!-- Repeat for other owners -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

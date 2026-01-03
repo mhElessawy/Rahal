@@ -1,0 +1,27 @@
+﻿@model RahalWeb.Models.CompanyInfoAtt
+
+@{
+    ViewData["Title"] = "CreateAttatch";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form asp-action="CreateAttatch" class="professional-form" dir="rtl" enctype="multipart/form-data" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" name="CompId" value="@ViewBag.CompId" />
+    <div class="form-group">
+        <label> عنوان الملف</label>
+        <input asp-for="TitleData" class="form-control" />
+        <span asp-validation-for="TitleData" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="pdfFile1" class="control-label"></label>
+        <input asp-for="pdfFile1" type="file" class="form-control" accept=".pdf,application/pdf" />
+        <span asp-validation-for="pdfFile1" class="text-danger"></span>
+    </div>
+    <div class="professional-form-footer">
+        <div>
+            <a asp-action="Index" class="btn btn-danger">إالغاء</a>
+        </div>
+        <input type="submit" value="Create" class="btn btn-primary" />
+    </div>
+</form>

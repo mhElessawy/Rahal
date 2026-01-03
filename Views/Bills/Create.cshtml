@@ -1,0 +1,101 @@
+﻿@model RahalWeb.Models.Bill
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Create</h1>
+
+<h4>Bill</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="BillNo" class="control-label"></label>
+                <input asp-for="BillNo" class="form-control" />
+                <span asp-validation-for="BillNo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployeeId" class="control-label"></label>
+                <input asp-for="EmployeeId" class="form-control" />
+                <span asp-validation-for="EmployeeId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FromDate" class="control-label"></label>
+                <input asp-for="FromDate" class="form-control" />
+                <span asp-validation-for="FromDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ToDate" class="control-label"></label>
+                <input asp-for="ToDate" class="form-control" />
+                <span asp-validation-for="ToDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NoOfDays" class="control-label"></label>
+                <input asp-for="NoOfDays" class="form-control" />
+                <span asp-validation-for="NoOfDays" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BillDate" class="control-label"></label>
+                <input asp-for="BillDate" class="form-control" />
+                <span asp-validation-for="BillDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BillTime" class="control-label"></label>
+                <input asp-for="BillTime" class="form-control" />
+                <span asp-validation-for="BillTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BillPayed" class="control-label"></label>
+                <input asp-for="BillPayed" class="form-control" />
+                <span asp-validation-for="BillPayed" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LateDays" class="control-label"></label>
+                <input asp-for="LateDays" class="form-control" />
+                <span asp-validation-for="LateDays" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ContractId" class="control-label"></label>
+                <input asp-for="ContractId" class="form-control" />
+                <span asp-validation-for="ContractId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserRecievedDate" class="control-label"></label>
+                <input asp-for="UserRecievedDate" class="form-control" />
+                <span asp-validation-for="UserRecievedDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BankBillNo" class="control-label"></label>
+                <input asp-for="BankBillNo" class="form-control" />
+                <span asp-validation-for="BankBillNo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BankDate" class="control-label"></label>
+                <input asp-for="BankDate" class="form-control" />
+                <span asp-validation-for="BankDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DeleteReson" class="control-label"></label>
+                <input asp-for="DeleteReson" class="form-control" />
+                <span asp-validation-for="DeleteReson" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserId" class="control-label"></label>
+                <input asp-for="UserId" class="form-control" />
+                <span asp-validation-for="UserId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

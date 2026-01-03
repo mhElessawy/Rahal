@@ -1,0 +1,77 @@
+﻿@model IEnumerable<RahalWeb.Models.CarInfoAtt>
+
+@{
+
+    ViewData["Title"] = "Car Att";
+    var car = ViewBag.CarData as CarInfo; // Cast ViewBag to the correct type
+    var attendances = ViewBag.CarAtts as List<CarInfoAtt>;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .pagination-container {
+        margin-top: 20px;
+    }
+
+    .pagination a {
+        margin: 0 5px;
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+    }
+
+    .pagination .active a {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+</style>
+
+
+
+@if (car != null)
+{
+    <div class="employee-details" dir="rtl">
+        <h3>بيانات السيارة</h3>
+        <p><strong>رقم السيارة :</strong> @car.CarNo</p>
+          <!-- Add more fields as needed -->
+    </div>
+}
+else
+{
+    <p>Car not found.</p>
+}
+
+<h1 dir="rtl">مرفقات السيارات</h1>
+<p dir="rtl">
+
+    <a asp-action="CreateAtt" asp-route-CarId="@car!.Id" class="btn btn-create-outline">
+        <i class="fas fa-plus-circle"></i> إضافة مرفق
+    </a>
+</p>
+
+<table class="bordered-table" dir="rtl">
+    <thead>
+        <tr>
+            <th>
+                اسم الملف
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in attendances!)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TitleData)
+                </td>
+                <td class="action-links">
+                    <a asp-action="EditAtt" asp-route-id="@item.Id" class="btn-edit"><i class="fas fa-edit"></i> تعديل</a>
+                    <a asp-action="DownLoadAttatchment" asp-route-id="@item.Id" class="btn-details"><i class="fas fa-info-circle"></i> تحميل</a>
+                    <a asp-action="DeleteAtt" asp-route-id="@item.Id" class="btn-delete"><i class="fas fa-trash-alt"></i> حذف</a>
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>

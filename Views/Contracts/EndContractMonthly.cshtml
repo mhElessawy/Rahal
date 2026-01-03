@@ -1,0 +1,71 @@
+﻿@model RahalWeb.Models.Contract
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!-- Include Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<form asp-action="EndContractMonthly" class="delete-confirmation-container">
+        <div  dir="rtl">
+            <div class="delete-header">
+		        <h1 class="delete-title">إنتهاء العقد</h1>
+                <div class="delete-warning alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>تحذير:</strong> سوف يتم إنتهاء العقد هل أنت متأكد .
+                </div>
+            </div>
+            <div class="company-details-card">
+                <div class="card-header">
+                    <h4>تفاصيل بيانات العقد</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="detail-group">
+                                <label>رقم العقد</label>
+                                <div class="detail-value">@Html.DisplayFor(model => model.ContractNo)</div>
+                            </div>
+                            <div class="detail-group">
+                                <label>اسم السواق </label>
+                                <div class="detail-value">@Html.DisplayFor(model => model.Employee!.FullNameAr)</div>
+                            </div>
+                            <div class="detail-group">
+                                <label>رقم السيارة</label>
+                                <div class="detail-value">@Html.DisplayFor(model => model.Car!.CarCode)</div>
+                            </div>
+                            <div class="detail-group">
+                                <label>المبلغ المدفوع</label>
+                                <span>@ViewBag.totalPay</span>
+                            </div>
+                            <div class="detail-group">
+                                <label>تاريخ إنتهاء الالعقد</label>
+                                <input asp-for="ContractEndDate" type ="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control"  />
+                            </div>
+                     
+                        </div>
+                     </div>
+       
+                     <div class="row">
+                            <div class="col-md-6">
+                                <div class="detail-group">
+                                    <label>السبب</label>
+                                    <input asp-for="ContractEndReson" value="" class="form-control" />
+                                </<div>
+                            </div>
+                     </div>
+                </div>
+            </div>
+            <div class="delete-actions">
+         
+                    <input type="hidden" asp-for="Id" />
+                    <button type="submit" class="btn btn-danger btn-lg delete-button">
+                        <i class="fas fa-trash-alt"></i> تأكيد الإغلاق
+                    </button>
+                    <a asp-action="IndexMonthly" class="btn btn-outline-secondary btn-lg cancel-button">
+                        <i class="fas fa-times"></i> إالغاء
+                    </a>
+            </div>
+        </div>
+</form>
+

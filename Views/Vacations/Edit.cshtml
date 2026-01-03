@@ -1,0 +1,126 @@
+﻿@model RahalWeb.Models.Vacation
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<hr />
+
+
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">تعديل أجازة</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="EmpId" />
+                <input type="hidden" asp-for="FromDate" />
+                <input type="hidden" asp-for="DeleteFlag" />
+                <input type="hidden" asp-for="VacationPayed" />
+                <input type="hidden" asp-for="VacationStatus" />
+                <input type="hidden" asp-for="NoOfDays" />
+
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">بيانات الأجازة</h5>
+                </div>
+                
+                <div class="col-md-1">
+                    <label asp-for="Emp.EmpCode" class="form-label">كود الموظف</label>
+                    <input asp-for="Emp.EmpCode" value="@ViewBag.EmpCode" class="form-control" readonly />
+                    <span asp-validation-for="Emp.EmpCode" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="Emp.FullNameAr" class="form-label">اسم الموظف</label>
+                    <input asp-for="Emp.FullNameAr" value="@ViewBag.EmployeeFullNameAr" class="form-control" readonly />
+                    <span asp-validation-for="Emp.FullNameAr" class="text-danger small"></span>
+                </div>
+
+               @*  <div class="col-md-2">
+                    <label asp-for="FromDate" class="form-label">من تاريخ</label>
+                    <input asp-for="FromDate" type="date" class="form-control" required id="fromDate" />
+                    <span asp-validation-for="FromDate" class="text-danger small"></span>
+                </div> *@
+
+                <div class="col-md-3">
+                    <label class="form-label">تاريخ الأجازة الجديد</label>
+                    @Html.DropDownList("ContractDetailsId", ViewBag.WorkMonth as SelectList,
+                    "-- اختيار شهر الأجازة --", new { @class = "form-control", id = "fromDate", required = "required" })
+                 </div>
+                <div class="col-md-2">
+                    <label asp-for="ToDate" class="form-label">إلى تاريخ</label>
+                    <input asp-for="ToDate" class="form-control" readonly id="toDate" />
+                    <span asp-validation-for="ToDate" class="text-danger small"></span>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> تعديل بيانات الأجازة
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    h5 {
+        color: #0d6efd;
+    }
+</style>
+
+<script>
+        document.getElementById("fromDate").addEventListener("change", function() {
+        const selectedOption = this.options[this.selectedIndex];
+            const dateString = selectedOption.text;
+
+        if (!dateString || dateString === "-- اختيار شهر الأجازة --") return;
+
+        // Parse date in DD/MM/YYYY format
+        const [day, month, year] = dateString.split('/').map(num => parseInt(num, 10));
+
+        // JavaScript months are 0-indexed (Jan=0, Feb=1, etc.)
+        const fromDate = new Date(year, month - 1, day);
+
+        console.log("Parsed From Date:", fromDate); // Debugging
+
+        if (!isNaN(fromDate.getTime())) {
+            // Calculate end of month (next month, day 0)
+            const toDate = new Date(year, month, 0); // month is already 1-based here
+
+            // Format as YYYY-MM-DD for the input field
+            const formattedToDate = `${toDate.getFullYear()}-${String(toDate.getMonth() + 1).padStart(2, '0')}-${String(toDate.getDate()).padStart(2, '0')}`;
+
+            document.getElementById('toDate').value = formattedToDate;
+        } else {
+            console.error("Invalid date:", selectedValue);
+        }
+    });
+</script>

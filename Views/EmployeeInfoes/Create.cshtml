@@ -1,0 +1,216 @@
+﻿@model RahalWeb.Models.EmployeeInfo
+
+@{
+    ViewData["Title"] = "Create Employee";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+	.card {
+		border-radius: 10px;
+	}
+
+	.card-header {
+		border-radius: 10px 10px 0 0 !important;
+	}
+
+	.form-label {
+		font-weight: 500;
+	}
+
+	h5 {
+		color: #0d6efd;
+	}
+</style>
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">إضافة موظف</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">البيانات الشخصية</h5>
+                </div>
+                <div class="col-md-4" >
+                    <label asp-for="CompanyId" class="form-label">اسم الشركة</label>
+                    <select asp-for="CompanyId" class="form-select" asp-items="ViewBag.CompanyId" dir="rtl" required ></select>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="EmpCode" class="form-label">كود الموظف</label>
+                    <input asp-for="EmpCode" class="form-control"  required />
+                    <span asp-validation-for="EmpCode" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="CivilId" class="form-label">الرقم المدني</label>
+                    <input asp-for="CivilId" class="form-control"  required />
+                    <span asp-validation-for="CivilId" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="EmpBirthDate" class="form-label">تاريخ الميلاد</label>
+                    <input asp-for="EmpBirthDate" type="date" class="form-control" />
+                    <span asp-validation-for="EmpBirthDate" class="text-danger small"></span>
+                </div>
+
+                <!-- Arabic Name Section -->
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">الإسم بالعربي</h5>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="FirstNameAr" class="form-label">الاسم الأول</label>
+                    <input asp-for="FirstNameAr" class="form-control" required />
+                    <span asp-validation-for="FirstNameAr" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="SecondNameAr" class="form-label">الاسم الثاني</label>
+                    <input asp-for="SecondNameAr" class="form-control" />
+                    <span asp-validation-for="SecondNameAr" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="ThirdNameAr" class="form-label">الاسم الثالث</label>
+                    <input asp-for="ThirdNameAr" class="form-control" />
+                    <span asp-validation-for="ThirdNameAr" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="LastNameAr" class="form-label">اللقب</label>
+                    <input asp-for="LastNameAr" class="form-control" required />
+                    <span asp-validation-for="LastNameAr" class="text-danger small"></span>
+                </div>
+
+                <!-- English Name Section -->
+                <div class="col-md-12 mt-3" >
+                    <h5 class="border-bottom pb-2" >English Name</h5>
+                </div>
+                  <div class="col-md-3" >
+                    <label asp-for="LastNameEn" class="form-label">Last Name</label>
+                    <input asp-for="LastNameEn" class="form-control" />
+                    <span asp-validation-for="LastNameEn" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="ThirdNameEn" class="form-label">Third Name</label>
+                    <input asp-for="ThirdNameEn" class="form-control" />
+                    <span asp-validation-for="ThirdNameEn" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3" >
+                    <label asp-for="SecondNameEn" class="form-label">Second Name</label>
+                    <input asp-for="SecondNameEn" class="form-control" />
+                    <span asp-validation-for="SecondNameEn" class="text-danger small"></span>
+                </div>
+               
+                <div class="col-md-3">
+                    <label asp-for="FirstNameEn" class="form-label">First Name</label>
+                    <input asp-for="FirstNameEn" class="form-control" />
+                    <span asp-validation-for="FirstNameEn" class="text-danger small"></span>
+                </div>
+
+              
+
+                <!-- Contact Information -->
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">بيانات التواصل</h5>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="EmpAddress" class="form-label">العنوان</label>
+                    <input asp-for="EmpAddress" class="form-control" />
+                    <span asp-validation-for="EmpAddress" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="TelNo" class="form-label">الهاتف</label>
+                    <input asp-for="TelNo" class="form-control" />
+                    <span asp-validation-for="TelNo" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="MobiileNo" class="form-label">الموبيل</label>
+                    <input asp-for="MobiileNo" class="form-control" required />
+                    <span asp-validation-for="MobiileNo" class="text-danger small"></span>
+                </div>
+
+                <!-- Employment Details -->
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">تفاصيل الموظف</h5>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="LocationId" class="form-label">المحافظة</label>
+                    <select asp-for="LocationId" class="form-select" asp-items="ViewBag.LocationId" required></select>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="JobTitleId" class="form-label">الوظيفة</label>
+                    <select asp-for="JobTitleId" class="form-select" asp-items="ViewBag.JobTitleId" required></select>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="NationalityId" class="form-label">الجنسية</label>
+                    <select asp-for="NationalityId" class="form-select" asp-items="ViewBag.NationalityId"></select>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="Salary" class="form-label">المرتب</label>
+                    <input asp-for="Salary" class="form-control" />
+                    <span asp-validation-for="Salary" class="text-danger small"></span>
+                </div>
+
+                <!-- Document Information -->
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">بيانات  جواز السفر</h5>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="PassportNo" class="form-label">رقم الجواز</label>
+                    <input asp-for="PassportNo" class="form-control" required />
+                    <span asp-validation-for="PassportNo" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="PassportStartDate" class="form-label">بداية الإصدار</label>
+                    <input asp-for="PassportStartDate" type="date" class="form-control" />
+                    <span asp-validation-for="PassportStartDate" class="text-danger small"></span>
+                </div>
+
+
+
+                <div class="col-md-4">
+                    <label asp-for="PassportEndDate" class="form-label">نهاية الإصدار</label>
+                    <input asp-for="PassportEndDate" type="date" class="form-control" />
+                    <span asp-validation-for="PassportEndDate" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="EmpDepMang" class="form-label">الإداريون</label>
+                    <input type="checkbox" asp-for="EmpDepMang" class="form-check-input" />
+                    <span asp-validation-for="EmpDepMang" class="text-danger small"></span>
+                </div>
+              
+
+                <!-- Form Actions -->
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> إضافة موظف
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+

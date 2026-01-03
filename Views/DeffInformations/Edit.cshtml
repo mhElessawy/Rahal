@@ -1,0 +1,63 @@
+﻿@model RahalWeb.Models.DeffInformation
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">تعديل البيانات الأساسية</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <input type="hidden" asp-for="Id" />
+             
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">البيانات العامة</h5>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="DebitPayLateDay" class="form-label">غرامة التأخير</label>
+                    <input asp-for="DebitPayLateDay" class="form-control" readonly />
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="DebitPayLateDay" class="form-label">يتحول إلى دين </label>
+                    @Html.DropDownList("DebitPayLatId", ViewBag.DebitPayLatId as SelectList, "-- إختيار نوع الغرامة --", new { @class = "form-control", id = "DebitPayLatId", required = "required" })
+                </div>
+                <!-- Form Actions -->
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> تعديل البيانات العامة
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    h5 {
+        color: #0d6efd;
+    }
+</style>
+

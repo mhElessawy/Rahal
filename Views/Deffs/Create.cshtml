@@ -1,0 +1,55 @@
+﻿@model RahalWeb.Models.Deff
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (@TempData["DeffName"] == null)
+{
+    <meta http-equiv="refresh" content="0; url=/Home/DeffTypeIndex" />
+}
+
+<h1 dir="rtl">إضافة  @TempData["DeffName"]</h1>
+<hr />
+
+<form asp-action="Create" class="professional-form" dir="rtl">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    @if (ViewBag.ShowCarTypeSelect == true)
+    {
+        <div class="form-group">
+            <label class="control-label">نوع السيارة</label>
+            <select asp-for="DeffParent" class="form-control">
+                <option value="">-- اختر نوع السيارة --</option>
+                @if (ViewBag.DeffParentItems != null)
+                {
+                    @foreach (var item in ViewBag.DeffParentItems)
+                    {
+                        <option value="@item.Value">@item.Text</option>
+                    }
+                }
+            </select>
+            <span asp-validation-for="DeffParent" class="text-danger"></span>
+        </div>
+    }
+    <div class="form-group">
+        <label class="control-label">الاسم</label>
+        <input asp-for="DeffName" class="form-control" required />
+        <span asp-validation-for="DeffName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label">Name</label>
+        <input asp-for="DeffNameEng" class="form-control" />
+        <span asp-validation-for="DeffNameEng" class="text-danger"></span>
+    </div>
+
+   
+
+    <div class="professional-form-footer">
+        <div>
+            <a asp-action="Index" asp-route-id="@TempData["DeffTypeId"]" asp-route-name="@TempData["DeffName"]" class="btn btn-danger">Cancel</a>
+        </div>
+        <input type="submit" value="إضافة" class="btn btn-primary" />
+    </div>
+</form>

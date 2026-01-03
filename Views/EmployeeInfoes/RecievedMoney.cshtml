@@ -1,0 +1,578 @@
+﻿@model RahalWeb.Models.MyModel.ReceivedMoneyViewModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* Enhanced styling for the employee info table */
+    .bordered-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+        font-size: 0.8em;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+        .bordered-table thead tr {
+            background-color: #2c3e50;
+            color: #ffffff;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .bordered-table th,
+        .bordered-table td {
+            padding: 5px 5px;
+            border-bottom: 1px solid #dddddd;
+            text-align: center;
+            white-space: nowrap; /* Ensures content stays in one line */
+        }
+
+        .bordered-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+            .bordered-table tbody tr:nth-of-type(even) {
+                background-color: #f8f9fa;
+            }
+
+            .bordered-table tbody tr:last-of-type {
+                border-bottom: 2px solid #2c3e50;
+            }
+
+            .bordered-table tbody tr:hover {
+                background-color: #e8f4f8;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+
+    /* Action buttons styling */
+    .action-links {
+        white-space: nowrap;
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+    }
+
+    .btn-edit, .btn-details, .btn-delete, .btn-info {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 0.7rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-edit {
+        background-color: #f39c12;
+        color: white;
+    }
+
+        .btn-edit:hover {
+            background-color: #e67e22;
+            transform: translateY(-1px);
+        }
+
+    .btn-details {
+        background-color: #3498db;
+        color: white;
+    }
+
+        .btn-details:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+        }
+
+    .btn-delete {
+        background-color: #e74c3c;
+        color: white;
+    }
+
+        .btn-delete:hover {
+            background-color: #c0392b;
+            transform: translateY(-1px);
+        }
+
+    .btn-info {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+        .btn-info:hover {
+            background-color: #138496;
+            transform: translateY(-1px);
+            color: white;
+        }
+
+    /* Create button styling */
+    .btn-create-outline {
+        background-color: #3498db;
+        color: white;
+        border: 2px solid #3498db;
+        border-radius: 5px;
+        padding: 8px 16px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+        .btn-create-outline:hover {
+            background-color: white;
+            color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+    /* Header styling */
+    h1 {
+        color: #2c3e50;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #3498db;
+    }
+
+    /* Search form styling */
+    .search-container {
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .single-line-form {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+    }
+
+
+    .form-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+    }
+
+        .form-group label {
+            margin-bottom: 0;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+    .form-control {
+        padding: 6px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+        .form-control:focus {
+            border-color: #3498db;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+    .btn-primary {
+        background-color: #3498db;
+        border-color: #3498db;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+            transform: translateY(-1px);
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+            transform: translateY(-1px);
+        }
+
+    /* Pagination styling */
+    .pagination-container {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .pagination a {
+        margin: 0 5px;
+        padding: 6px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #3498db;
+        transition: all 0.2s ease;
+    }
+
+        .pagination a:hover {
+            background-color: #e9ecef;
+            transform: translateY(-1px);
+        }
+
+    .pagination .disabled {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
+
+    .pagination .active a {
+        background-color: #3498db;
+        color: white;
+        border-color: #3498db;
+    }
+
+    /* Action buttons container */
+    .action-buttons {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-start;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+            transform: translateY(-1px);
+            color: white;
+        }
+
+    /* Responsive design */
+    @@media (max-width: 1200px) {
+        .bordered-table {
+            font-size: 0.85rem;
+        }
+
+            .bordered-table th,
+            .bordered-table td {
+                padding: 10px 8px;
+            }
+    }
+
+    @@media (max-width: 992px) {
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .action-links {
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .btn-edit, .btn-details, .btn-delete, .btn-info {
+            margin: 2px 0;
+            text-align: center;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+        }
+
+        .form-group {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        h1 {
+            font-size: 1.5rem;
+        }
+
+        .bordered-table {
+            font-size: 0.8rem;
+        }
+
+            .bordered-table th,
+            .bordered-table td {
+                padding: 8px 5px;
+            }
+
+        .action-buttons {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+<h1 dir="rtl">تقرير التحصيل</h1>
+
+
+<div class="search-container" dir="rtl">
+    <form asp-action="RecievedMoney" method="get">
+        <div class="form-group">
+
+            <label for="companyId"> اسم المستخدم:</label>
+            <select name="UserId" asp-items="ViewBag.UserId" class="form-control" style="width:180px">
+                <option value="">-- جميع المستخدمين --</option>
+            </select>
+
+            <label for="FromDate"> من تاريخ  </label>
+            <input type="date" name="FromDate" value="@ViewData["FromDateFilter"]" placeholder="من تاريخ" style="width:130px" />
+
+
+            <label for="ToDate">إلى تاريخ</label>
+            <input type="date" name="ToDate" value="@ViewData["ToDateFilter"]" placeholder="إلى تاريخ" style="width:130px" />
+
+
+            <input type="submit" value="بحث" class="btn btn-primary" />
+            <a asp-action="RecievedMoney" class="btn btn-secondary">إعادة تعيين</a>
+        </div>
+    </form>
+</div>
+
+<table class="bordered-table" dir="rtl">
+    <thead>
+        <tr>
+            <th>
+                رقم الفاتورة
+            </th>
+            <th>
+                رقم العقد
+            </th>
+            <th>
+                رقم السيارة
+            </th>
+            <th>
+                رقم السائق
+            </th>
+            <th>
+                اسم السائق
+            </th>
+            <th>
+                تاريخ الفاتورة
+            </th>
+            <th>
+                من تاريخ
+            </th>
+            <th>
+                إلى تاريخ
+            </th>
+            <th>
+                المبلغ
+            </th>
+            <th>
+                ملاحظات
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Bills)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BillNo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Contract!.ContractNo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Contract!.Car!.CarNo)
+                </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Employee!.EmpCode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Employee!.FullNameAr)
+                    </td>
+               
+                <td>
+                    @Html.DisplayFor(modelItem => item.BillDate)
+                </td>
+              
+                <td>
+                    @Html.DisplayFor(modelItem => item.FromDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ToDate)
+                </td>
+               
+                <td>
+                    @Html.DisplayFor(modelItem => item.BillPayed)
+                </td>
+               
+                <td>
+                    @Html.DisplayFor(modelItem => item.BillHent)
+                </td>
+
+         
+            </tr>
+        }
+
+
+        @foreach (var item in Model.DebitPayInfos)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DebitPayNo)
+                </td>
+                <td>
+                   
+                </td>
+                <td>
+                   
+                </td>
+                @if(item.ViolationId != 0)
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ViolationInfo!.Employee!.EmpCode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ViolationInfo!.Employee!.FullNameAr)
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DebitInfo!.Emp!.EmpCode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DebitInfo!.Emp!.FullNameAr)
+                    </td>
+                }
+               
+                <td>
+                    @Html.DisplayFor(modelItem => item.DebitPayDate)
+                </td>
+
+                <td>
+                    
+                </td>
+                <td>
+                   
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.DebitPayQty)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.DebitInfo!.DebitDescrp)
+                </td>
+
+
+            </tr>
+        }
+
+
+        @foreach (var item in Model.companyDebitDetails)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompDebitDetailsNo)
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompanyDebits!.Employee!.EmpCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompanyDebits!.Employee!.FullNameAr)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompDebitDate)
+                </td>
+
+                <td>
+                </td>
+                <td>
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompDebitPayed)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompanyDebits!.DebitReson)
+                </td>
+            </tr>
+        }
+
+
+    </tbody>
+</table>
+
+
+<div dir="rtl">
+    إجمالي الإيراد: @(@Model.TotalBillPayed != null ? String.Format("{0:C}", @Model.TotalBillPayed) : "0.00")
+</div>
+
+<div class="search-container" dir="rtl">
+    <form asp-action="RecievedMoney" method="post">
+        <div class="form-group">
+              <!-- Hidden fields to preserve filter values -->
+            <input type="hidden" name="UserId" value="@ViewData["UserIdFilter"]" />
+            <input type="hidden" name="FromDate" value="@ViewData["FromDateFilter"]" />
+            <input type="hidden" name="ToDate" value="@ViewData["ToDateFilter"]" />
+            <label for="companyId"> اسم المستلم:</label>
+            <select name="UserRecievedId" asp-items="ViewBag.UserRecievedId" class="form-control" style="width:180px">
+                <option value="">-- جميع المستخدمين --</option>
+            </select>
+            <label for="PasswordRecieved"> كلمة المرور  </label>
+            <input type="password" name="PasswordRecieved"  placeholder="كلمة المرور" style="width:130px" />
+            <input type="submit" value="استلام المبلغ" class="btn btn-primary" />
+        </div>
+    </form>
+</div>
+
+
+<button onclick="printBills()" class="btn btn-success">طباعة</button>
+
+<script>
+       function printBills() {
+        var printContents = document.querySelector('.bordered-table').outerHTML;
+        var originalContents = document.body.innerHTML;
+        var total = '@(ViewBag.TotalBillPayed != null ? String.Format("{0:C}", ViewBag.TotalBillPayed) : "0.00")';
+
+        document.body.innerHTML =
+            '<h1 style="text-align:center"> فواتير الاستلام </h1>' +
+            printContents +
+            '<div style="margin-top:20px;font-weight:bold">إجمالي الإيراد: ' + total + '</div>';
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+</script>

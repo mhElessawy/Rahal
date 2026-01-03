@@ -1,0 +1,149 @@
+﻿@model RahalWeb.Models.Purshase
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">إضافة سيارة</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="DeleteFlag" />
+                <input type="hidden" asp-for="UserId" />
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">البيانات العامة</h5>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="PurshaseNo" class="form-label">vرقم الفاتورة</label>
+                    <input asp-for="PurshaseNo" class="form-control" readonly />
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="PurshaseDate" class="form-label">تاريخ الفاتورة</label>
+                    <input asp-for="PurshaseDate" class="form-control" required />
+                    <span asp-validation-for="PurshaseDate" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="PurshasePayed" class="form-label">المبلغ</label>
+                    <input asp-for="PurshasePayed" class="form-control" required />
+                    <span asp-validation-for="PurshasePayed" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">نوع المصروف</label>
+                    @*  <select asp-for="EmployeeId" style="text-align:right"  class="form-select" asp-items="ViewBag.EmployeeId"  dir="rtl" required></select> *@
+                    @Html.DropDownList("PurshaseId", ViewBag.PurshaseId as SelectList, "-- إختيار نوع المصروف --", new { @class = "form-control", id = "PurshaseId", required = "required" })
+                </div>
+
+                <!-- Arabic Name Section -->
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">بيانات الفاتورة</h5>
+                </div>
+                 <div class="col-md-3">
+                    <label asp-for="CompId" class="form-label">اسم الشركة</label>
+                    @Html.DropDownList("CompId", ViewBag.CompId as SelectList, "-- إختيار رقم السيارة --", new { @class = "form-control", id = "CompId" })
+                </div>
+                
+
+                <div class="col-md-3">
+                    <label asp-for="EmpId" class="form-label">اسم السائق</label>
+                    @Html.DropDownList("EmpId", ViewBag.EmpId as SelectList, "-- إختيار اسم السائق --", new { @class = "form-control", id = "EmpId" })
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="CarId" class="form-label">اسم السائق</label>
+                    @Html.DropDownList("CarId", ViewBag.CarId as SelectList, "-- إختيار رقم السيارة --", new { @class = "form-control", id = "CarId" })
+                </div>
+              
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">بيانات الفاتورة</h5>
+                </div>
+                <div class="col-md-8">
+                    <label asp-for="PurshaseDescription" class="form-label">السبب</label>
+                    <input asp-for="PurshaseDescription" class="form-control" required />
+                    <span asp-validation-for="PurshaseDescription" class="text-danger small"></span>
+                </div>
+                <!-- Form Actions -->
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> تعديل بيانات سيارة
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    h5 {
+        color: #0d6efd;
+    }
+</style>
+
+
+<script>
+      $(document).ready(function() {
+        // Use proper selector for your dropdown
+        $("#carType").on('change', function() {
+            var carTypeId = $(this).val();
+            console.log("Selected carTypeId:", carTypeId); // Debugging
+
+            if (carTypeId) {
+                $.ajax({
+                    url: '@Url.Action("GetKind", "CarInfoes")', // Better way to generate URL
+                    type: 'GET',
+                    data: { Id: carTypeId },
+                    success: function(data) {
+                        console.log("AJAX response:", data); // Debugging
+
+                        var carKindDropdown = $("#CarKind"); // Make sure this ID matches your second dropdown
+                        carKindDropdown.empty();
+                        carKindDropdown.append('<option value="">-- إختيار النوع --</option>');
+
+                        $.each(data, function(index, item) {
+                            carKindDropdown.append($('<option>', {
+                                value: item.id,
+                                text: item.kindName // Case sensitive - match your JSON property
+                            }));
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX error:", error); // Debugging
+                    }
+                });
+            } else {
+                $("#CarKindId").empty().append('<option value="">-- إختيار النوع --</option>');
+            }
+        });
+    });
+</script>
+
+

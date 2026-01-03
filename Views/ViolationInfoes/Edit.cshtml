@@ -1,0 +1,97 @@
+﻿@model RahalWeb.Models.ViolationInfo
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit</h1>
+
+<h4>ViolationInfo</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="CarId" class="control-label"></label>
+                <select asp-for="CarId" class="form-control" asp-items="ViewBag.CarId"></select>
+                <span asp-validation-for="CarId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ViolationDate" class="control-label"></label>
+                <input asp-for="ViolationDate" class="form-control" />
+                <span asp-validation-for="ViolationDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ViolationTime" class="control-label"></label>
+                <input asp-for="ViolationTime" class="form-control" />
+                <span asp-validation-for="ViolationTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ViolationPlace" class="control-label"></label>
+                <input asp-for="ViolationPlace" class="form-control" />
+                <span asp-validation-for="ViolationPlace" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ViolationSpeed" class="control-label"></label>
+                <input asp-for="ViolationSpeed" class="form-control" />
+                <span asp-validation-for="ViolationSpeed" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ViolationGuideId" class="control-label"></label>
+                <select asp-for="ViolationGuideId" class="form-control" asp-items="ViewBag.ViolationGuideId"></select>
+                <span asp-validation-for="ViolationGuideId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ViolationCost" class="control-label"></label>
+                <input asp-for="ViolationCost" class="form-control" />
+                <span asp-validation-for="ViolationCost" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ViolationPoint" class="control-label"></label>
+                <input asp-for="ViolationPoint" class="form-control" />
+                <span asp-validation-for="ViolationPoint" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TransfereToDebit" class="control-label"></label>
+                <input asp-for="TransfereToDebit" class="form-control" />
+                <span asp-validation-for="TransfereToDebit" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DeleteFlag" class="control-label"></label>
+                <input asp-for="DeleteFlag" class="form-control" />
+                <span asp-validation-for="DeleteFlag" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ViolationBookNo" class="control-label"></label>
+                <input asp-for="ViolationBookNo" class="form-control" />
+                <span asp-validation-for="ViolationBookNo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmpId" class="control-label"></label>
+                <select asp-for="EmpId" class="form-control" asp-items="ViewBag.EmpId"></select>
+                <span asp-validation-for="EmpId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ViolationNo" class="control-label"></label>
+                <input asp-for="ViolationNo" class="form-control" />
+                <span asp-validation-for="ViolationNo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserId" class="control-label"></label>
+                <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
+                <span asp-validation-for="UserId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

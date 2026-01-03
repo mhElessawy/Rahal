@@ -1,0 +1,207 @@
+﻿@model RahalWeb.Models.PasswordDatum
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+<div class="company-info-container" dir="rtl">
+    <div class="company-info-header">
+        <h4>بيانات المستخدم</h4>
+        <div class="action-buttons">
+            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">تعديل</a>
+            <a asp-action="Index" class="btn btn-secondary">العوده لصفحة المستخدمين</a>
+        </div>
+    </div>
+
+    <div class="company-info-body" dir="rtl">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>البيانات الأساسية</h5>
+                    <div class="info-item">
+                        <label>اسم المستخدم</label>
+                        <span>@Html.DisplayFor(model => model.UserName)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>الاسم الكامل</label>
+                        <span>@Html.DisplayFor(model => model.UserFullName)</span>
+                    </div>
+                    <div class="info-item">
+						<label>رقم الموبيل</label>
+                        <span>@Html.DisplayFor(model => model.UserMobile)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>صندوق البريد</label>
+                        <span>@Html.DisplayFor(model => model.UserEmail)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>مسئول البرنامج و الشركات</h5>
+                    <div class="info-item">
+                        <label>مسئول البرنامج </label>
+                        <span>@Html.DisplayFor(model => model.UserAdmin)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>مشاهدة الشركات </label>
+                        <span>@Html.DisplayFor(model => model.CompView)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>حفظ الشركات </label>
+                        <span>@Html.DisplayFor(model => model.CompSave)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>حذف الشركات </label>
+                        <span>@Html.DisplayFor(model => model.CompDelete)</span>
+                    </div>
+                 </<div>
+            </div>
+       </div>
+
+        </div>
+    </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>الموظفين</h5>
+                    <div class="info-item">
+                        <label>مشاهدة الموظفين </label>
+                        <span>@Html.DisplayFor(model => model.EmpView)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>حفظ الموظفين </label>
+                        <span>@Html.DisplayFor(model => model.EmpSave)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>حذف الموظفين </label>
+                        <span>@Html.DisplayFor(model => model.EmpDelete)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>أرشيف الموظفين </label>
+                        <span>@Html.DisplayFor(model => model.EmpArchive)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>السيارات</h5>
+                    <div class="info-item">
+                        <label>مشاهدة السيارات </label>
+                        <span>@Html.DisplayFor(model => model.CarView )</span>
+                    </div>
+                    <div class="info-item">
+                        <label>حفظ السيارات </label>
+                        <span>@Html.DisplayFor(model => model.CarSave )</span>
+                    </div>
+                    <div class="info-item">
+                        <label>حذف السيارات </label>
+                        <span>@Html.DisplayFor(model => model.Cardelete)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>أرشيف السيارات </label>
+                        <span>@Html.DisplayFor(model => model.CarArchive)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>العقود </h5>
+                    <div class="info-item">
+                        <label>مشاهدة العقود اليومية </label>
+                        <span>@Html.DisplayFor(model => model.ContractDailyView)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>حفظ العقود اليومية </label>
+                        <span>@Html.DisplayFor(model => model.ContractDailySave)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>إنهاء العقود اليومية </label>
+                        <span>@Html.DisplayFor(model => model.ContractDailyEnd)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>مشاهدة العقود الشهرية </label>
+                        <span>@Html.DisplayFor(model => model.ContractMonthlyView)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>حفظ العقود الشهرية </label>
+                        <span>@Html.DisplayFor(model => model.ContractMonthlySave)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>إنهاء العقود الشهرية </label>
+                        <span>@Html.DisplayFor(model => model.ContractMonthlyEnd)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>العقود و الفواتير والأجازات</h5>
+                    <div class="info-item">
+                        <label>تغير سيارة </label>
+                        <span>@Html.DisplayFor(model => model.ContractChangeCar)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>تغير إيجار سيارة </label>
+                        <span>@Html.DisplayFor(model => model.ContractChangeRent)</span>
+                    </div>
+                      <div class="info-item">
+                        <label>استلام الأموال </label>
+                        <span>@Html.DisplayFor(model => model.RecievedMoney)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>أرشيف العقود </label>
+                        <span>@Html.DisplayFor(model => model.ContractArchive)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>مشاهدة الفواتير </label>
+                        <span>@Html.DisplayFor(model => model.PayView)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>حفظ الفواتير </label>
+                        <span>@Html.DisplayFor(model => model.PaySave)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>حذف الفواتير </label>
+                        <span>@Html.DisplayFor(model => model.PayDelete)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>مشاهدة الأجازات </label>
+                        <span>@Html.DisplayFor(model => model.VacationView)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>غرامة تأخير الفواتير </label>
+                        <span>@Html.DisplayFor(model => model.DebitLatePay )</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>الديون </h5>
+                    <div class="info-item">
+                        <label>مشاهدة الديون </label>
+                        <span>@Html.DisplayFor(model => model.DebitView)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>حفظ الديون </label>
+                        <span>@Html.DisplayFor(model => model.DebitSave)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>حذف الديون </label>
+                        <span>@Html.DisplayFor(model => model.DebitDelete)</span>
+                    </div>
+                  
+                </div>
+            </div>
+          
+        </div>
+    </div>
+
+</div>

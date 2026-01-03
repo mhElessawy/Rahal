@@ -1,0 +1,45 @@
+﻿@{
+    ViewData["Title"] = ViewBag.DocumentName ?? "بحث عن موظف";
+    var documentType = ViewBag.DocumentType ?? "taxi";
+    var documentName = ViewBag.DocumentName ?? "تصريح إجرة جوالة";
+}
+
+<div class="container mt-4" dir="rtl">
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0">
+                <i class="fas fa-search"></i> @ViewData["Title"]
+                <small class="float-start">@documentName</small>
+            </h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Search" method="post">
+                <input type="hidden" name="documentType" value="@documentType" />
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">نوع البحث:</label>
+                        <select name="searchType" class="form-select">
+                            <option value="all">جميع الحقول</option>
+                            <option value="code">كود الموظف</option>
+                            <option value="civilId">الرقم المدني</option>
+                            <option value="name">الاسم</option>
+                        </select>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">كلمة البحث:</label>
+                        <input type="text" name="searchTerm" class="form-control"
+                               placeholder="اكتب للبحث..." value="@ViewBag.SearchTerm">
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> بحث
+                    </button>
+                    <a asp-action="SelectDocument" class="btn btn-secondary">رجوع</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

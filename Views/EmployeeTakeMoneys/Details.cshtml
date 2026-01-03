@@ -1,0 +1,41 @@
+﻿@model RahalWeb.Models.EmployeeTakeMoney
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="company-info-container" dir="rtl">
+    <div class="company-info-header">
+        <h4>بيانات العهده</h4>
+        <div class="action-buttons">
+            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">تعديل</a> 
+            <a asp-action="Index" class="btn btn-secondary">العوده لصفحة العهده</a>
+        </div>
+    </div>
+    <div class="company-info-body" dir="rtl">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>البيانات العامة</h5>
+                    <div class="info-item">
+                        <label>رقم فاتورة العهده</label>
+                        <span>@Html.DisplayFor(model => model.TakeMoneyNo)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>تاريخ العهده</label>
+                        <span>@Html.DisplayFor(model => model.TakeDate)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>اسم الموظف </label>
+                        <span>@Html.DisplayFor(model => model.TakeUser!.UserFullName)</span>
+                    </div>
+                    <div class="info-item">
+                        <label> المبلغ </label>
+                        <span>@Html.DisplayFor(model => model.TakeMoney)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

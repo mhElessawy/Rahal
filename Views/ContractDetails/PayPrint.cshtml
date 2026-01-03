@@ -1,0 +1,224 @@
+﻿@model RahalWeb.Models.Bill
+
+@{
+    ViewData["Title"] = "Payment Receipt";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Add null checks for critical properties
+    var billNo = Model?.BillNo?.ToString() ?? "N/A";
+    var fromDate = Model?.FromDate?.ToString() ?? "N/A";
+    var toDate = Model?.ToDate?.ToString() ?? "N/A";
+    var billDate = Model?.BillDate?.ToString() ?? "N/A";
+    var billTime = Model?.BillTime?.ToString() ?? "N/A";
+    var noOfDays = Model?.NoOfDays ?? 0;
+    var bankBillNo = Model?.BankBillNo ?? "N/A";
+    var bankDate = Model?.BankDate?.ToString("dd/MM/yyyy") ?? "N/A";
+    var billPayed = Model?.BillPayed ?? 0;
+    var latePay = ViewBag.LatePay ?? 0;
+    var carCredit = ViewBag.NoOfCredit ?? 0;
+}
+
+<div class="container receipt-container" dir="rtl">
+    <div class="receipt-header text-center mb-4">
+        <h2 class="company-name">شركة رحال</h2>
+        <h3 class="receipt-title">فاترة تحصيل</h3>
+        <div class="receipt-number">رقم الفاتورة: @billNo</div>
+    </div>
+
+    @if (Model != null)
+    {
+        <div class="row">
+            <!-- First Column -->
+            <div class="col-md-6">
+                <div class="receipt-section">
+                    <h4 class="section-title">بيانات الفاتورة</h4>
+                    <div class="info-grid">
+                        <div class="info-label">فترة الدفع:</div>
+                        <div class="info-value">@fromDate إلى @toDate</div>
+
+                        <div class="info-label">تاريخ الفاتورة:</div>
+                        <div class="info-value">@billDate @billTime</div>
+
+                        <div class="info-label">عدد الأيام:</div>
+                        <div class="info-value">@noOfDays</div>
+                        <div class="info-label">المبلغ:</div>
+                        <div class="info-value">@billPayed</div>
+
+                        <div class="info-label">مبلغ الغرامة:</div>
+                        <div class="info-value">@latePay</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Second Column -->
+            <div class="col-md-6">
+
+                <div class="receipt-section">
+                    <h4 class="section-title">بيانات العقد</h4>
+                    <div class="info-grid">
+                        <div class="info-label">رقم العقد:</div>
+                        <div class="info-value">#@(Model.Contract?.ContractNo ?? "N/A")</div>
+                        <div class="info-label">كود الموظف:</div>
+                        <div class="info-value">@(Model.Employee!.EmpCode)</div>
+                        <div class="info-label">اسم الموظف:</div>
+                        <div class="info-value">@(Model.Employee?.FullNameAr ?? "N/A")</div>
+                        <div class="info-label">اسم المستخدم:</div>
+                        <div class="info-value">@(Model.User?.UserFullName ?? "N/A")</div>
+                        <div class="info-label">باقي الأقساط:</div>
+                        <div class="info-value">@carCredit</div>
+                       @*  <div class="info-value">@(Model.User?.UserFullName ?? "N/A")</div> *@
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="receipt-footer mt-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="signature-line">
+                        <div class="signature-label">توقيع العميل</div>
+                        <div class="signature-space"></div>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="signature-line">
+                        <div class="signature-label">توقيع الموظف</div>
+                        <div class="signature-space"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger text-center">
+            <h4>خطأ في تحميل الفاتورة</h4>
+            <p>لم يتم العثور على بيانات الفاتورة المطلوبة.</p>
+        </div>
+    }
+
+    <div class="action-buttons mt-4">
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="bi bi-printer"></i> طباعة الفاتورة
+        </button>
+    </div>
+</div>
+
+<style>
+    .receipt-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 30px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        background-color: white;
+    }
+
+    .company-name {
+        color: #2c3e50;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .receipt-title {
+        color: #3498db;
+        font-weight: 600;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+
+    .receipt-number {
+        font-size: 1.1rem;
+        color: #7f8c8d;
+        margin-bottom: 20px;
+    }
+
+    .receipt-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #eee;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    .section-title {
+        color: #2c3e50;
+        font-size: 1.1rem;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 10px;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #555;
+    }
+
+    .info-value {
+        color: #333;
+    }
+
+    .signature-line {
+        margin-top: 50px;
+    }
+
+    .signature-label {
+        border-top: 1px solid #333;
+        padding-top: 5px;
+        width: 200px;
+        text-align: center;
+    }
+
+    .signature-space {
+        height: 50px;
+    }
+
+    .mt-6 {
+        margin-top: 3rem;
+    }
+
+    @@media print {
+        .action-buttons {
+            display: none;
+        }
+
+        body {
+            background-color: white;
+        }
+
+        .receipt-container {
+            border: none;
+            box-shadow: none;
+            padding: 0;
+        }
+    }
+
+    /* Hide everything when printing except the receipt container */
+    @@media print {
+        body * {
+            visibility: hidden;
+        }
+
+        .receipt-container, .receipt-container * {
+            visibility: visible;
+        }
+
+        .receipt-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            margin: 0;
+            padding: 15px;
+            border: none;
+            box-shadow: none;
+        }
+    }
+</style>

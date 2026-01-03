@@ -1,0 +1,209 @@
+﻿@model RahalWeb.Models.DebitPayInfo
+
+@{
+    ViewData["Title"] = "Payment Receipt";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container receipt-container" dir="rtl">
+    <div class="receipt-header text-center mb-4">
+        <h2 class="company-name">شركة رحال</h2>
+        <h3 class="receipt-title">إيصال دفع </h3>
+        <div class="receipt-number">رقم الإيصال: @Model.DebitPayNo</div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="receipt-section">
+                <h4 class="section-title">بيانات الدفع</h4>
+                <div class="info-grid">
+                    <div class="info-label">تاريخ الدفع:</div>
+                    <div class="info-value">@Model.DebitPayDate</div>
+
+                    <div class="info-label">المبلغ المدفوع:</div>
+                    <div class="info-value">@Model.DebitPayQty</div>
+
+                  
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="receipt-section">
+                <h4 class="section-title">تفاصيل الدين</h4>
+                <div class="info-grid">
+                        <div class="info-label"> فاتورة الدين:</div>
+                    <div class="info-value">@Model.DebitInfo!.DebitNo</div>
+
+                    <div class="info-label">إجمالي الدين:</div>
+                    <div class="info-value">@Model.DebitInfo!.DebitQty</div>
+
+                    <div class="info-label">المدفوع:</div>
+                    <div class="info-value">@Model.DebitInfo!.DebitPayed</div>
+
+                    <div class="info-label">الباقي:</div>
+                    <div class="info-value">@Model.DebitInfo!.DebitRemaining</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+      
+
+        <div class="col-md-6">
+            <div class="receipt-section">
+                <h4 class="section-title">بيانات المستخدمين</h4>
+                <div class="info-grid">
+                    <div class="info-label">اسم المستخدم:</div>
+                    <div class="info-value">@Model.User!.UserFullName</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="receipt-footer mt-4">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="signature-line">
+                    <div class="signature-label">توقيع العميل</div>
+                    <div class="signature-space"></div>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="signature-line">
+                    <div class="signature-label">توقيع الموظف</div>
+                    <div class="signature-space"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons mt-4">
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="bi bi-printer"></i> طباعة الإيصال
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">العودة إلى القائمة</a>
+    </div>
+</div>
+
+<style>
+    .receipt-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 30px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        background-color: white;
+    }
+
+    .company-name {
+        color: #2c3e50;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .receipt-title {
+        color: #3498db;
+        font-weight: 600;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+
+    .receipt-number {
+        font-size: 1.1rem;
+        color: #7f8c8d;
+        margin-bottom: 20px;
+    }
+
+    .receipt-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #eee;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    .section-title {
+        color: #2c3e50;
+        font-size: 1.1rem;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 10px;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #555;
+    }
+
+    .info-value {
+        color: #333;
+    }
+
+    .signature-line {
+        margin-top: 50px;
+    }
+
+    .signature-label {
+        border-top: 1px solid #333;
+        padding-top: 5px;
+        width: 200px;
+        text-align: center;
+    }
+
+    .signature-space {
+        height: 50px;
+    }
+
+    .action-buttons {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    @@media print {
+        .action-buttons {
+            display: none;
+        }
+
+        body {
+            background-color: white;
+        }
+
+        .receipt-container {
+            border: none;
+            box-shadow: none;
+            padding: 0;
+        }
+    }
+</style>
+
+<style>
+    /* Hide everything when printing except the receipt container */
+    @@media print {
+        body * {
+            visibility: hidden;
+        }
+
+        .receipt-container, .receipt-container * {
+            visibility: visible;
+        }
+
+        .receipt-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            margin: 0;
+            padding: 15px;
+            border: none;
+            box-shadow: none;
+        }
+    }
+</style>

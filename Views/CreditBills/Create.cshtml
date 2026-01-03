@@ -1,0 +1,283 @@
+﻿@model RahalWeb.Models.CreditBill
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<hr />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">دفع فواتير الأقساط  ' </h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">البيانات الاساسية</h5>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="CreditBillNo" class="form-label">رقم الفاتورة</label>
+                    <input asp-for="CreditBillNo" value="@ViewBag.maxBillNo" class="form-control" readonly />
+                    <span asp-validation-for="CreditBillNo" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="CreditBillDate" class="form-label">تاريخ الفاتورة</label>
+                    <input asp-for="CreditBillDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" style="text-align:right" readonly />
+                    <span asp-validation-for="CreditBillDate" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-5">
+                    <label class="form-label">اسم السائق</label>
+                    @*  <select asp-for="EmployeeId" style="text-align:right"  class="form-select" asp-items="ViewBag.EmployeeId"  dir="rtl" required></select> *@
+                    @Html.DropDownList("EmployeeId", ViewBag.EmployeeId as SelectList, "-- إختيار السائق --", new { @class = "form-control", id = "EmployeeSelect", required = "required" })
+                </div>
+
+
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2"> تفاصيل آخر فاتورة </h5>
+                </div>
+                <div class="col-md-2">
+                    <label>رقم آخر فاتورة</label>
+                    <input id="LastBillInput" class="form-control" readonly />
+                    <span id="LastBillError" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label>تاريخ فاتورة</label>
+                    <input id="BillDateInput" class="form-control" readonly />
+                    <span id="BillDateDateError" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label>من تاريخ</label>
+                    <input id="LastFromDateInput" class="form-control" readonly />
+                    <span id="LastFromDateDateError" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label>إلى تاريخ</label>
+                    <input id="LastToDateInput" class="form-control" readonly />
+                    <span id="LastToDateError" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label>المبلغ الشهري</label>
+                    <input id="CostPerDay" class="form-control" readonly />
+                    <span id="CostPerDay" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">تفاصيل الفاتورة </h5>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="FromDate" class="form-label">من تاريخ</label>
+                    <input asp-for="FromDate" type="date" class="form-control" onchange="calculateToDateAndCost" readonly />
+                    <span asp-validation-for="FromDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="NoOfMonth" class="form-label">عدد الأشهر</label>
+                    <input asp-for="NoOfMonth" value="1" class="form-control" min="1" oninput="validateMinValue(this)" />
+                    <span asp-validation-for="NoOfMonth" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="ToDate" class="form-label">إلى تاريخ</label>
+                    <input asp-for="ToDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" readonly />
+                    <span asp-validation-for="ToDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label>المبلغ الإجمالي</label>
+                    <input id="CreditBillPayed" name="CreditBillPayed" class="form-control" readonly />
+                    <span id="CreditBillPayed" class="text-danger small"></span>
+                </div>
+
+
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">بيانات البنك</h5>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">اسم البنك</label>
+                    @Html.DropDownList("BankIntNo", ViewBag.BankId as SelectList, "-- إختيار البنك --", new { @class = "form-control", id = "BankSelect" })
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="BankBillNo" class="form-label">رقم البنك</label>
+                    <input asp-for="BankBillNo" class="form-control" />
+                    <span asp-validation-for="BankBillNo" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="BankDate" class="form-label">تاريخ دفع البنك</label>
+                    <input asp-for="BankDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" />
+                    <span asp-validation-for="BankDate" class="text-danger small"></span>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="IndexMonthly" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> دفع الفاتورة
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+     $(document).ready(function() {
+        console.log('Start');
+        $('#EmployeeSelect').change(function() {
+            var employeeId = $(this).val();
+            console.log('Employee ID:', employeeId);
+
+            if (employeeId) {
+                $.ajax({
+                    url: '@Url.Action("GetLastBillForEmployeeMonthly", "CreditBills")',
+                    type: 'GET',
+                    data: { employeeId: employeeId },
+                    success: function(data) {
+                        console.log('Received data:', data);
+
+                        // Reset all fields first
+                        $('#LastBillInput').val('');
+                        $('#LastFromDateInput').val('');
+                        $('#LastToDateInput').val('');
+                        $('#CostPerDay').val('');
+                        $('input[name="FromDate"]').val('');
+                        $('input[name="ToDate"]').val('');
+                        $('#CreditBillPayed').val('');
+
+                        if (data) {
+                            if (data.billNo) {
+                                // Case 1: We have bill data
+                                $('#LastBillInput').val(data.CreditbillNo);
+                                $('#CostPerDay').val(data.dailyMonth);
+                                 $('#CreditBillPayed').val(data.dailyMonth);
+                                // Format dates if they exist
+                                if (data.fromDate) {
+                                    const fromDate = new Date(data.fromDate);
+                                    $('#LastFromDateInput').val(fromDate.toLocaleDateString('ar-EG'));
+                                }
+
+                                if (data.toDate) {
+                                    const toDate = new Date(data.toDate);
+                                    $('#LastToDateInput').val(toDate.toLocaleDateString('ar-EG'));
+
+                                    toDate.setDate(toDate.getDate() + 1);
+                                    console.error('test');
+                                    // Format the date as YYYY-MM-DD for the input
+                                    const nextDay = toDate.toISOString().split('T')[0];
+                                    // Set the FromDate value
+                                    $('input[name="FromDate"]').val(nextDay);
+                                   calculateToDateAndCost();
+
+                                }
+
+                                if (data.billDate) {
+                                    const billDate = new Date(data.billDate);
+                                    $('#BillDateInput').val(billDate.toLocaleDateString('ar-EG'));
+                                }
+                                } else if (data.dailyMonth || data.startDate) {
+                                // Case 2: No bill data but we have contract data
+
+                                    if (data.dailyMonth) {
+                                    $('#CostPerDay').val(data.dailyMonth);
+                                    $('#CreditBillPayed').val(data.dailyMonth);
+                                }
+
+                                if (data.startDate) {
+                                    const startDate = new Date(data.startDate);
+                                    // Format the date as YYYY-MM-DD for the input
+                                    const formattedStartDate = startDate.toISOString().split('T')[0];
+                                    $('input[name="FromDate"]').val(formattedStartDate);
+                                    calculateToDateAndCost()
+
+                                }
+                                $('#LastBillInput').val('');
+                            }
+                        } else {
+                            // Case 3: No data at all
+                            $('#LastBillInput').val('');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching last bill number:', error);
+                        $('#LastBillInput').val('');
+                        $('#LastFromDateInput').val('');
+                        $('#LastToDateInput').val('');
+
+                    }
+                });
+            } else {
+                // Reset all fields if no employee selected
+                $('#LastBillInput').val('000');
+                $('#LastFromDateInput').val('');
+                $('#LastToDateInput').val('');
+            }
+        });
+
+        // Trigger change on page load if employee is selected
+        if ($('#EmployeeSelect').val()) {
+            $('#EmployeeSelect').trigger('change');
+        }
+    });
+</script>
+<script>
+        function calculateToDateAndCost() {
+        const fromDateInput = document.getElementById('FromDate');
+        const noOfDaysInput = document.getElementById('NoOfMonth');
+        const toDateInput = document.getElementById('ToDate');
+        const billPayedInput = document.getElementById('CreditBillPayed');
+        const billCostBerDay = document.getElementById('CostPerDay');
+
+        if (fromDateInput.value && noOfDaysInput.value) {
+            // 1. Calculate ToDate by adding months instead of days
+            const fromDate = new Date(fromDateInput.value);
+            const noOfMonths = parseInt(noOfDaysInput.value) || 0;
+            const toDate = new Date(fromDate);
+
+            // Add the number of months to the date
+            toDate.setMonth(toDate.getMonth() + noOfMonths);
+
+            // Subtract one day to get the end of the period
+            toDate.setDate(toDate.getDate() - 1);
+
+            toDateInput.value = toDate.toISOString().split('T')[0];
+
+            // 2. Calculate Total Cost (assuming CostPerDay is actually per month now)
+            const costPerMonth = parseFloat(billCostBerDay.value) || 0;
+            const totalCost = noOfMonths * costPerMonth;
+            billPayedInput.value = totalCost;
+            console.log("Total Cost Calculated:", totalCost);
+        } else {
+            console.error("Missing required inputs (FromDate or NoOfDays)");
+        }
+    }
+
+    // Add event listeners
+    document.getElementById("FromDate").addEventListener("change", calculateToDateAndCost);
+    document.getElementById("NoOfMonth").addEventListener("input", calculateToDateAndCost);
+    document.getElementById("CostPerDay").addEventListener("change", calculateToDateAndCost);
+
+    // Initialize the calculation when the page loads
+    window.addEventListener('load', calculateToDateAndCost);
+
+</script>
+
+<script>
+    function validateMinValue(input) {
+        if (input.value < 1) {
+            input.value = 1; // Reset to minimum allowed value
+        }
+    }
+</script>

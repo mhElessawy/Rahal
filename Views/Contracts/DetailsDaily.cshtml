@@ -1,0 +1,79 @@
+﻿@model RahalWeb.Models.Contract
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+<div class="company-info-container" dir="rtl">
+    <div class="company-info-header">
+        <h4>بيانات العقد</h4>
+        <div class="action-buttons">
+           @*  <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">تعديل</a> *@
+            <a asp-action="IndexDaily" class="btn btn-secondary">العوده لصفحة العقود</a>
+        </div>
+    </div>
+
+    <div class="company-info-body" dir="rtl">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>البيانات العامة</h5>
+                    <div class="info-item">
+                        <label>رقم العقد</label>
+                        <span>@Html.DisplayFor(model => model.ContractNo)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>تاريخ العقد</label>
+                        <span>@Html.DisplayFor(model => model.ContractDate)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>اسم السائق </label>
+                        <span>@Html.DisplayFor(model => model.Employee!.FullNameAr)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>رقم السيارة</label>
+                        <span>@Html.DisplayFor(model => model.Car!.CarNo)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>تفاصيل العقد</h5>
+                    
+                    <div class="info-item">
+                        <label> بداية العقد </label>
+                        <span>@Html.DisplayFor(model => model.StartDate)</span>
+                    </div>
+
+                    <div class="info-item">
+                        <label>نهاية العقد </label>
+                        <span>@Html.DisplayFor(model => model.EndDate)</span>
+                    </div>
+
+                    <div class="info-item">
+                        <label>عدد الأيام </label>
+                        <span>@Html.DisplayFor(model => model.NoOfDays)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>المبلغ اليومي </label>
+                        <span>@Html.DisplayFor(model => model.DailyCredit)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>قيمة العقد </label>
+                        <span>@Html.DisplayFor(model => model.TotalCost)</span>
+                    </div>
+                    <!-- Repeat for other owners -->
+                </div>
+            </div>
+
+        </div>
+        </div>
+
+
+
+
+</div>

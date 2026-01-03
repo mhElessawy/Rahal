@@ -1,0 +1,103 @@
+﻿@model RahalWeb.Models.ViolationInfo
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">إضافة مخالة</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">البيانات الاساسية</h5>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="ViolationNo" class="form-label">رقم المخافة</label>
+                    <input asp-for="ViolationNo" class="form-control" />
+                    <span asp-validation-for="ViolationNo" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label>رقم السيارة </label>
+                    @Html.DropDownList("CarId", ViewBag.CarId as SelectList, "-- إختيار رقم السيارة  --", new { @class = "form-control", id = "CarId" })
+                </div>
+
+               @*  <div class="col-md-2">
+                    <<label asp-for="EmpId" class="form-label">اسم الموظف</label>
+                    <input asp-for="EmpId" class="form-control" readonly />
+                </div> *@
+
+                <div class="col-md-2">
+                    <label asp-for="ViolationDate" class="form-label">تاريخ المخالفة</label>
+                    <input asp-for="ViolationDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" style="text-align:right" />
+                    <span asp-validation-for="ViolationDate" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="ViolationTime" class="form-label">وقت المخالفة</label>
+                    <input asp-for="ViolationTime" class="form-control" type="time" />
+                    <span asp-validation-for="ViolationTime" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="ViolationTime" class="form-label">مكان المخالفة</label>
+                    <input asp-for="ViolationPlace" class="form-control" />
+                    <span asp-validation-for="ViolationPlace" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">تفاصيل المخالفة </h5>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="ViolationGuideId" class="form-label">دليل المخالفة</label>
+                    <select asp-for="ViolationGuideId" class="form-control" asp-items="ViewBag.ViolationGuideId"></select>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="ViolationSpeed" class="form-label">السرعة</label>
+                    <input asp-for="ViolationSpeed" class="form-control" />
+                    <span asp-validation-for="ViolationSpeed" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="ViolationCost" class="form-label">ثمن المخالفة </label>
+                    <input asp-for="ViolationCost" class="form-control" />
+                    <span asp-validation-for="ViolationCost" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="ViolationCost" class="form-label">النقاط </label>
+                    <input asp-for="ViolationPoint" class="form-control" />
+                    <span asp-validation-for="ViolationPoint" class="text-danger"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="ViolationCost" class="form-label">رقم الدفتر </label>
+                    <input asp-for="ViolationBookNo" class="form-control" />
+                    <span asp-validation-for="ViolationBookNo" class="text-danger"></span>
+                </div>
+                <!-- Form Actions -->
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> إضافة مخالفة
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+

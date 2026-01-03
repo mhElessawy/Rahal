@@ -1,0 +1,181 @@
+﻿@model RahalWeb.Models.CarInfo
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<hr />
+
+
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">إضافة سيارة</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="DeleteFlag" />
+
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">البيانات العامة</h5>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="CompanyId" class="form-label">اسم الشركة</label>
+                    <select asp-for="CompanyId" class="form-select" asp-items="ViewBag.CompanyId" dir="rtl" required></select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="CarCode" class="form-label">كود السيارة</label>
+                    <input asp-for="CarCode" class="form-control" required />
+                    <span asp-validation-for="CarCode" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="CarNo" class="form-label">رقم السيارة</label>
+                    <input asp-for="CarNo" class="form-control" required />
+                    <span asp-validation-for="CarNo" class="text-danger small"></span>
+                </div>
+
+
+                <!-- Arabic Name Section -->
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">بيانات السيارة</h5>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="CarTypeId" class="form-label">الشركة المصنعة</label>
+                    @Html.DropDownList("CarTypeId", ViewBag.CarTypeId as SelectList, "-- إختيار صنع السيارة --", new { @class = "form-control", id = "carType", required = "required" })
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="CarKindId" class="form-label">النوع</label>
+                    @Html.DropDownList("CarKindId", ViewBag.CarKindId as SelectList, "-- إختيار نوع السيارة --", new { @class = "form-control", id = "CarKind", required = "required" })
+                </div>
+
+               
+
+                <div class="col-md-3">
+                    <label asp-for="CarShapeId" class="form-label">الشكل</label>
+                    <select asp-for="CarShapeId" class="form-select" asp-items="ViewBag.CarShapeId" dir="rtl" required></select>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="CarColor" class="form-label">لون السيارة</label>
+                    <input asp-for="CarColor" class="form-control" required />
+                    <span asp-validation-for="CarColor" class="text-danger small"></span>
+                </div>
+
+                <!-- English Name Section -->
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">البيانات الإضافية</h5>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="CarShase" class="form-label">رقم الشاسيه</label>
+                    <input asp-for="CarShase" class="form-control" required />
+                    <span asp-validation-for="CarShase" class="text-danger small"></span>
+                </div>
+
+
+                <div class="col-md-4">
+                    <label asp-for="CarEndLicense" class="form-label">نهاية الرخصة</label>
+                    <input asp-for="CarEndLicense" type="date" class="form-control" />
+                    <span asp-validation-for="CarEndLicense" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="CarEndDate" class="form-label">انهاء سيارة من الخدمة</label>
+                    <input asp-for="CarEndDate" type="date" class="form-control" />
+                    <span asp-validation-for="CarEndDate" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">بيانات الأقساط</h5>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="CarCredit" class="form-label">قيمة القسط</label>
+                    <input asp-for="CarCredit" type="number" class="form-control" />
+                    <span asp-validation-for="CarCredit" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="NoOfCredit" class="form-label">عدد الأشهر</label>
+                    <input asp-for="NoOfCredit" type="number" class="form-control" />
+                    <span asp-validation-for="NoOfCredit" class="text-danger small"></span>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> تعديل بيانات سيارة 
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    h5 {
+        color: #0d6efd;
+    }
+</style>
+
+
+<script>
+      $(document).ready(function() {
+        // Use proper selector for your dropdown
+        $("#carType").on('change', function() {
+            var carTypeId = $(this).val();
+            console.log("Selected carTypeId:", carTypeId); // Debugging
+
+            if (carTypeId) {
+                $.ajax({
+                    url: '@Url.Action("GetKind", "CarInfoes")', // Better way to generate URL
+                    type: 'GET',
+                    data: { Id: carTypeId },
+                    success: function(data) {
+                        console.log("AJAX response:", data); // Debugging
+
+                        var carKindDropdown = $("#CarKind"); // Make sure this ID matches your second dropdown
+                        carKindDropdown.empty();
+                        carKindDropdown.append('<option value="">-- إختيار النوع --</option>');
+
+                        $.each(data, function(index, item) {
+                            carKindDropdown.append($('<option>', {
+                                value: item.id,
+                                text: item.kindName // Case sensitive - match your JSON property
+                            }));
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX error:", error); // Debugging
+                    }
+                });
+            } else {
+                $("#CarKindId").empty().append('<option value="">-- إختيار النوع --</option>');
+            }
+        });
+    });
+</script>
+

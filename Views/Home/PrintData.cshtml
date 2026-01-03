@@ -1,0 +1,127 @@
+﻿@model dynamic 
+
+@{
+    ViewData["Title"] = ViewBag.Header;
+    string dataType = ViewBag.DataType;
+}
+
+<h1 dir="rtl">@ViewBag.Header</h1>
+<button onclick="printBills()" class="btn btn-success">طباعة</button>
+
+@if (Model != null)
+{
+    <table class="bordered-table" dir="rtl">
+        <thead>
+            <tr>
+                @if (dataType == "EmpRes")
+                {
+                    <th>كود الموظف</th>
+                    <th>اسم الموظف</th>
+                    <th>رقم الهاتف</th>
+                    <th>تاريخ الإنتهاء</th>
+                    <!-- Add other Employee columns -->
+                }
+                else if (dataType == "CarLicense")
+                {
+                    <th>كود السيارة</th>
+                    <th>رقم السيارة</th>
+                    <th>الموديل</th>
+                    <th>تاريخ إنتهاء الرخصة</th>
+                    <!-- Add other Car columns -->
+                }
+                else if (dataType == "EmpPerm")
+                {
+                    <th>كود الموظف</th>
+                    <th>اسم الموظف</th>
+                    <th>رقم الهاتف</th>
+                    <th>تاريخ الإنتهاء</th>
+                    <!-- Add other Car columns -->
+                }
+                else if (dataType == "EmpLicense")
+                {
+                    <th>كود الموظف</th>
+                    <th>اسم الموظف</th>
+                    <th>رقم الهاتف</th>
+                    <th>تاريخ الإنتهاء</th>
+                    <!-- Add other Car columns -->
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @if (dataType == "EmpRes")
+            {
+                foreach (var item in (Model as List<EmployeeInfo>) ?? Enumerable.Empty<EmployeeInfo>())
+                {
+                    <tr>
+                        <td>@item.EmpCode</td>
+                        <td>@item.FullNameAr</td>
+                        <td>@item.MobiileNo</td>
+                        <td>@item.ResEndDate</td>
+                        <!-- Render other Employee fields -->
+                    </tr>
+                }
+            }
+            else if (dataType == "CarLicense")
+            {
+                
+                foreach (var item in Model as List<CarInfo> ?? Enumerable.Empty<CarInfo>())
+                {
+                    <tr>
+                        <td>@item.CarCode</td>
+                        <td>@item.CarNo</td>
+                        <td>@item.CarModel</td>
+                        <td>@item.CarEndLicense</td>
+                        <!-- Render other Car fields -->
+                    </tr>
+                }
+            }
+            else if (dataType == "EmpPerm")
+            {
+                foreach (var item in (Model as List<EmployeeInfo>) ?? Enumerable.Empty<EmployeeInfo>())
+                {
+                    <tr>
+                        <td>@item.EmpCode</td>
+                        <td>@item.FullNameAr</td>
+                        <td>@item.MobiileNo</td>
+                        <td>@item.EndPerm</td>
+                        <!-- Render other Employee fields -->
+                    </tr>
+                }
+            }
+            else if (dataType == "EmpLicense")
+            {
+                foreach (var item in (Model as List<EmployeeInfo>) ?? Enumerable.Empty<EmployeeInfo>())
+                {
+                    <tr>
+                        <td>@item.EmpCode</td>
+                        <td>@item.FullNameAr</td>
+                        <td>@item.MobiileNo</td>
+                        <td>@item.EndLicense</td>
+                        <!-- Render other Employee fields -->
+                    </tr>
+                }
+            }
+
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No data available.</p>
+}
+
+
+<script>
+    function printBills() {
+        var printContents = document.querySelector('.bordered-table').outerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML =
+            '<h1 style="text-align:center">@ViewBag.Header</h1>' +
+            printContents 
+
+
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+</script>

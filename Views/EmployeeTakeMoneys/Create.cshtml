@@ -1,0 +1,77 @@
+﻿@model RahalWeb.Models.EmployeeTakeMoney
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .card {
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    h5 {
+        color: #0d6efd;
+    }
+</style>
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">إضافة موظف</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <input type="hidden" asp-for="UserId" value="@ViewBag.UserId" />
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">البيانات العهده</h5>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="TakeMoneyNo" class="control-label">رقم العهده</label>
+                    <input asp-for="TakeMoneyNo" value="@ViewBag.maxTakeMoneyNo" class="form-control" readonly />
+                    <span asp-validation-for="TakeMoneyNo" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="TakeUserId" class="control-label">اسم الموظف</label>
+                    <select asp-for="TakeUserId" class="form-control" asp-items="ViewBag.TakeUserId" required></select>
+                    <span asp-validation-for="TakeUserId" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="TakeDate" class="control-label">التاريخ</label>
+                    <input asp-for="TakeDate" type="date" class="form-control" required />
+                    <span asp-validation-for="TakeDate" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="TakeMoney" class="control-label">المبلغ</label>
+                    <input asp-for="TakeMoney" type="number" class="form-control" required />
+                    <span asp-validation-for="TakeMoney" class="text-danger small"></span>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> إضافة عهده
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

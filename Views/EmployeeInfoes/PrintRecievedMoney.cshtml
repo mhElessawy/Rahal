@@ -1,0 +1,184 @@
+﻿@model RahalWeb.Models.MyModel.ReceivedMoneyViewModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .pagination-container {
+        margin-top: 20px;
+    }
+
+    .pagination a {
+        margin: 0 5px;
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+    }
+
+    .pagination .active a {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+</style>
+
+<h1 dir="rtl">تقرير التحصيل</h1>
+
+<table class="bordered-table" dir="rtl">
+    <thead>
+        <tr>
+            <th>
+                رقم الفاتورة
+            </th>
+            <th>
+                رقم العقد
+            </th>
+            <th>
+                رقم السيارة
+            </th>
+            <th>
+                رقم السائق
+            </th>
+            <th>
+                اسم السائق
+            </th>
+            <th>
+                تاريخ الفاتورة
+            </th>
+            <th>
+                من تاريخ
+            </th>
+            <th>
+                إلى تاريخ
+            </th>
+            <th>
+                المبلغ
+            </th>
+            <th>
+                ملاحظات
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Bills)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BillNo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Contract!.ContractNo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Contract!.Car!.CarNo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Employee!.EmpCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Employee!.FullNameAr)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BillDate)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.FromDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ToDate)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.BillPayed)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.BillHent)
+                </td>
+
+
+            </tr>
+        }
+
+
+        @foreach (var item in Model.DebitPayInfos)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DebitPayNo)
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+                @if (item.ViolationId != 0)
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ViolationInfo!.Employee!.EmpCode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ViolationInfo!.Employee!.FullNameAr)
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DebitInfo!.Emp!.EmpCode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DebitInfo!.Emp!.FullNameAr)
+                    </td>
+                }
+                <td>
+                    @Html.DisplayFor(modelItem => item.DebitPayDate)
+                </td>
+
+                <td>
+                </td>
+                <td>
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.DebitPayQty)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.DebitInfo!.DebitDescrp)
+                </td>
+
+
+            </tr>
+        }
+
+
+
+
+    </tbody>
+</table>
+
+
+<div dir="rtl">
+    إجمالي الإيراد: @(@Model.TotalBillPayed != null ? String.Format("{0:C}", @Model.TotalBillPayed) : "0.00")
+</div>
+
+
+
+
+<button onclick="printBills()" class="btn btn-success">طباعة</button>
+
+<script>
+       function printBills() {
+        var printContents = document.querySelector('.bordered-table').outerHTML;
+        var originalContents = document.body.innerHTML;
+        var total = '@(ViewBag.TotalBillPayed != null ? String.Format("{0:C}", ViewBag.TotalBillPayed) : "0.00")';
+
+        document.body.innerHTML =
+            '<h1 style="text-align:center"> فواتير الاستلام </h1>' +
+            printContents +
+            '<div style="margin-top:20px;font-weight:bold">إجمالي الإيراد: ' + total + '</div>';
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+</script>

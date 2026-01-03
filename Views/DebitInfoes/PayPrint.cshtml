@@ -1,0 +1,203 @@
+﻿@model RahalWeb.Models.DebitInfo
+
+@{
+    ViewData["Title"] = "Payment Receipt";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container receipt-container" dir="rtl">
+    <div class="receipt-header text-center mb-4">
+        <h2 class="company-name">شركة رحال</h2>
+        <h3 class="receipt-title">سند دين</h3>
+        <div class="receipt-number">رقم السند: @Model.DebitNo</div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="receipt-section">
+                <h4 class="section-title">بيانات السند</h4>
+                <div class="info-grid">
+                    <div class="info-label">تاريخ السند:</div>
+                    <div class="info-value">@Model.DebitDate</div>
+                    <div class="info-label">المبلغ:</div>
+                    <div class="info-value">@Model.DebitQty</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="receipt-section mt-6">
+                <h4 class="section-title">بيانات إضافية</h4>
+                <div class="info-grid">
+                    <div class="info-label">نوع الخصم:</div>
+                    <div class="info-value">@Model.DebitType!.DeffName</div>
+
+                    <div class="info-label">الموظف:</div>
+                    <div class="info-value">@Model.Emp!.FullNameAr </div>
+
+                    <div class="info-label">المستخدم:</div>
+                    <div class="info-value">@Model.User!.UserFullName</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="receipt-section mt-4">
+        <h4 class="section-title">الوصف</h4>
+        <div class="description-box">
+            @Model.DebitDescrp
+        </div>
+    </div>
+
+    <div class="receipt-footer mt-4">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="signature-line">
+                    <div class="signature-label">توقيع العميل</div>
+                    <div class="signature-space"></div>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="signature-line">
+                    <div class="signature-label">توقيع الموظف</div>
+                    <div class="signature-space"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="action-buttons mt-4">
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="bi bi-printer"></i> طباعة السند
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">العودة إلى القائمة</a>
+    </div>
+</div>
+
+<style>
+    .receipt-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 30px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        background-color: white;
+    }
+
+    .company-name {
+        color: #2c3e50;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .receipt-title {
+        color: #3498db;
+        font-weight: 600;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+
+    .receipt-number {
+        font-size: 1.1rem;
+        color: #7f8c8d;
+        margin-bottom: 20px;
+    }
+
+    .receipt-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #eee;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    .section-title {
+        color: #2c3e50;
+        font-size: 1.1rem;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 10px;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #555;
+    }
+
+    .info-value {
+        color: #333;
+    }
+
+    .description-box {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: white;
+        min-height: 50px;
+    }
+
+    .signature-line {
+        margin-top: 50px;
+    }
+
+    .signature-label {
+        border-top: 1px solid #333;
+        padding-top: 5px;
+        width: 200px;
+        text-align: center;
+    }
+
+    .signature-space {
+        height: 50px;
+    }
+
+    .action-buttons {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    @@media print {
+        .action-buttons {
+            display: none;
+        }
+
+        body {
+            background-color: white;
+        }
+
+        .receipt-container {
+            border: none;
+            box-shadow: none;
+            padding: 0;
+        }
+    }
+</style>
+
+<style>
+    /* Hide everything when printing except the receipt container */
+    @@media print {
+        body * {
+            visibility: hidden;
+        }
+
+        .receipt-container, .receipt-container * {
+            visibility: visible;
+        }
+
+        .receipt-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            margin: 0;
+            padding: 15px;
+            border: none;
+            box-shadow: none;
+        }
+    }
+</style>

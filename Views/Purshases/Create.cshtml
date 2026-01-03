@@ -1,0 +1,88 @@
+﻿@model RahalWeb.Models.Purshase
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">دفع فواتير الأقساط</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">البيانات الاساسية</h5>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="PurshaseNo" class="form-label">رقم الفاتورة</label>
+                    <input asp-for="PurshaseNo" value="@ViewBag.maxPurshaseNo" class="form-control" readonly />
+                    <span asp-validation-for="PurshaseNo" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="PurshaseDate" class="form-label">تاريخ الفاتورة</label>
+                    <input asp-for="PurshaseDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" style="text-align:right" readonly />
+                    <span asp-validation-for="PurshaseDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">نوع المصروف</label>
+                    @*  <select asp-for="EmployeeId" style="text-align:right"  class="form-select" asp-items="ViewBag.EmployeeId"  dir="rtl" required></select> *@
+                    @Html.DropDownList("PurshaseId", ViewBag.PurshaseId as SelectList, "-- إختيار نوع المصروف --", new { @class = "form-control", id = "PurshaseId", required = "required" })
+                </div>
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">تفاصيل المصروفات </h5>
+                </div>
+               
+                <div class="col-md-2">
+                    <label>اسم الشركه</label>
+                    @Html.DropDownList("CompId", ViewBag.CompId as SelectList, "-- إختيار اسم الشركه --", new { @class = "form-control", id = "CompId" })
+                    <span id="CreditBillPayed" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label>رقم السيارة </label>
+                    @Html.DropDownList("CarId", ViewBag.CarId as SelectList, "-- إختيار رقم السيارة  --", new { @class = "form-control", id = "CarId" })
+
+                </div>
+
+                <div class="col-md-2">
+                    <label>اسم السائق </label>
+                    @Html.DropDownList("EmpId", ViewBag.EmpId as SelectList, "-- إختيار اسم السائق  --", new { @class = "form-control", id = "EmpId" })
+                 </div>
+                <div class="col-md-2">
+                    <label>المبلغ الإجمالي</label>
+                    <input asp-for="PurshasePayed" value="1" class="form-control" required />
+                    <span asp-validation-for="PurshasePayed" class="text-danger small"></span>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2"> </h5>
+                </div>
+                <div class="col-md-6">
+                    <label>السبب</label>
+                    <input asp-for="PurshaseDescription" type="text"  class="form-control"  />
+                    <span asp-validation-for="PurshasePayed" class="text-danger small"></span>
+                </div>
+             
+
+                <!-- Form Actions -->
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> دفع الفاتورة
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

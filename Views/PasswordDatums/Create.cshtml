@@ -1,0 +1,431 @@
+﻿@model RahalWeb.Models.PasswordDatum
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    .card {
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    h5 {
+        color: #0d6efd;
+    }
+</style>
+
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">إضافة مستخدم جديد</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">البيانات الاساسية</h5>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="UserName" class="form-label">اسم المستخدم</label>
+                    <input asp-for="UserName"  class="form-control"  />
+                    <span asp-validation-for="UserName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="UserFullName" class="form-label">اسم الموظف</label>
+                    <input asp-for="UserFullName"  class="form-control"  />
+                    <span asp-validation-for="UserFullName" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="UserMobile" class="form-label">رقم الموبيل</label>
+                    <input asp-for="UserMobile" class="form-control"  />
+                    <span asp-validation-for="UserMobile" class="text-danger small"></span>
+                </div>
+
+
+                 <div class="col-md-3">
+                    <label asp-for="UserEmail" class="form-label">صندوق البريد</label>
+                    <input asp-for="UserEmail" class="form-control"  />
+                    <span asp-validation-for="UserEmail" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="UserAdmin" class="form-label">مسئول البرنامج </label>
+                    <input type="checkbox" asp-for="UserAdmin" class="form-check-input" value="true" />
+                    <span asp-validation-for="UserAdmin" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-12"> </div>
+                <!-- Arabic Name Section -->
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">صلاحيات المستخدم للشركات </h5>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="CompView" class="form-label">مشاهدة الشركات</label>
+                    <input type="checkbox" asp-for="CompView" class="form-check-input" />
+                    <span asp-validation-for="CompView" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="CompSave" class="form-label">حفظ الشركات</label>
+                    <input type="checkbox" asp-for="CompSave" class="form-check-input" />
+                    <span asp-validation-for="CompSave" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="CompDelete" class="form-label">حذف الشركات</label>
+                    @* <input type="hidden" asp-for="HaveVacation" value="false" /> <!-- Ensures false when unchecked --> *@
+                    <input type="checkbox" asp-for="CompDelete" class="form-check-input" />
+                    <span asp-validation-for="CompDelete" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">صلاحيات المستخدم للموظفين </h5>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="EmpView" class="form-label">مشاهدة الموظفين</label>
+                    <input type="checkbox" asp-for="EmpView" class="form-check-input" />
+                    <span asp-validation-for="EmpView" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="EmpSave" class="form-label">حفظ الموظفين</label>
+                    <input type="checkbox" asp-for="EmpSave" class="form-check-input" />
+                    <span asp-validation-for="EmpSave" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="EmpDelete" class="form-label">حذف الموظفين</label>
+                    <input type="checkbox" asp-for="EmpDelete" class="form-check-input" />
+                    <span asp-validation-for="EmpDelete" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="EmpArchive" class="form-label">أرشيف الموظفين </label>
+                    <input type="checkbox" asp-for="EmpArchive" class="form-check-input" />
+                    <span asp-validation-for="EmpArchive" class="text-danger small"></span>
+                </div>
+                @* second line *@
+
+
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">صلاحيات المستخدم للسيارات </h5>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="CarView" class="form-label">مشاهدة السيارات</label>
+                    <input type="checkbox" asp-for="CarView" class="form-check-input" />
+                    <span asp-validation-for="CarView" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="CarSave" class="form-label">حفظ السيارات</label>
+
+                    <input type="checkbox" asp-for="CarSave" class="form-check-input" />
+                    <span asp-validation-for="CarSave" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="Cardelete" class="form-label">حذف السيارات</label>
+                    <input type="checkbox" asp-for="Cardelete" class="form-check-input" />
+                    <span asp-validation-for="Cardelete" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="CarArchive" class="form-label">أرشيف السيارات</label>
+                    <input type="checkbox" asp-for="CarArchive" class="form-check-input" />
+                    <span asp-validation-for="CarArchive" class="text-danger small"></span>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">صلاحيات المستخدم للعقود </h5>
+                </div>
+
+                @* Third line *@
+
+                <div class="col-md-2">
+                    <label asp-for="ContractDailyView" class="form-label">مشاهدة العقود اليومية </label>
+
+                    <input type="checkbox" asp-for="ContractDailyView" class="form-check-input" />
+                    <span asp-validation-for="ContractDailyView" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="ContractDailySave" class="form-label">حفظ العقود اليومية</label>
+
+                    <input type="checkbox" asp-for="ContractDailySave" class="form-check-input" />
+                    <span asp-validation-for="ContractDailySave" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="ContractDailyEnd" class="form-label">إنهاء العقود اليومية</label>
+
+                    <input type="checkbox" asp-for="ContractDailyEnd" class="form-check-input" />
+                    <span asp-validation-for="ContractDailyEnd" class="text-danger small"></span>
+                </div>
+                <div class="col-md-12"> </div>
+                <div class="col-md-2">
+                    <label asp-for="ContractMonthlyView" class="form-label">مشاهدة العقود الشهرية</label>
+
+                    <input type="checkbox" asp-for="ContractMonthlyView" class="form-check-input" />
+                    <span asp-validation-for="ContractMonthlyView" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="ContractMonthlySave" class="form-label">حفظ العقود الشهرية</label>
+
+                    <input type="checkbox" asp-for="ContractMonthlySave" class="form-check-input" />
+                    <span asp-validation-for="ContractMonthlySave" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="ContractMonthlyEnd" class="form-label">إنهاء العقود الشهرية</label>
+
+                    <input type="checkbox" asp-for="ContractMonthlyEnd" class="form-check-input" />
+                    <span asp-validation-for="ContractMonthlyEnd" class="text-danger small"></span>
+                </div>
+                <div class="col-md-12"> </div>
+                <div class="col-md-2">
+                    <label asp-for="ContractChangeCar" class="form-label">تغير سيارة </label>
+
+                    <input type="checkbox" asp-for="ContractMonthlyEnd" class="form-check-input" />
+                    <span asp-validation-for="ContractMonthlyEnd" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="ContractChangeRent" class="form-label">تغير إيجار سيارة </label>
+                    <input type="checkbox" asp-for="ContractChangeRent" class="form-check-input" value="true" />
+                    <span asp-validation-for="ContractChangeRent" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="ContractArchive" class="form-label">أرشيف العقود </label>
+                    <input type="checkbox" asp-for="ContractArchive" class="form-check-input" />
+                    <span asp-validation-for="ContractArchive" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">صلاحيات المستخدم للفواتير </h5>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="RecievedMoney" class="form-label">استلام الأموال </label>
+                    <input type="checkbox" asp-for="RecievedMoney" class="form-check-input" value="true" />
+                    <span asp-validation-for="RecievedMoney" class="text-danger small"></span>
+                </div>
+                @* Fourth line *@
+                <div class="col-md-2">
+                    <label asp-for="PayView" class="form-label">مشاهدة الفواتير</label>
+                    <input type="checkbox" asp-for="PayView" class="form-check-input" />
+                    <span asp-validation-for="PayView" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="PaySave" class="form-label">حفظ الفواتير</label>
+                    <input type="checkbox" asp-for="PaySave" class="form-check-input" v />
+                    <span asp-validation-for="PaySave" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="PayDelete" class="form-label">حذف الفواتير</label>
+                    <input type="checkbox" asp-for="PayDelete" class="form-check-input" />
+                    <span asp-validation-for="PayDelete" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="DebitLatePay" class="form-label">غرامة تأخير الفواتير</label>
+                    <input type="checkbox" asp-for="DebitLatePay" class="form-check-input" />
+                    <span asp-validation-for="DebitLatePay" class="text-danger small"></span>
+                </div>
+
+
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">صلاحيات المستخدم للديون </h5>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="DebitView" class="form-label">مشاهدة الديون</label>
+                    <input type="checkbox" asp-for="DebitView" class="form-check-input" />
+                    <span asp-validation-for="DebitView" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="DebitSave" class="form-label">حفظ الديون</label>
+                    <input type="checkbox" asp-for="DebitSave" class="form-check-input" />
+                    <span asp-validation-for="DebitSave" class="text-danger small"></span>
+                </div>
+
+                @* Fifth line *@
+                <div class="col-md-2">
+                    <label asp-for="DebitUpdate" class="form-label">تعديل الديون </label>
+                    <input type="checkbox" asp-for="DebitUpdate" class="form-check-input" />
+                    <span asp-validation-for="DebitUpdate" class="text-danger small"></span>
+                </div>
+
+
+                <div class="col-md-2">
+                    <label asp-for="DebitDelete" class="form-label">حذف الديون </label>
+                    <input type="checkbox" asp-for="DebitDelete" class="form-check-input" />
+                    <span asp-validation-for="DebitDelete" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">صلاحيات المستخدم للأجازات </h5>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="VacationView" class="form-label">مشاهدة الأجازات</label>
+                    <input type="checkbox" asp-for="VacationView" class="form-check-input" />
+                    <span asp-validation-for="VacationView" class="text-danger small"></span>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">صلاحيات المستخدم للمصاريف </h5>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="PurshaseView" class="form-label">مشاهدة المصاريف</label>
+                    <input type="checkbox" asp-for="PurshaseView" class="form-check-input" />
+                    <span asp-validation-for="PurshaseView" class="text-danger small"></span>
+                </div>
+                 <div class="col-md-2">
+                    <label asp-for="PurshaseUpdate" class="form-label">تعديل المصاريف</label>
+                    <input type="checkbox" asp-for="PurshaseUpdate" class="form-check-input" />
+                    <span asp-validation-for="PurshaseUpdate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="PurshaseSave" class="form-label">حفظ المصاريف</label>
+                    <input type="checkbox" asp-for="PurshaseSave" class="form-check-input" />
+                    <span asp-validation-for="PurshaseSave" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="PurshaseDelete" class="form-label">حذف المصاريف</label>
+                    <input type="checkbox" asp-for="PurshaseDelete" class="form-check-input" />
+                    <span asp-validation-for="PurshaseDelete" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="PurshaseShowAll" class="form-label">مشاهدة كل المصاريف</label>
+                    <input type="checkbox" asp-for="PurshaseShowAll" class="form-check-input" />
+                    <span asp-validation-for="PurshaseShowAll" class="text-danger small"></span>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">صلاحيات المستخدم للمخالفات </h5>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="ViolationView" class="form-label">مشاهدة المخالفات</label>
+                    <input type="checkbox" asp-for="ViolationView" class="form-check-input" />
+                    <span asp-validation-for="ViolationView" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="ViolationSave" class="form-label">حفظ المخالفات</label>
+                    <input type="checkbox" asp-for="ViolationSave" class="form-check-input" />
+                    <span asp-validation-for="ViolationSave" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="ViolationUpdate" class="form-label">تعديل المخالفات</label>
+                    <input type="checkbox" asp-for="ViolationUpdate" class="form-check-input" />
+                    <span asp-validation-for="ViolationUpdate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="ViolationDelete" class="form-label">حذف المخالفات</label>
+                    <input type="checkbox" asp-for="ViolationDelete" class="form-check-input" />
+                    <span asp-validation-for="ViolationDelete" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">صلاحيات المستخدم للعهد </h5>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="EmpTakeMoney" class="form-label">شاشة العهد</label>
+                    <input type="checkbox" asp-for="EmpTakeMoney" class="form-check-input" />
+                    <span asp-validation-for="EmpTakeMoney" class="text-danger small"></span>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">صلاحيات المستخدم لديون الشركات </h5>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="CompDebitView" class="form-label">مشاهدة ديون الشركات</label>
+                    <input type="checkbox" asp-for="CompDebitView" class="form-check-input" />
+                    <span asp-validation-for="CompDebitView" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="CompDebitSave" class="form-label">حفظ ديون الشركات</label>
+                    <input type="checkbox" asp-for="CompDebitSave" class="form-check-input" />
+                    <span asp-validation-for="CompDebitSave" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="CompDebitUpdate" class="form-label">تعديل ديون الشركات</label>
+                    <input type="checkbox" asp-for="CompDebitUpdate" class="form-check-input" />
+                    <span asp-validation-for="CompDebitUpdate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="CompDebitDelete" class="form-label">حذف ديون الشركات</label>
+                    <input type="checkbox" asp-for="CompDebitDelete" class="form-check-input" />
+                    <span asp-validation-for="CompDebitDelete" class="text-danger small"></span>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="col-md-12"> </div>
+                <!-- Arabic Name Section -->
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">الشركات   </h5>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">اختيار كل الشركات</label>
+                    <input type="checkbox" id="selectAllCompanies" class="form-check-input" value="true" />
+                </div>
+                <label for="CompanyData">اسماء الشركات:</label>
+                <select name="SelectedCompanies"
+                        id="companySelect"
+                        asp-items="ViewBag.Companies"
+                        class="form-control"
+                        style="width:400px;height:300px"
+                        multiple="multiple">
+                </select>
+
+
+                <!-- Form Actions -->
+                 <div class="col-md-12"> </div>
+                 <!-- Arabic Name Section -->
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">كلمة المرور  </h5>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Password" class="form-label">كلمة المرور</label>
+                    <input asp-for="Password"  type = "password" class="form-control"  />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> إضافة مستخدم
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Get references to the elements
+        const selectAllCheckbox = $('#selectAllCompanies');
+        const companySelect = $('#companySelect');
+
+        // When the select all checkbox changes
+        selectAllCheckbox.change(function() {
+            if (this.checked) {
+                // Select all options
+                companySelect.find('option').prop('selected', true);
+            } else {
+                // Deselect all options
+                companySelect.find('option').prop('selected', false);
+            }
+            // Trigger change event on the select (in case other code is listening)
+            companySelect.trigger('change');
+        });
+
+        // Optional: If you manually deselect all options, uncheck the select all checkbox
+        companySelect.change(function() {
+            if ($(this).find('option:selected').length !== $(this).find('option').length) {
+                selectAllCheckbox.prop('checked', false);
+            }
+        });
+    });
+</script>

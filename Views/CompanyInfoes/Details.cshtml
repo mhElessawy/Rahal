@@ -1,0 +1,151 @@
+﻿@model RahalWeb.Models.CompanyInfo
+@using Microsoft.AspNetCore.Http
+@using RahalWeb.Models.MyModel
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var user = HttpContextAccessor.HttpContext!.Session.GetObjectFromJson<PasswordDatum>("CurrentUser");
+}
+<div class="company-info-container" dir="rtl">
+    <div class="company-info-header">
+        <h4>بيانات الشركة</h4>
+        <div class="action-buttons">
+             @if (user!.CompSave == true)
+            {
+                <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">تعديل</a>
+            }
+
+           
+            <a asp-action="Index" class="btn btn-secondary">العوده لصفحة الشركاء</a>
+        </div>
+    </div>
+    <div class="company-info-body" dir="rtl"> 
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>البيانات الأساسية</h5>
+                    <div class="info-item">
+                        <label>كود الشركة</label>
+                        <span>@Html.DisplayFor(model => model.CompCode)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>اسم الشركة</label>
+                        <span>@Html.DisplayFor(model => model.CompNameAr)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Company Name</label>
+                        <span>@Html.DisplayFor(model => model.CompNameEn)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>اللوجو</label>
+                        @if (!string.IsNullOrEmpty(Model!.CompLogo))
+                        {
+                            <img src="~/UploadCompLogo/@Model.CompLogo" alt="Company Logo" class="company-logo" >
+                        }
+                        else
+                        {
+                            <span>No logo available</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h5>بيانات الشركاء</h5>
+                    <div class="info-item">
+                        <label>اسم الشريك الأول </label>
+                        <span>@Html.DisplayFor(model => model.OwnerName1)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>رقم المدني للشريك الأول</label>
+                        <span>@Html.DisplayFor(model => model.OwnerCivilId1)</span>
+                    </div>
+                     <div class="info-item">
+                        <label>اسم الشريك الثاني </label>
+                        <span>@Html.DisplayFor(model => model.OwnerName2)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>رقم المدني للشريك الثاني</label>
+                        <span>@Html.DisplayFor(model => model.OwnerCivilId2)</span>
+                    </div>
+                     <div class="info-item">
+                        <label>اسم الشريك الثالث </label>
+                        <span>@Html.DisplayFor(model => model.OwnerName3)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>رقم المدني للشريك الثالث</label>
+                        <span>@Html.DisplayFor(model => model.OwnerCivilId3)</span>
+                    </div>
+
+                    <!-- Repeat for other owners -->
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>المعلومات القانونية</h5>
+                    <div class="info-item">
+                        <label>رقم الرخصة</label>
+                        <span>@Html.DisplayFor(model => model.CompLicenseNo)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>رقم الملف</label>
+                        <span>@Html.DisplayFor(model => model.CompFileNo)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>تاريخ الاصدار</label>
+                        <span>@Html.DisplayFor(model => model.CompReleaseDate)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>تاريخ انتهاء الترخيص</label>
+                        <span>@Html.DisplayFor(model => model.CompEndDate)</span>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h5>معلومات التواصل</h5>
+                    <div class="info-item">
+                        <label>العنوان</label>
+                        <span>@Html.DisplayFor(model => model.Address)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>المنطقة السكنية</label>
+                        <span>@Html.DisplayFor(model => model.City!.DeffName)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>المحافظة</label>
+                        <span>@Html.DisplayFor(model => model.Location!.DeffName)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>رقم الهاتف 1</label>
+                        <span>@Html.DisplayFor(model => model.Tel1)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>رقم الهاتف 2</label>
+                        <span>@Html.DisplayFor(model => model.Tel2)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section status-section" dir="rtl">
+            <h5>معلومات عامة</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="info-item">
+                        <label>نوع النشاط</label>
+                        <span>@Html.DisplayFor(model => Model.CompActivate!.DeffName)</span>
+
+                     
+                    </div>
+                </div>
+                 <div class="col-md-4">
+                    <div class="info-item">
+                        <label>تاريخ التسجيل</label>
+                        <span>@Html.DisplayFor(model => model.RegDate)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

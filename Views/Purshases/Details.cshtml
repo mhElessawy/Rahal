@@ -1,0 +1,49 @@
+﻿@model RahalWeb.Models.Purshase
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<div class="company-info-container" dir="rtl">
+    <div class="company-info-header">
+        <h4>بيانات الفاتورة</h4>
+        <div class="action-buttons">
+            <a asp-action="Index" class="btn btn-secondary">العوده لصفحة المصاريف</a>
+        </div>
+    </div>
+    <div class="company-info-body" dir="rtl">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>البيانات الأساسية</h5>
+                    <div class="info-item">
+                        <label>رقم الفاتورة</label>
+                        <span>@Html.DisplayFor(model => model.PurshaseNo)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>تاريخ الفاتورة</label>
+                        <span>@Html.DisplayFor(model => model.PurshaseDate)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>نوع المصروف</label>
+                        <span>@Html.DisplayFor(model => model.PurshaseNavigation!.DeffName)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>المبلغ</label>
+                        <span>@Html.DisplayFor(model => model.PurshasePayed)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>السبب</label>
+                        <span>@Html.DisplayFor(model => model.PurshaseDescription)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

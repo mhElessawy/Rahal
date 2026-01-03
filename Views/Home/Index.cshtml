@@ -1,0 +1,139 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<style>
+    .cards-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        direction: rtl; /* RTL for Arabic */
+    }
+
+    .card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        width: 200px;
+        padding: 20px;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+    .count-badge {
+        color: white;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: bold;
+        margin: 0 auto 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .image-container {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 10px;
+    }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+    .card-title {
+        color: #495057;
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    /* Responsive design */
+
+</style>
+
+<section aria-label="Employee resignation statistics" dir="rtl">
+    <div class="cards-container">
+        <a href="@Url.Action("PrintData", "Home", new { id = 1 })" class="card-link">
+        <div class="card">
+            <div class="card-body">
+                <div class="count-badge" style="background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);">
+                    @ViewBag.ResignedEmployeeCount
+                </div>
+                <div class="image-container">
+                    <img src="~/assets/img/res.jpeg" alt="إنتهاء الإقامات" />
+                </div>
+                <h3 class="card-title">إنتهاء الإقامات</h3>
+            </div>
+        </div>
+        </a>
+        <a href="@Url.Action("PrintData", "Home", new { id = 2 })" class="card-link">
+        <div class="card">
+            <div class="card-body">
+                <div class="count-badge" style="background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);">
+                    @ViewBag.EndLicenseCarCount
+                </div>
+                <div class="image-container">
+                    <img src="~/assets/img/License.jpeg" alt="إنتهاء الرخصة" />
+                </div>
+                <h3 class="card-title">إنتهاء  دفتر السيارة</h3>
+            </div>
+        </div>
+        </a>
+        <a href="@Url.Action("PrintData", "Home", new { id = 3 })" class="card-link">
+        <div class="card">
+            <div class="card-body">
+                <div class="count-badge" style="background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);">
+                    @ViewBag.EndPermEmpCount
+                </div>
+                <div class="image-container">
+                    <img src="~/assets/img/PermEmp.jpeg" alt="إنتهاء الإذن" />
+                </div>
+                <h3 class="card-title">إنتهاء إذن العمل</h3>
+            </div>
+        </div>
+        </a>
+        <a href="@Url.Action("PrintData", "Home", new { id = 4 })" class="card-link">
+        <div class="card">
+            <div class="card-body">
+                <div class="count-badge" style="background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);">
+                    @ViewBag.EndLicenseEmpCount
+                </div>
+                <div class="image-container">
+                    <img src="~/assets/img/LicenseEmp.jpeg" alt="رخصة السواق" />
+                </div>
+                <h3 class="card-title">إنتهاء رخصة سواق</h3>
+            </div>
+        </div>
+        </a>
+
+    </div>
+
+</section>
+
+<section class="hero">
+
+    <img src="~/assets/img/hero.jpg" alt="Hero Image" class="hero-image">
+    <!-- Optionally, you can have text or buttons over the image -->
+    <div class="hero-content">
+        <h1>Welcome to Our Website</h1>
+        <p>This is a fantastic hero section</p>
+        <a href="#" class="btn">Learn More</a>
+    </div>
+</section>

@@ -1,0 +1,181 @@
+﻿@using RahalWeb.Data
+@model PaginatedList<RahalWeb.Models.Purshase>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+    .pagination-container {
+        margin-top: 20px;
+    }
+
+    .pagination a {
+        margin: 0 5px;
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+    }
+
+    .pagination .active a {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+</style>
+
+<h1 dir="rtl">بيانات المصاريف</h1>
+
+<p dir="rtl">
+
+    <a asp-action="Create" class="btn btn-create-outline">
+        <i class="fas fa-plus-circle"></i> إضافة مصروف
+    </a>
+</p>
+
+<div class="search-container" dir="rtl">
+    <form asp-action="IndexReport" method="get">
+        <div class="form-group">
+            <label for="userId"> اسم المستخدم:</label>
+            <select name="userId" asp-items="ViewBag.UserId" class="form-control" style="width:120px">
+                <option value="">-- اسم المستخدم --</option>
+            </select>
+
+            <label for="EmpCodeString"> كود السيارة:</label>
+            <input type="number" name="CarCodeString" value="@ViewData["CarCodeFilter"]" placeholder=" كود الموظف " style="width:120px" />
+
+
+            <label for="EmpCodeString"> كود الموظف:</label>
+            <input type="number" name="EmpCodeString" value="@ViewData["EmpCodeFilter"]" placeholder=" كود الموظف " style="width:120px" />
+
+            <label for="EmpSearch"> إسم الموظف:</label>
+            <input type="text" name="EmpSearch" value="@ViewData["EmpFilter"]" placeholder="إسم الموظف" style="width:120px" />
+
+            <label for="DefTypeId"> نوع المصروف:</label>
+            <select name="DefTypeId" asp-items="ViewBag.DefTypeId" class="form-control" style="width:120px">
+                <option value="">-- جميع الديون --</option>
+            </select>
+
+            <label for="companyId"> اسم الشركة:</label>
+            <select name="companyId" asp-items="ViewBag.Companies" class="form-control" style="width:120px">
+                <option value="">-- جميع الشركات --</option>
+            </select>
+
+            <label for="FromDateSearch"> من تاريخ  </label>
+            <input type="date" name="FromDateSearch" value="@ViewData["FromDateFilter"]" placeholder="من تاريخ" style="width:130px" />
+
+
+            <label for="ToDateSearch">إلى تاريخ</label>
+            <input type="date" name="ToDateSearch" value="@ViewData["ToDateFilter"]" placeholder="إلى تاريخ" style="width:130px" />
+            <input type="submit" value="بحث" class="btn btn-primary" />
+            <a asp-action="Index" class="btn btn-secondary">إعادة تعيين</a>
+        </div>
+    </form>
+</div>
+
+
+<table class="bordered-table" dir="rtl">
+    <thead>
+        <tr>
+            <th>
+                رقم الفاتورة
+            </th>
+            <th>
+                المبلغ
+            </th>
+            <th>
+                التاريخ
+            </th>
+            <th>
+                النوع
+            </th>
+            <th>
+                السبب
+            </th>
+          
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PurshaseNo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PurshasePayed)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PurshaseDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PurshaseNavigation!.DeffName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PurshaseDescription)
+                </td>
+               
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<div class="pagination-container" dir="rtl">
+    @{
+        var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+        var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+    }
+
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex - 1)"
+       asp-route-userId="@ViewData["UserFilter"]"
+       asp-route-CarCodeString="@ViewData["CarCodeFilter"]"
+       asp-route-EmpCodeString="@ViewData["EmpCodeFilter"]"
+       asp-route-EmpString="@ViewData["EmpFilter"]"
+       asp-route-DefTypeId="@ViewData["DefTypeFilter"]"
+       asp-route-companyId="@ViewData["CompanyFilter"]"
+       asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+       asp-route-ToDateSearch="@ViewData["ToDateFilter"]"
+       class="btn btn-default @prevDisabled">
+        السابق
+    </a>
+
+    <span>الصفحة @Model.PageIndex من @Model.TotalPages</span>
+
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex + 1)"
+       asp-route-userId="@ViewData["UserFilter"]"
+       asp-route-CarCodeString="@ViewData["CarCodeFilter"]"
+       asp-route-EmpCodeString="@ViewData["EmpCodeFilter"]"
+       asp-route-EmpString="@ViewData["EmpFilter"]"
+       asp-route-DefTypeId="@ViewData["DefTypeFilter"]"
+       asp-route-companyId="@ViewData["CompanyFilter"]"
+       asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+       asp-route-ToDateSearch="@ViewData["ToDateFilter"]"
+       class="btn btn-default @nextDisabled">
+        التالي
+    </a>
+</div>
+
+
+<div dir="rtl">
+    إجمالي المصاريف   @String.Format("{0:C}", ViewBag.TotalBillPayed)
+</div>
+<button onclick="printBills()" class="btn btn-success">طباعة</button>
+
+<script>
+    function printBills() {
+        var printContents = document.querySelector('.bordered-table').outerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML =
+            '<h1 style="text-align:center">فواتير الأقساط</h1>' +
+            printContents +
+            '<div style="margin-top:20px;font-weight:bold">إجمالي المصاريف: @String.Format("{0:C}", ViewBag.TotalBillPayed)</div>';
+
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+</script>

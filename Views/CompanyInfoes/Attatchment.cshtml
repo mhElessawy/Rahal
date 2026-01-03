@@ -1,0 +1,51 @@
+﻿@model IEnumerable<RahalWeb.Models.CompanyInfoAtt>
+
+@{
+    ViewData["Title"] = "Attatchment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div dir="rtl">
+    <h3>اسم الشركة : @ViewBag.CompName </h3>
+</div>
+
+<p dir="rtl">
+    <a asp-action="CreateAttatch" asp-route-CompId="@ViewBag.CompId" class="btn btn-create-outline">
+        <i class="fas fa-plus-circle"></i> ملف جديد
+    </a>
+</p>
+
+
+<table class="bordered-table" dir="rtl">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TitleData)
+            </th>
+           @*  <th>
+                @Html.DisplayNameFor(model => model.PathFileData)
+            </th> *@
+           
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.TitleData)
+            </td>
+           @*  <td>
+                @Html.DisplayFor(modelItem => item.PathFileData)
+            </td> *@
+          
+            <td>
+                <a asp-action="EditAttatchment" asp-route-id="@item.Id" class="btn-edit"><i class="fas fa-edit"></i> تعديل</a>
+                    <a asp-action="DownLoadAttatchment" asp-route-id="@item.Id" class="btn-success"><i class="fas fa-download"></i> تحميل </a>
+                <a asp-action="DeleteAttatchment" asp-route-id="@item.Id" class="btn-delete"><i class="fas fa-trash-alt"></i> حذف</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

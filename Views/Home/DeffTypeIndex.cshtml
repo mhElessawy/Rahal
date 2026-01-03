@@ -1,0 +1,69 @@
+﻿@using RahalWeb.Data
+@model PaginatedList<RahalWeb.Models.DeffType>
+
+
+
+    <h3 dir="rtl">التعريفات</h3>
+
+<style>
+    .pagination-container {
+        margin-top: 20px;
+    }
+
+    .pagination a {
+        margin: 0 5px;
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+    }
+
+    .pagination .active a {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+</style>
+
+   
+
+<table class="bordered-table" dir="rtl">
+    <thead>
+        <tr>
+            <th>Name</th>
+           @*  <th>Actions</th> *@
+            <th></th>
+        </tr>
+    
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td class="action-links">
+                    <a asp-controller="Deffs" asp-action="Index" asp-route-id="@item.Id" asp-route-name="@item.Name" class="btn-details"><i class="fas fa-info-circle"></i> تفاصيل</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="pagination-container" dir="rtl">
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+    <!-- Make sure this matches your action name -->
+    <a asp-action="DeffTypeIndex"
+       asp-route-pageNumber="@(Model.PageIndex - 1)"
+       class="btn btn-default @prevDisabled">
+        السابق
+    </a>
+
+    <span>الصفحة @Model.PageIndex من @Model.TotalPages</span>
+    <!-- Make sure this matches your action name -->
+    <a asp-action="DeffTypeIndex"
+       asp-route-pageNumber="@(Model.PageIndex + 1)"
+       class="btn btn-default @nextDisabled">
+        التالي
+    </a>
+</div>

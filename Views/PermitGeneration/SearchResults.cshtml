@@ -1,0 +1,61 @@
+﻿@model List<EmployeeInfo>
+
+@{
+    ViewData["Title"] = "نتائج البحث";
+}
+
+<div class="container mt-4" dir="rtl">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">@ViewData["Title"] (@Model.Count)</h4>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>الكود</th>
+                                <th>الاسم</th>
+                                <th>الرقم المدني</th>
+                                <th>الجنسية</th>
+                                <th>المهنة</th>
+                                <th>الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var employee in Model)
+                            {
+                                <tr>
+                                    <td>@employee.EmpCode</td>
+                                    <td>@employee.FullNameAr</td>
+                                    <td>@employee.CivilId</td>
+                                    <td>@employee.Nationality?.DeffName</td>
+                                    <td>@employee.JobTitle?.DeffName</td>
+                                    <td>
+                                        <a asp-action="Generate" asp-route-id="@employee.Id"
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fas fa-file-word"></i> إنشاء
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning text-center">
+                    <i class="fas fa-exclamation-triangle"></i> لم يتم العثور على موظفين
+                </div>
+            }
+
+            <div class="text-center mt-3">
+                <a asp-action="Search" class="btn btn-secondary">بحث جديد</a>
+                <a asp-action="Index" class="btn btn-primary">الصفحة الرئيسية</a>
+            </div>
+        </div>
+    </div>
+</div>

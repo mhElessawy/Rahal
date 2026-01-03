@@ -1,0 +1,55 @@
+﻿@model RahalWeb.Models.Deff
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (@TempData["DeffName"] == null)
+{
+    <meta http-equiv="refresh" content="0; url=/Home/DeffTypeIndex" />
+}
+
+<h1 dir="rtl">تعديل @ViewData["DeffName"]</h1>
+
+
+<hr />
+
+        <form asp-action="Edit" class="professional-form" dir="rtl">
+            <div class="professional-form-header">
+                <h2>تعديل بيانات</h2>
+            </div>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="DeffType" />
+            <input type="hidden" asp-for="DeleteFlag" />
+
+          @*   <div class="form-group">
+                <label asp-for="DeffCode" class="control-label">الكود</label>
+                <input asp-for="DeffCode" class="form-control" />
+                <span asp-validation-for="DeffCode" class="text-danger"></span>
+            </div> *@
+
+            <div class="form-group">
+                <label asp-for="DeffName" class="control-label">الاسم</label>
+                <input asp-for="DeffName" class="form-control" />
+                <span asp-validation-for="DeffName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DeffNameEng" class="control-label">English Name</label>
+                <input asp-for="DeffNameEng" class="form-control" />
+                <span asp-validation-for="DeffNameEng" class="text-danger"></span>
+            </div>
+
+            <div class="professional-form-footer">
+                <div>
+                    <!-- Optional: Add cancel/back link -->
+            <a asp-action="Index" asp-route-id="@Model.DeffType" asp-route-name="@TempData["DeffName"]" class="btn btn-danger">Cancel</a>
+                </div>
+                <input type="submit"  value="حفظ التعديلات" class="btn-primary" />
+            </div>
+        </form>
+
+

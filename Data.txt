@@ -1,0 +1,167 @@
+using System;
+using System.Collections.Generic;
+
+namespace RahalWeb.Models;
+
+public partial class PasswordDatum
+{
+    public int Id { get; set; }
+
+    public string? UserName { get; set; }
+
+    public string? Password { get; set; }
+
+    public string? UserFullName { get; set; }
+
+    public string? UserEmail { get; set; }
+
+    public string? UserMobile { get; set; }
+    public bool UserAdmin { get; set; } = false;
+
+    public int? DeleteFlag { get; set; }
+
+    public int? EmpId { get; set; }
+
+    public string? RecievedPassword { get; set; }
+
+    public bool CompView { get; set; } = false;
+
+    public bool CompSave { get; set; } = false;
+
+    public bool CompDelete { get; set; } = false;
+
+    public bool EmpView { get; set; } = false;
+
+    public bool EmpSave { get; set; } = false;
+
+    public bool EmpDelete { get; set; } = false;
+
+    public bool EmpArchive { get; set; } = false;
+
+    public bool CarView { get; set; } = false;
+
+    public bool CarSave { get; set; } = false;
+
+    public bool Cardelete { get; set; } = false;
+
+    public bool CarArchive { get; set; } = false;
+
+    public bool ContractDailyView { get; set; } = false;
+
+    public bool ContractDailySave { get; set; } = false;
+
+    public bool ContractDailyEnd { get; set; } = false;
+
+    public bool ContractMonthlyView { get; set; } = false;
+
+    public bool ContractChangeCar { get; set; } = false;
+
+    public bool ContractMonthlySave { get; set; } = false;
+
+    public bool ContractMonthlyEnd { get; set; } = false;
+
+    public bool ContractArchive { get; set; } = false;
+
+    public bool PayView { get; set; } = false;
+
+    public bool PaySave { get; set; } = false;
+
+    public bool PayDelete { get; set; } = false;
+
+    public bool DebitView { get; set; } = false;
+
+    public bool DebitSave { get; set; } = false;
+
+    public bool DebitDelete { get; set; } = false;
+
+    public bool DebitPay { get; set; } = false;
+
+    public bool VacationView { get; set; } = false;
+
+    public virtual ICollection<Bill> Bills { get; set; } = new List<Bill>();
+
+    public virtual ICollection<CarInfo> CarInfos { get; set; } = new List<CarInfo>();
+
+    public virtual ICollection<Contract> Contracts { get; set; } = new List<Contract>();
+
+    public virtual ICollection<CreditBill> CreditBills { get; set; } = new List<CreditBill>();
+
+    public virtual ICollection<DebitInfo> DebitInfos { get; set; } = new List<DebitInfo>();
+
+    public virtual ICollection<DebitPayInfo> DebitPayInfoUserRecieveds { get; set; } = new List<DebitPayInfo>();
+
+    public virtual ICollection<DebitPayInfo> DebitPayInfoUsers { get; set; } = new List<DebitPayInfo>();
+
+    public virtual ICollection<EmployeeInfo> EmployeeInfos { get; set; } = new List<EmployeeInfo>();
+
+    public virtual ICollection<UserCompanyNotAppear> UserCompanyNotAppears { get; set; } = new List<UserCompanyNotAppear>();
+}
+
+
+
+
+
+
+
+using System;
+using System.Collections.Generic;
+
+namespace RahalWeb.Models;
+
+public partial class Contract
+{
+    public int Id { get; set; }
+
+    public int? EmployeeId { get; set; }
+
+    public int? CarId { get; set; }
+
+    public string? ContractNo { get; set; }
+
+    public DateOnly? ContractDate { get; set; }
+
+    public DateOnly? StartDate { get; set; }
+
+    public DateOnly? EndDate { get; set; }
+
+    public int? NoOfDays { get; set; }
+
+    public decimal? DailyCredit { get; set; }
+
+    public int? DeleteFlag { get; set; }
+
+    public int? Status { get; set; }
+
+    public decimal? TotalCost { get; set; }
+
+    public DateOnly? ContractEndDate { get; set; }
+
+    public string? ContractEndReson { get; set; }
+
+    public int? ContractType { get; set; }
+
+    public int? UserId { get; set; }
+
+    public DateOnly? CreditStartDate { get; set; }
+
+    public DateOnly? CreditEndDate { get; set; }
+
+    public int? CreditNoOfMonth { get; set; }
+
+    public decimal? CreditMonthPay { get; set; }
+
+    public decimal? CreditTotalCost { get; set; }
+
+    public bool HaveVacation { get; set; } = false;
+
+    public virtual ICollection<Bill> Bills { get; set; } = new List<Bill>();
+
+    public virtual CarInfo? Car { get; set; }
+
+    public virtual ICollection<CreditBill> CreditBills { get; set; } = new List<CreditBill>();
+
+    public virtual EmployeeInfo? Employee { get; set; }
+
+    public virtual PasswordDatum? User { get; set; }
+    public virtual ICollection<ContractDetail> ContractDetails { get; set; } = new List<ContractDetail>();
+}

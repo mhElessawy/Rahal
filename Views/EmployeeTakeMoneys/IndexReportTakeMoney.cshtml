@@ -1,0 +1,248 @@
+﻿@model IEnumerable<RahalWeb.Models.MyModel.UserTakeMoneySummary>
+    
+
+@{
+    ViewData["Title"] = "User Financial Summary Report";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card" dir="rtl">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-pie mr-2"></i>
+                       تقرير العهد
+                    </h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-light btn-sm" onclick="printBills()">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                      
+                    </div>
+                </div>
+                <div class="card-body">
+                   <!-- Data Table -->
+                    <div class="row" dir="rtl">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">البحث </h3>
+                                    <div class="card-tools">
+                                        <div class="input-group input-group-sm" style="width: 150px;">
+                                            <input type="text" id="searchInput" class="form-control float-right" placeholder="Search...">
+                                            <div class="input-group-append">
+                                                <button type="button" class="btn btn-default">
+                                                    <i class="fas fa-search"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body table-responsive p-0">
+                                    <table class="table table-hover table-bordered table-striped">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th>اسم المستخدم</th>
+                                                <th class="text-right">إجمالي العهد</th>
+                                                <th class="text-right">إجمالي المصاريف</th>
+                                                <th class="text-right">الصافي</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var user in Model)
+                                            {
+                                                <tr>
+                                                  
+                                                    <td>@user.UserName</td>
+                                                    <td class="text-right text-success font-weight-bold">@user.TotalTakeMoney.ToString("C")</td>
+                                                    <td class="text-right text-danger font-weight-bold">@user.TotalPurshase.ToString("C")</td>
+                                                    <td class="text-right font-weight-bold @(user.NetAmount >= 0 ? "text-success" : "text-danger")">
+                                                        @user.NetAmount.ToString("C")
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge @(user.NetAmount >= 0 ? "badge-success" : "badge-danger")" style="color:red">
+                                                            @(user.NetAmount >= 0 ? "موجب" : "سلبي")
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                        <tfoot class="bg-light">
+                                            <tr>
+                                                <th colspan="2" class="text-right">الإجمالي</th>
+                                                <th class="text-right text-success">@Model.Sum(x => x.TotalTakeMoney).ToString("C")</th>
+                                                <th class="text-right text-danger">@Model.Sum(x => x.TotalPurshase).ToString("C")</th>
+                                                <th class="text-right @(Model.Sum(x => x.NetAmount) >= 0 ? "text-success" : "text-danger")">
+                                                    @Model.Sum(x => x.NetAmount).ToString("C")
+                                                </th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const searchText = this.value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchText) ? '' : 'none';
+            });
+        });
+
+        // Export to Excel function
+        function exportToExcel() {
+            // Implement export functionality
+            window.location.href = '@Url.Action("ExportToExcel", "Reports")';
+        }
+
+        // Charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Take Money Chart
+            var takeMoneyCtx = document.getElementById('takeMoneyChart').getContext('2d');
+            var takeMoneyChart = new Chart(takeMoneyCtx, {
+                type: 'bar',
+                data: {
+                    labels: [@Html.Raw(string.Join(", ", Model.Select(x => $"'{x.UserName}'")))],
+                    datasets: [{
+                        label: 'Take Money',
+                        data: [@string.Join(", ", Model.Select(x => x.TotalTakeMoney))],
+                        backgroundColor: 'rgba(40, 167, 69, 0.8)',
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Purchase Chart
+            var purchaseCtx = document.getElementById('purchaseChart').getContext('2d');
+            var purchaseChart = new Chart(purchaseCtx, {
+                type: 'bar',
+                data: {
+                    labels: [@Html.Raw(string.Join(", ", Model.Select(x => $"'{x.UserName}'")))],
+                    datasets: [{
+                        label: 'Purchase',
+                        data: [@string.Join(", ", Model.Select(x => x.TotalPurshase))],
+                        backgroundColor: 'rgba(220, 53, 69, 0.8)',
+                        borderColor: 'rgba(220, 53, 69, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+
+<style>
+    .info-box {
+        box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+        border-radius: 0.5rem;
+        display: flex;
+        margin-bottom: 1rem;
+        min-height: 80px;
+        padding: 0.5rem;
+        background: #FFF;
+    }
+
+    .info-box-icon {
+        border-radius: 0.5rem;
+        align-items: center;
+        display: flex;
+        font-size: 1.875rem;
+        justify-content: center;
+        text-align: center;
+        width: 70px;
+        color: white;
+    }
+
+    .info-box-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        line-height: 1.8;
+        flex: 1;
+        padding: 0 10px;
+        color: white;
+    }
+
+    .info-box-text {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-transform: uppercase;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .info-box-number {
+        display: block;
+        font-weight: 700;
+        font-size: 1.5rem;
+    }
+
+    .bg-teal {
+        background-color: #20c997 !important;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+
+    @@media print {
+        .card-tools, .btn {
+            display: none !important;
+        }
+
+        .card {
+            border: 1px solid #ddd !important;
+            box-shadow: none !important;
+        }
+    }
+</style>
+
+<script>
+    function printBills() {
+        var printContents = document.querySelector('.table-responsive').outerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML =
+            '<h1 style="text-align:center">@ViewBag.Header</h1>' +
+            printContents
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+</script>

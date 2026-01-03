@@ -1,0 +1,81 @@
+﻿@model IEnumerable<RahalWeb.Models.EmployeeInfoAtt>
+
+@{
+
+    ViewData["Title"] = "Employee Att";
+    var employee = ViewBag.EmployeeData as EmployeeInfo; // Cast ViewBag to the correct type
+    var attendances = ViewBag.EmployeeAtts as List<EmployeeInfoAtt>;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .pagination-container {
+        margin-top: 20px;
+    }
+
+    .pagination a {
+        margin: 0 5px;
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+    }
+
+    .pagination .active a {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+</style>
+
+
+
+@if (employee != null)
+{
+    <div class="employee-details" dir="rtl">
+        <h3>بيانات الموظف</h3>
+        <p><strong>الاسم :</strong> @employee.FullNameAr</p>
+        <p><strong>كود الموظف :</strong> @employee.EmpCode</p>
+       
+        <!-- Add more fields as needed -->
+    </div>
+}
+else
+{
+    <p>Employee not found.</p>
+}
+
+
+<h1 dir="rtl">مرفقات الموظفين</h1>
+<p dir="rtl">
+
+    <a asp-action="CreateAtt" asp-route-EmpId="@employee!.Id" class="btn btn-create-outline">
+        <i class="fas fa-plus-circle"></i> إضافة مرفق
+    </a>
+</p>
+
+
+<table class="bordered-table" dir="rtl">
+    <thead>
+        <tr>
+            <th>
+                اسم الملف
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in attendances!)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TitleData)
+                </td>
+                <td class="action-links">
+                    <a asp-action="EditAtt" asp-route-id="@item.Id" class="btn-edit"><i class="fas fa-edit"></i> تعديل</a>
+                    <a asp-action="DownLoadAttatchment" asp-route-id="@item.Id" class="btn-details"><i class="fas fa-info-circle"></i> تحميل</a>
+                    <a asp-action="DeleteAtt" asp-route-id="@item.Id" class="btn-delete"><i class="fas fa-trash-alt"></i> حذف</a>
+                </td>
+             </tr>
+        }
+
+    </tbody>
+</table>

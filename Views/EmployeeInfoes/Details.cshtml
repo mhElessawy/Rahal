@@ -1,0 +1,140 @@
+﻿@model RahalWeb.Models.EmployeeInfo
+@using RahalWeb.Models.MyModel
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var user = HttpContextAccessor.HttpContext!.Session.GetObjectFromJson<PasswordDatum>("CurrentUser");
+}
+
+
+
+<div class="company-info-container" dir="rtl">
+    <div class="company-info-header">
+        <h4>بيانات الموظف</h4>
+        <div class="action-buttons">
+              @if (user!.CompSave == true)
+            {
+                <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">تعديل</a>
+            }
+            <a asp-action="Index" class="btn btn-secondary">العوده لصفحة الموظفين</a>
+        </div>
+    </div>
+
+    <div class="company-info-body"
+		 dir="rtl">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>البيانات الأساسية</h5>
+                    <div class="info-item">
+                        <label>الشركة</label>
+                        <span>@Html.DisplayFor(model => model.Company!.CompNameAr)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>كود الموظف</label>
+                        <span>@Html.DisplayFor(model => model.EmpCode)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>اسم الموظف</label>
+                        <span>@Html.DisplayFor(model => model.FullNameAr)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Employee Name</label>
+                        <span>@Html.DisplayFor(model => model.FullNameEn)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>الرقم المدني</label>
+                        <span>@Html.DisplayFor(model => model.CivilId)</span>
+                    </div>
+                </div>
+             </<div>
+             <div class="col-md-6">
+                <div class="info-section">
+                    <h5>بيانات الموظف</h5>
+                    <div class="info-item">
+                        <label>رقم الإقامة </label>
+                        <span>@Html.DisplayFor(model => model.ResNo)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>تاريخ إنتهاء الإقامة</label>
+                        <span>@Html.DisplayFor(model => model.ResEndDate)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>تاريخ الميلاد </label>
+                        <span>@Html.DisplayFor(model => model.EmpBirthDate)</span>
+                    </div>
+                   
+                    <div class="info-item">
+                        <label>المرتب </label>
+                        <span>@Html.DisplayFor(model => model.Salary)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>المعلومات القانونية</h5>
+                    <div class="info-item">
+                        <label>رقم الجواز</label>
+                        <span>@Html.DisplayFor(model => model.PassportNo)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>تاريخ إصدار الجواز</label>
+                        <span>@Html.DisplayFor(model => model.PassportStartDate)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>تاريخ إنتهاء الجواز</label>
+                        <span>@Html.DisplayFor(model => model.PassportEndDate)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>تاريخ إنتهاء الرخصة</label>
+                        <span>@Html.DisplayFor(model => model.EndLicense)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>تاريخ انتهاء التصريح</label>
+                        <span>@Html.DisplayFor(model => model.EndPerm)</span>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h5>معلومات التواصل</h5>
+                    <div class="info-item">
+                        <label>العنوان</label>
+                        <span>@Html.DisplayFor(model => model.EmpAddress)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>المحافظة</label>
+                        <span>@Html.DisplayFor(model => model.Location!.DeffName)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>رقم الهاتف </label>
+                        <span>@Html.DisplayFor(model => model.MobiileNo)</span>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section status-section" dir="rtl">
+            <h5>معلومات عامة</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="info-item">
+                        <label>الوظيفة </label>
+                        <span>@Html.DisplayFor(model => model.JobTitle!.DeffName)</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="info-item">
+                        <label>تاريخ التسجيل</label>
+                        <span>@Html.DisplayFor(model => model.RegDate)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+</div>

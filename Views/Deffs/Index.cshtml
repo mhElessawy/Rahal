@@ -1,0 +1,50 @@
+﻿@model IEnumerable<RahalWeb.Models.Deff>
+
+@{
+    ViewData["Title"] = "تعريفات";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@if (@TempData["DeffName"] == null)
+{
+    <meta http-equiv="refresh" content="0; url=/Home/DeffTypeIndex" />
+}
+
+
+<h1 dri="rtl" style="text-align:right"> تعريف  @TempData["DeffName"] </h1>
+
+<p dir="rtl">
+    <a asp-action="Create" dri="rtl" asp-route-id="@TempData[" DeffTypeId"]" class="btn btn-link">إضافة جديدة</a>
+</p>
+<table class="bordered-table" dir="rtl">
+    <thead>
+        <tr>
+          
+            <th>
+                @Html.DisplayNameFor(model => model.DeffName)
+            </th>
+           
+            <th>
+                @Html.DisplayNameFor(model => model.DeffNameEng)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+                
+            <td>
+                @Html.DisplayFor(modelItem => item.DeffName )
+            </td>
+           
+            <td>
+                @Html.DisplayFor(modelItem => item.DeffNameEng)
+            </td>
+                <td class="action-links">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn-details"><i class="fas fa-edit"></i> تعديل</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn-delete"><i class="fas fa-trash-alt"></i> حذف</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

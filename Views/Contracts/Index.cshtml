@@ -1,0 +1,183 @@
+﻿@using RahalWeb.Data
+@model PaginatedList<RahalWeb.Models.Contract>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+    .pagination-container {
+        margin-top: 20px;
+    }
+
+    .pagination a {
+        margin: 0 5px;
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+    }
+
+    .pagination .active a {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+</style>
+
+
+<h1 dir="rtl">العقود</h1>
+
+<p dir="rtl">
+
+    <a asp-action="Create" class="btn btn-create-outline">
+        <i class="fas fa-plus-circle"></i> إضافة عقد
+    </a>
+</p>
+
+
+<div class="search-container" dir="rtl">
+    <form asp-action="Index" method="get">
+        <div class="form-group">
+            <label for="CarCodeString">كود السيارة:</label>
+            <input type="number" name="CarCodeString" value="@ViewData["CarCodeFilter"]" placeholder=" كود السيارة " style="width:100px" />
+
+            <label for="EmpCodeoSearch">رقم الموظف :</label>
+            <input type="number" name="EmpCodeoSearch" value="@ViewData["EmpCodeFilter"]" placeholder=" رقم الموظف" style="width:100px" />
+
+            <label for="EmpNameSearch">اسم الموظف:</label>
+            <input type="text" name="EmpNameSearch" value="@ViewData["EmpNameFilter"]" placeholder="اسم الموظف" style="width:120px" />
+
+            <label for="companyId"> الشركة:</label>
+            <select name="companyId" asp-items="ViewBag.Companies" class="form-control" style="width:120px">
+                <option value="">-- جميع الشركات --</option>
+            </select>
+            <label for="ContractType"> العقد:</label>
+            <select name="ContractType" asp-items="ViewBag.TimePeriods" class="form-control" style="width:120px">
+                <option value="">-- نوع العقد --</option>
+            </select>
+
+            <input type="submit" value="بحث" class="btn btn-primary" />
+            <a asp-action="Index" class="btn btn-secondary">إعادة تعيين</a>
+        </div>
+    </form>
+</div>
+
+
+
+
+<table class="bordered-table" dir="rtl">
+    <thead>
+        <tr>
+            <th>
+                رقم العقد
+            </th>
+            <th>
+               تاريخ العقد
+            </th>
+            <th>
+               كود السيارة
+            </th>
+            <th>
+               اسم الموظف
+            </th>
+            <th>
+                بداية العقد
+            </th>
+            <th>
+               نهاية العقد
+            </th>
+           
+            <th>
+               البلغ اليومي أو الشهري
+            </th>
+           
+            <th>
+               قيمة العقد
+            </th>
+            <th>
+                نوع العقد
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ContractNo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ContractDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Car!.CarCode)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Employee!.FullNameAr)
+            </td>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.StartDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EndDate)
+            </td>
+       
+            <td>
+                @Html.DisplayFor(modelItem => item.DailyCredit)
+            </td>
+         
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalCost)
+            </td>
+                <td>
+                    @if(item.ContractType ==0 )
+                    {
+                       <label>يومي</label>
+                    }
+                    else
+                    {
+                        <label>شهري</label>
+                    }
+                   
+                </td>
+            <td class="action-links">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn-edit"><i class="fas fa-edit"></i> تعديل</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn-details"><i class="fas fa-info-circle"></i> تفاصيل</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn-delete"><i class="fas fa-trash-alt"></i> حذف</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<div class="pagination-container" dir="rtl">
+    @{
+        var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+        var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+    }
+
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex - 1)"
+       asp-route-CarCodeString="@ViewData["CarCodeFilter"]"
+       asp-route-EmpCodeString="@ViewData["EmpCodeFilter"]"
+       asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+       asp-route-companyId="@ViewData["CompanyFilter"]"
+       asp-route-ContractType = "@ViewData["TimePeriods"]"
+       class="btn btn-default @prevDisabled">
+        السابق
+    </a>
+
+    <span>الصفحة @Model.PageIndex من @Model.TotalPages</span>
+
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex + 1)"
+       asp-route-CarCodeString="@ViewData["CarCodeFilter"]"
+       asp-route-EmpCodeString="@ViewData["EmpCodeFilter"]"
+       asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+       asp-route-companyId="@ViewData["CompanyFilter"]"
+       asp-route-ContractType="@ViewData["TimePeriods"]"
+       class="btn btn-default @nextDisabled">
+        التالي
+    </a>
+</div>

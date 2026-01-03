@@ -1,0 +1,202 @@
+﻿@model RahalWeb.Models.Contract
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">إضافة عقد</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">البيانات الاساسية</h5>
+                </div>
+                 <div class="col-md-3">
+                    <label asp-for="ContractNo" class="form-label">رقم العقد</label>
+                    <input asp-for="ContractNo" value="@ViewBag.MaxContractNo" class="form-control" disabled />
+                    <span asp-validation-for="ContractNo" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="ContractDate" class="form-label">تاريخ العقد</label>
+                    <input asp-for="ContractDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control"  disabled />
+                    <span asp-validation-for="ContractDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">نوع العقد</label>
+                    <select class="form-select" asp-items="ViewBag.TimePeriods" dir="rtl" required></select>
+                </div>
+
+                <div class="col-md-12"> </div>
+                <div class="col-md-3">
+                    <label class="form-label">اسم شركة السائق</label>
+                   @*  <select  class="form-select" asp-items="ViewBag.CompanyId" dir="rtl" required></select> *@
+                    @Html.DropDownList("CompanyId", ViewBag.CompanyId as SelectList, "-- إختيار شركة السائق --", new { @class = "form-control", id = "CompanyEmployee", required = "required" })
+
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">اسم السائق</label>
+                   @*  <select asp-for="EmployeeId" class="form-select" asp-items="ViewBag.EmployeeId" dir="rtl" required></select> *@
+                    @Html.DropDownList("EmployeeId", ViewBag.EmployeeId as SelectList, "-- إختيار السائق --", new { @class = "form-control", id = "EmployeeId", required = "required" })
+                </div>
+                <div class="col-md-12"> </div>
+                <div class="col-md-3">
+                    <label class="form-label">اسم شركة السيارة</label>
+                    @Html.DropDownList("CompanyId", ViewBag.CompanyId as SelectList, "-- إختيار شركة السيارة --", new { @class = "form-control", id = "CompanyCar", required = "required" })
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">رقم السيارة</label>
+                    @Html.DropDownList("CarId", ViewBag.EmployeeId as SelectList, "-- رقم السيارة --", new { @class = "form-control", id = "CarId", required = "required" })
+                </div>
+
+                <!-- Arabic Name Section -->
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">تفاصيل العقد </h5>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="StartDate" class="form-label">تاريخ بداية العقد</label>
+                    <input asp-for="StartDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" required />
+                    <span asp-validation-for="StartDate" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="EndDate" class="form-label">تاريخ نهاية العقد</label>
+                    <input asp-for="EndDate" type="date" class="form-control" required />
+                    <span asp-validation-for="EndDate" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="NoOfDays" class="form-label">عدد الأيام أو الأشهر</label>
+                    <input asp-for="NoOfDays" class="form-control" />
+                    <span asp-validation-for="NoOfDays" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="DailyCredit" class="form-label">المبلغ اليومي أو الشهري</label>
+                    <input asp-for="DailyCredit" class="form-control" />
+                    <span asp-validation-for="DailyCredit" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="TotalCost" class="form-label">قيمة العقد</label>
+                    <input asp-for="TotalCost" class="form-control" />
+                    <span asp-validation-for="TotalCost" class="text-danger small"></span>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> إضافة عفد
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    h5 {
+        color: #0d6efd;
+    }
+</style>
+
+
+<script>
+      $(document).ready(function() {
+        // Use proper selector for your dropdown
+        $("#CompanyEmployee").on('change', function() {
+            var CompanyId = $(this).val();
+            console.log("Selected carTypeId:", CompanyId); // Debugging
+
+            if (CompanyId) {
+                $.ajax({
+                    url: '@Url.Action("CompanyEmp", "Contracts")', // Better way to generate URL
+                    type: 'GET',
+                    data: { Id: CompanyId },
+                    success: function(data) {
+                        console.log("AJAX response:", data); // Debugging
+
+                        var CompEmpDropdown = $("#EmployeeId"); // Make sure this ID matches your second dropdown
+                        CompEmpDropdown.empty();
+                        CompEmpDropdown.append('<option value="">-- إختيار السائق --</option>');
+
+                        $.each(data, function(index, item) {
+                            CompEmpDropdown.append($('<option>', {
+                                value: item.id,
+                                text: item.fullNameAr // Case sensitive - match your JSON property
+                            }));
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX error:", error); // Debugging
+                    }
+                });
+            } else {
+                $("#CompEmpDropdown").empty().append('<option value="">-- إختيار النوع --</option>');
+            }
+        });
+    });
+</script>
+
+
+
+<script>
+      $(document).ready(function() {
+        // Use proper selector for your dropdown
+        $("#CompanyCar").on('change', function() {
+            var CompanyId = $(this).val();
+            console.log("Selected CompanyId:", CompanyId); // Debugging
+
+            if (CompanyId) {
+                $.ajax({
+                    url: '@Url.Action("CompanyCar", "Contracts")', // Better way to generate URL
+                    type: 'GET',
+                    data: { Id: CompanyId },
+                    success: function(data) {
+                        console.log("AJAX response:", data); // Debugging
+
+                        var CompCarDropdown = $("#CarId"); // Make sure this ID matches your second dropdown
+                        CompCarDropdown.empty();
+                        CompCarDropdown.append('<option value="">-- رقم السيارة --</option>');
+
+                        $.each(data, function(index, item) {
+                            CompCarDropdown.append($('<option>', {
+                                value: item.id,
+                                text: item.carNo // Case sensitive - match your JSON property
+                            }));
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX error:", error); // Debugging
+                    }
+                });
+            } else {
+                $("#CompCarDropdown").empty().append('<option value="">-- إختيار النوع --</option>');
+            }
+        });
+    });
+</script>

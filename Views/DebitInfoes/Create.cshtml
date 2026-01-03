@@ -1,0 +1,277 @@
+﻿@model RahalWeb.Models.DebitInfo
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<hr />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white"> إضافة دين  </h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">البيانات الاساسية</h5>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="DebitNo" class="form-label">رقم الفاتورة</label>
+                    <input asp-for="DebitNo" value="@ViewBag.maxDebitNo" class="form-control" readonly />
+                    <span asp-validation-for="DebitNo" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="DebitDate" class="form-label">تاريخ الفاتورة</label>
+                    <input asp-for="DebitDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" style="text-align:right" readonly />
+                    <span asp-validation-for="DebitDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Emp.EmpCode" class="form-label">كود الموظف</label>
+                    <input asp-for="Emp.EmpCode" type="number" value="" class="form-control" />
+                    <span asp-validation-for="Emp.EmpCode" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">اسم السائق</label>
+                    @*  <select asp-for="EmployeeId" style="text-align:right"  class="form-select" asp-items="ViewBag.EmployeeId"  dir="rtl" required></select> *@
+                    @Html.DropDownList("EmpId", ViewBag.EmployeeId as SelectList, "-- إختيار السائق --", new { @class = "form-control", id = "EmployeeSelect", required = "required" })
+                </div>
+
+              
+
+
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">تفاصيل الدين </h5>
+                </div>
+
+                  <div class="col-md-3">
+                    <label class="form-label">نوع الدين</label>
+                    @*  <select asp-for="EmployeeId" style="text-align:right"  class="form-select" asp-items="ViewBag.EmployeeId"  dir="rtl" required></select> *@
+                    @Html.DropDownList("DebitTypeId", ViewBag.DefTypeId as SelectList, "-- إختيار الدين --", new { @class = "form-control", id = "DebitTypeSelect", required = "required" })
+                </div>
+
+
+                <div class="col-md-2">
+                    <label asp-for="DebitQty" class="form-label">المبلغ</label>
+                    <input asp-for="DebitQty" class="form-control" onchange="calculateToDateAndCost" required />
+                    <span asp-validation-for="DebitQty" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-7">
+                    <label asp-for="DebitDescrp" class="form-label">السبب</label>
+                    <input asp-for="DebitDescrp"  class="form-control"  />
+                    <span asp-validation-for ="DebitDescrp" class="text-danger small"></span>
+                </div>
+                <!-- Form Actions -->
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> إضافة دين
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+     $(document).ready(function() {
+        console.log('Start');
+        $('#EmployeeSelect').change(function() {
+            var employeeId = $(this).val();
+            console.log('Employee ID:', employeeId);
+
+            if (employeeId) {
+                $.ajax({
+                    url: '@Url.Action("GetLastBillForEmployeeMonthly", "Bills")',
+                    type: 'GET',
+                    data: { employeeId: employeeId },
+                    success: function(data) {
+                        console.log('Received data:', data);
+
+                        // Reset all fields first
+                        $('#LastBillInput').val('');
+                        $('#LastFromDateInput').val('');
+                        $('#LastToDateInput').val('');
+                        $('#CostPerDay').val('');
+                        $('input[name="FromDate"]').val('');
+                        $('input[name="ToDate"]').val('');
+                        $('#BillPayed').val('');
+
+                        if (data) {
+                            if (data.billNo) {
+                                // Case 1: We have bill data
+                                $('#LastBillInput').val(data.billNo);
+                                $('#CostPerDay').val(data.dailyCredit);
+                                 $('#BillPayed').val(data.dailyCredit);
+                                // Format dates if they exist
+                                if (data.fromDate) {
+                                    const fromDate = new Date(data.fromDate);
+                                    $('#LastFromDateInput').val(fromDate.toLocaleDateString('ar-EG'));
+                                }
+
+                                if (data.toDate) {
+                                    const toDate = new Date(data.toDate);
+                                    $('#LastToDateInput').val(toDate.toLocaleDateString('ar-EG'));
+
+                                    toDate.setDate(toDate.getDate() + 1);
+                                    console.error('test');
+                                    // Format the date as YYYY-MM-DD for the input
+                                    const nextDay = toDate.toISOString().split('T')[0];
+                                    // Set the FromDate value
+                                    $('input[name="FromDate"]').val(nextDay);
+                                   calculateToDateAndCost();
+
+                                }
+
+                                if (data.billDate) {
+                                    const billDate = new Date(data.billDate);
+                                    $('#BillDateInput').val(billDate.toLocaleDateString('ar-EG'));
+                                }
+                            } else if (data.dailyCredit || data.startDate) {
+                                // Case 2: No bill data but we have contract data
+                                if (data.dailyCredit) {
+                                    $('#CostPerDay').val(data.dailyCredit);
+                                    $('#BillPayed').val(data.dailyCredit);
+                                }
+
+                                if (data.startDate) {
+                                    const startDate = new Date(data.startDate);
+                                    // Format the date as YYYY-MM-DD for the input
+                                    const formattedStartDate = startDate.toISOString().split('T')[0];
+                                    $('input[name="FromDate"]').val(formattedStartDate);
+                                    calculateToDateAndCost()
+
+                                }
+                                $('#LastBillInput').val('');
+                            }
+                        } else {
+                            // Case 3: No data at all
+                            $('#LastBillInput').val('');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching last bill number:', error);
+                        $('#LastBillInput').val('');
+                        $('#LastFromDateInput').val('');
+                        $('#LastToDateInput').val('');
+
+                    }
+                });
+            } else {
+                // Reset all fields if no employee selected
+                $('#LastBillInput').val('000');
+                $('#LastFromDateInput').val('');
+                $('#LastToDateInput').val('');
+            }
+        });
+
+        // Trigger change on page load if employee is selected
+        if ($('#EmployeeSelect').val()) {
+            $('#EmployeeSelect').trigger('change');
+        }
+    });
+</script>
+<script>
+        function calculateToDateAndCost() {
+        const fromDateInput = document.getElementById('FromDate');
+        const noOfDaysInput = document.getElementById('NoOfDays');
+        const toDateInput = document.getElementById('ToDate');
+        const billPayedInput = document.getElementById('BillPayed');
+        const billCostBerDay = document.getElementById('CostPerDay');
+
+        if (fromDateInput.value && noOfDaysInput.value) {
+            // 1. Calculate ToDate by adding months instead of days
+            const fromDate = new Date(fromDateInput.value);
+            const noOfMonths = parseInt(noOfDaysInput.value) || 0;
+            const toDate = new Date(fromDate);
+
+            // Add the number of months to the date
+            toDate.setMonth(toDate.getMonth() + noOfMonths);
+
+            // Subtract one day to get the end of the period
+            toDate.setDate(toDate.getDate() - 1);
+
+            toDateInput.value = toDate.toISOString().split('T')[0];
+
+            // 2. Calculate Total Cost (assuming CostPerDay is actually per month now)
+            const costPerMonth = parseFloat(billCostBerDay.value) || 0;
+            const totalCost = noOfMonths * costPerMonth;
+            billPayedInput.value = totalCost;
+            console.log("Total Cost Calculated:", totalCost);
+        } else {
+            console.error("Missing required inputs (FromDate or NoOfDays)");
+        }
+    }
+
+    // Add event listeners
+    document.getElementById("FromDate").addEventListener("change", calculateToDateAndCost);
+    document.getElementById("NoOfDays").addEventListener("input", calculateToDateAndCost);
+    document.getElementById("CostPerDay").addEventListener("change", calculateToDateAndCost);
+
+    // Initialize the calculation when the page loads
+    window.addEventListener('load', calculateToDateAndCost);
+
+</script>
+<script>
+    function validateMinValue(input) {
+        if (input.value < 1) {
+            input.value = 1; // Reset to minimum allowed value
+        }
+    }
+</script>
+<script>
+    $(document).ready(function() {
+        // Employee code change handler
+        $("#Emp_EmpCode").on('change', function() {
+            var empCode = $(this).val();
+            console.log('Employee Code changed:', empCode); // Debug log
+
+            if (empCode) {
+                $.ajax({
+                    url: '@Url.Action("GetEmployeeByCode", "DebitInfoes")',
+                    type: 'GET',
+                    data: { empCode: empCode },
+                    success: function(data) {
+                        console.log('AJAX response:', data); // Debug log
+                        if (data) {
+                            // Set the employee dropdown
+                            if (data.employeeId) {
+                                $("#EmployeeSelect").val(data.employeeId);
+                                console.log('EmployeeSelect set to:', data.employeeId);
+                            } else {
+                                console.log('No employeeId in response');
+                            }
+
+                            
+                           
+                        } else {
+                            console.log('No employee found');
+                            $("#EmployeeSelect").val('');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX error:", error);
+                        console.log("Status:", status);
+                        console.log("XHR:", xhr);
+                        alert("Error fetching employee data. Please try again.");
+                    }
+                });
+            } else {
+                // Clear dropdown if empCode is empty
+                $("#EmployeeSelect").val('');
+            }
+        });
+    });
+</script>

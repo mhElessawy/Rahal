@@ -1,0 +1,395 @@
+﻿@model RahalWeb.Models.Contract
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<style>
+    .card {
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    h5 {
+        color: #0d6efd;
+    }
+</style>
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">إضافة عقد شهري</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateMonthly" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">البيانات الاساسية</h5>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="ContractNo" class="form-label">رقم العقد</label>
+                    <input asp-for="ContractNo" value="@ViewBag.MaxContractNo" class="form-control" readonly />
+                    <span asp-validation-for="ContractNo" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="ContractDate" class="form-label">تاريخ العقد</label>
+                    <input asp-for="ContractDate" value="@DateTime.Now.ToString("dd-MM-yyyy")" class="form-control" readonly />
+                    <span asp-validation-for="ContractDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-12"> </div>
+                <div class="col-md-3">
+                    <label asp-for="Employee.EmpCode" class="form-label">كود الموظف</label>
+                    <input asp-for="Employee.EmpCode" type="number" value="" class="form-control" />
+                    <span asp-validation-for="Employee.EmpCode" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">اسم شركة السائق</label>
+                    @Html.DropDownList("CompanyId", ViewBag.CompanyId as SelectList, "-- إختيار شركة السائق --", new { @class = "form-control", id = "CompanyEmployee", required = "required" })
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">اسم السائق</label>
+                    @Html.DropDownList("EmployeeId", ViewBag.EmployeeId as SelectList, "-- إختيار السائق --", new { @class = "form-control", id = "EmployeeId", required = "required" })
+                </div>
+                <div class="col-md-12"> </div>
+                <div class="col-md-3">
+                    <label asp-for="Car.CarCode" class="form-label">كود السيارة</label>
+                    <input asp-for="Car.CarCode" type="number" value="" class="form-control" />
+                    <span asp-validation-for="Car.CarCode" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">اسم شركة السيارة</label>
+                    @Html.DropDownList("CompanyId", ViewBag.CompanyId as SelectList, "-- إختيار شركة السيارة --", new { @class = "form-control", id = "CompanyCar", required = "required" })
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">رقم السيارة</label>
+                    @Html.DropDownList("CarId", ViewBag.CarId as SelectList, "-- رقم السيارة --", new { @class = "form-control", id = "CarId", required = "required" })
+                </div>
+                <!-- Arabic Name Section -->
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">تفاصيل العقد </h5>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="StartDate" class="form-label">تاريخ بداية العقد</label>
+                    <input asp-for="StartDate" id="StartDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" required onchange="calculateMonths()" />
+                    <span asp-validation-for="StartDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="NoOfDays" class="form-label">عدد الأشهر</label>
+                    <input asp-for="NoOfDays" id="NoOfDays" value="1" class="form-control" onchange="calculateMonths()" oninput="validateMinValue(this)" />
+                    <span asp-validation-for="NoOfDays" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="EndDate" class="form-label">تاريخ نهاية العقد</label>
+                    <input asp-for="EndDate" id="EndDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" readonly />
+                    <span asp-validation-for="EndDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="DailyCredit" class="form-label">المبلغ الشهري </label>
+                    <input asp-for="DailyCredit" class="form-control" onchange="calculateTotalCost()" />
+                    <span asp-validation-for="DailyCredit" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="TotalCost" class="form-label">قيمة العقد</label>
+                    <input asp-for="TotalCost" class="form-control" readonly />
+                    <span asp-validation-for="TotalCost" class="text-danger small"></span>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">تفاصيل الأقساط </h5>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="CreditStartDate" class="form-label">تاريخ بداية القسط</label>
+                    <input asp-for="CreditStartDate" id="CreditStartDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" required onchange="creditCalculateMonths()" />
+                    <span asp-validation-for="CreditStartDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="CreditNoOfMonth" class="form-label">عدد الأقساط</label>
+                    <input asp-for="CreditNoOfMonth" id="CreditNoOfMonth" value="1" type="number" class="form-control" onchange="creditCalculateMonths()" oninput="validateMinValue(this)" />
+                    <span asp-validation-for="CreditNoOfMonth" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="CreditEndDate" class="form-label">تاريخ نهاية القسط</label>
+                    <input asp-for="CreditEndDate" id="CreditEndDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" readonly />
+                    <span asp-validation-for="CreditEndDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="CreditMonthPay" class="form-label">القسط الشهري </label>
+                    <input asp-for="CreditMonthPay" id="CreditMonthPay" class="form-control" onchange="creditCalculateTotalCost()" />
+                    <span asp-validation-for="CreditMonthPay" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="CreditTotalCost" class="form-label">إجمالي المبلغ</label>
+                    <input asp-for="CreditTotalCost" id="CreditTotalCost" class="form-control" readonly />
+                    <span asp-validation-for="CreditTotalCost" class="text-danger small"></span>
+                </div>
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">الأجازة الثانوية </h5>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="HaveVacation" class="form-label">يحصل على أجازة</label>
+                    <input type="checkbox" asp-for="HaveVacation" class="form-check-input" value="true" />
+                    <span asp-validation-for="HaveVacation" class="text-danger small"></span>
+                </div>
+                <!-- Form Actions -->
+                <div class="d-flex justify-content-between">
+                    <a asp-action="IndexMonthly" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> إضافة عقد
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        // Employee code change handler
+        $("#Employee_EmpCode").on('change', function() {
+            var empCode = $(this).val();
+            if (empCode) {
+                $.ajax({
+                    url: '@Url.Action("GetEmployeeByCode", "Contracts")',
+                    type: 'GET',
+                    data: { empCode: empCode },
+                    success: function(data) {
+                        if (data) {
+                            // Set the company dropdown
+                            $("#CompanyEmployee").val(data.companyId).trigger('change');
+
+                            // Need to wait for the employee dropdown to populate
+                            setTimeout(function() {
+                                $("#EmployeeId").val(data.employeeId);
+                            }, 500);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX error:", error);
+                    }
+                });
+            }
+        });
+
+        // Company change handler for employees
+        $("#CompanyEmployee").on('change', function() {
+            var CompanyId = $(this).val();
+            console.log("Selected company:", CompanyId);
+
+            if (CompanyId) {
+                $.ajax({
+                    url: '@Url.Action("CompanyEmp", "Contracts")',
+                    type: 'GET',
+                    data: { Id: CompanyId },
+                    success: function(data) {
+                        console.log("AJAX response:", data);
+
+                        var CompEmpDropdown = $("#EmployeeId");
+                        CompEmpDropdown.empty();
+                        CompEmpDropdown.append('<option value="">-- إختيار السائق --</option>');
+
+                        $.each(data, function(index, item) {
+                            CompEmpDropdown.append($('<option>', {
+                                value: item.id,
+                                text: item.fullNameAr
+                            }));
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX error:", error);
+                    }
+                });
+            } else {
+                $("#EmployeeId").empty().append('<option value="">-- إختيار السائق --</option>');
+            }
+        });
+
+        // Car code change handler
+        $("#Car_CarCode").on('change', function() {
+            var carCode = $(this).val();
+            if (carCode) {
+                $.ajax({
+                    url: '@Url.Action("GetCarByCode", "Contracts")',
+                    type: 'GET',
+                    data: { carCode: carCode },
+                    success: function(data) {
+                        if (data) {
+                            // Set the company dropdown
+                            $("#CompanyCar").val(data.companyId).trigger('change');
+
+                            // Set number of installments (credits)
+                            $("#CreditNoOfMonth").val(data.noOfCredit);
+
+                            // Calculate and set monthly payment
+                            if (data.noOfCredit > 0 && data.carCredit > 0) {
+                                var monthlyPayment = (data.carCredit / data.noOfCredit).toFixed(2);
+                                $("#CreditMonthPay").val(monthlyPayment);
+                            } else {
+                                $("#CreditMonthPay").val(0);
+                            }
+
+                            // Set total credit cost
+                            $("#CreditTotalCost").val(data.carCredit);
+
+                            // Trigger calculations to update dependent fields
+                            creditCalculateMonths();
+
+                            // Need to wait for the car dropdown to populate
+                            setTimeout(function() {
+                                $("#CarId").val(data.carId);
+                            }, 500);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX error:", error);
+                    }
+                });
+            }
+        });
+
+        // Company change handler for cars
+        $("#CompanyCar").on('change', function() {
+            var CompanyId = $(this).val();
+            console.log("Selected CompanyId:", CompanyId);
+
+            if (CompanyId) {
+                $.ajax({
+                    url: '@Url.Action("CompanyCar", "Contracts")',
+                    type: 'GET',
+                    data: { Id: CompanyId },
+                    success: function(data) {
+                        console.log("AJAX response:", data);
+
+                        var CompCarDropdown = $("#CarId");
+                        CompCarDropdown.empty();
+                        CompCarDropdown.append('<option value="">-- رقم السيارة --</option>');
+
+                        $.each(data, function(index, item) {
+                            CompCarDropdown.append($('<option>', {
+                                value: item.id,
+                                text: item.carNo
+                            }));
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX error:", error);
+                    }
+                });
+            } else {
+                $("#CarId").empty().append('<option value="">-- رقم السيارة --</option>');
+            }
+        });
+    });
+</script>
+<script>
+    function calculateMonths() {
+        const startDateInput = document.getElementById('StartDate');
+        const noOfDaysInput = document.getElementById('NoOfDays');
+        const endDateInput = document.getElementById('EndDate');
+
+        if (startDateInput.value && noOfDaysInput.value) {
+            const startDate = new Date(startDateInput.value);
+            const noOfMonths = parseInt(noOfDaysInput.value);
+
+            // Calculate end date by adding months to start date
+            const endDate = new Date(startDate);
+            endDate.setMonth(endDate.getMonth() + noOfMonths);
+
+            // Format the date as YYYY-MM-DD for the input
+            const formattedEndDate = endDate.toISOString().split('T')[0];
+            endDateInput.value = formattedEndDate;
+
+            // Trigger total cost calculation
+            calculateTotalCost();
+        }
+    }
+
+    function calculateTotalCost() {
+        const dailyCreditInput = document.getElementById('DailyCredit');
+        const noOfDaysInput = document.getElementById('NoOfDays');
+        const totalCostInput = document.getElementById('TotalCost');
+
+        if (dailyCreditInput.value && noOfDaysInput.value) {
+            const dailyCredit = parseFloat(dailyCreditInput.value);
+            const noOfMonths = parseInt(noOfDaysInput.value);
+
+            // Calculate total cost (monthly credit * number of months)
+            const totalCost = dailyCredit * noOfMonths;
+            totalCostInput.value = totalCost.toFixed(2);
+        }
+    }
+
+    // Add event listeners for contract details
+    document.getElementById('StartDate').addEventListener('change', calculateMonths);
+    document.getElementById('NoOfDays').addEventListener('change', calculateMonths);
+    document.getElementById('DailyCredit').addEventListener('change', calculateTotalCost);
+</script>
+<script>
+    function creditCalculateMonths() {
+        const startDateInput = document.getElementById('CreditStartDate');
+        const noOfMonthsInput = document.getElementById('CreditNoOfMonth');
+        const endDateInput = document.getElementById('CreditEndDate');
+
+        if (startDateInput.value && noOfMonthsInput.value) {
+            const startDate = new Date(startDateInput.value);
+            const noOfMonths = parseInt(noOfMonthsInput.value);
+
+            // Calculate end date by adding months to start date
+            const endDate = new Date(startDate);
+            endDate.setMonth(endDate.getMonth() + noOfMonths);
+
+            // Format the date as YYYY-MM-DD for the input
+            const formattedEndDate = endDate.toISOString().split('T')[0];
+            endDateInput.value = formattedEndDate;
+
+            // Trigger total cost calculation
+            creditCalculateTotalCost();
+        }
+    }
+
+    function creditCalculateTotalCost() {
+        const monthlyPaymentInput = document.getElementById('CreditMonthPay');
+        const noOfMonthsInput = document.getElementById('CreditNoOfMonth');
+        const totalCostInput = document.getElementById('CreditTotalCost');
+
+        if (monthlyPaymentInput.value && noOfMonthsInput.value) {
+            const monthlyPayment = parseFloat(monthlyPaymentInput.value);
+            const noOfMonths = parseInt(noOfMonthsInput.value);
+
+            // Calculate total cost (monthly payment * number of months)
+            const totalCost = monthlyPayment * noOfMonths;
+            totalCostInput.value = totalCost.toFixed(2);
+        }
+    }
+
+    // Add event listeners for credit details
+    document.getElementById('CreditStartDate').addEventListener('change', creditCalculateMonths);
+    document.getElementById('CreditNoOfMonth').addEventListener('change', creditCalculateMonths);
+    document.getElementById('CreditMonthPay').addEventListener('change', creditCalculateTotalCost);
+</script>
+<script>
+    function validateMinValue(input) {
+        if (input.value < 1) {
+            input.value = 1; // Reset to minimum allowed value
+        }
+        if (input.value > 1000){
+            input.value = 1000;
+        }
+    }
+</script>
+<script>
+    // Initialize calculations on page load
+    window.addEventListener('DOMContentLoaded', function() {
+        calculateMonths();
+        calculateTotalCost();
+        creditCalculateMonths();
+        creditCalculateTotalCost();
+    });
+</script>

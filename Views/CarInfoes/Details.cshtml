@@ -1,0 +1,104 @@
+﻿@model RahalWeb.Models.CarInfo
+@using RahalWeb.Models.MyModel
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var user = HttpContextAccessor.HttpContext!.Session.GetObjectFromJson<PasswordDatum>("CurrentUser");
+}
+
+
+<div class="company-info-container" dir="rtl">
+    <div class="company-info-header">
+        <h4>بيانات السيارة</h4>
+        <div class="action-buttons">
+            @if (user!.CarSave == true)
+            {
+            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">تعديل</a>
+            }
+            <a asp-action="Index" class="btn btn-secondary">العوده لصفحة السيارات</a>
+        </div>
+    </div>
+
+    <div class="company-info-body" dir="rtl">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>البيانات الأساسية</h5>
+                    <div class="info-item">
+                        <label>الشركة</label>
+                        <span>@Html.DisplayFor(model => model.Company!.CompNameAr)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>كود السيارة</label>
+                        <span>@Html.DisplayFor(model => model.CarCode)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>رقم السيارة</label>
+                        <span>@Html.DisplayFor(model => model.CarNo)</span>
+                    </div>
+                   
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>بيانات السيارة</h5>
+                    <div class="info-item">
+                        <label>الصنع </label>
+                        <span>@Html.DisplayFor(model => model.CarType!.DeffName)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>النوع</label>
+                        <span>@Html.DisplayFor(model => model.CarKind!.DeffName)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>الشكل </label>
+                        <span>@Html.DisplayFor(model => model.CarShape!.DeffName)</span>
+                    </div>
+                   
+                    <div class="info-item">
+                        <label>اللون </label>
+                        <span>@Html.DisplayFor(model => model.CarColor)</span>
+                    </div>
+
+                    <div class="info-item">
+                        <label>الموديل </label>
+                        <span>@Html.DisplayFor(model => model.CarModel)</span>
+                    </div>
+
+                    <!-- Repeat for other owners -->
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section status-section" dir="rtl">
+            <div class="col-md-12">
+                <h5>معلومات عامة</h5>
+            </div>
+            <div class="col-md-4">
+                <div class="info-item">
+                    <label>إنتهاء الدفتر</label>
+                    <span>@Html.DisplayFor(model => model.CarEndLicense)</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="info-item">
+                    <label>تاريخ التسجيل</label>
+                    <span>@Html.DisplayFor(model => model.RegDate)</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="info-item">
+                    <label>خروج السيارة من الخدمة</label>
+                    <span>@Html.DisplayFor(model => model.CarEndDate)</span>
+                </div>
+            </<div>
+        </div>
+    </div>
+    
+        </div>
+    </div>
+</div>
+
+
+

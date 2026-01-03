@@ -1,0 +1,69 @@
+﻿@model RahalWeb.Models.Bill
+@{
+    ViewData["Title"] = "DeleteMonthly";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="delete-confirmation-container" dir="rtl">
+    <div class="delete-header">
+        <h1 class="delete-title">حذف بيانات الفاتورة </h1>
+        <div class="delete-warning alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>تحذير:</strong> سوف يتم حذف بيانات الفاتورة و لا يمكن استعادتها مرة آخرى.
+        </div>
+    </div>
+    <div class="company-details-card">
+        <div class="card-header">
+            <h4>تفاصيل بيانات الفاتورة</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="detail-group">
+                        <label>رقم الفاتورة</label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.BillNo)</div>
+                    </div>
+                    <div class="detail-group">
+                        <label>اسم السائق </label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.Employee!.FullNameAr)</div>
+                    </div>
+                    <div class="detail-group">
+                        <label>تاريخ الفاتورة</label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.BillDate)</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-group">
+                        <label>من تاريخ</label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.FromDate)</div>
+                    </div>
+                    <div class="detail-group">
+                        <label>إلى تاريخ</label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.ToDate)</div>
+                    </div>
+                    <div class="detail-group">
+                        <label>المبلغ</label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.BillPayed)</div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="delete-actions">
+        <form asp-action="DeleteDaily" class="delete-form">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger btn-lg delete-button">
+                <i class="fas fa-trash-alt"></i> تأكيد الحذف
+            </button>
+            <a asp-action="IndexDaily" class="btn btn-outline-secondary btn-lg cancel-button">
+                <i class="fas fa-times"></i> إالغاء
+            </a>
+        </form>
+    </div>
+</div>
+
+
+
+<!-- Include Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

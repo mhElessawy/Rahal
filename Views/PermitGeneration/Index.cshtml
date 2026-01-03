@@ -1,0 +1,157 @@
+﻿@{
+    ViewData["Title"] = "إنشاء تصريح إجرة جوالة";
+}
+
+<div class="container mt-4" dir="rtl">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">@ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            @TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <!-- Quick Search Form -->
+                    <div class="mb-4">
+                        <h5 class="text-center mb-3">بحث سريع</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input type="text" id="quickEmpCode" class="form-control"
+                                           placeholder="أدخل كود الموظف">
+                                    <button class="btn btn-success" onclick="searchByCode()">
+                                        <i class="fas fa-search"></i> بحث
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input type="text" id="quickCivilId" class="form-control"
+                                           placeholder="أدخل الرقم المدني">
+                                    <button class="btn btn-success" onclick="searchByCivilId()">
+                                        <i class="fas fa-search"></i> بحث
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Advanced Search Link -->
+                    <div class="text-center">
+                        <a asp-controller="PermitGeneration" asp-action="Search" class="btn btn-primary btn-lg">
+                            <i class="fas fa-search-plus"></i> بحث متقدم
+                        </a>
+                    </div>
+
+                    <!-- Autocomplete Search -->
+                    <div class="mt-4">
+                        <h5 class="text-center mb-3">أو ابحث بالاسم</h5>
+                        <select id="employeeSelect" class="form-control">
+                            <option value="">اكتب اسم الموظف، الرقم المدني، أو الكود</option>
+                        </select>
+                        <div class="text-center mt-3">
+                            <button id="generateBtn" class="btn btn-warning" disabled>
+                                <i class="fas fa-file-word"></i> إنشاء التصريح
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize Select2
+            $('#employeeSelect').select2({
+                ajax: {
+                    url: '@Url.Action("GetEmployeeSuggestions", "PermitGeneration")',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return { term: params.term };
+                    },
+                    processResults: function(data) {
+                        return { results: data };
+                    }
+                },
+                minimumInputLength: 2,
+                placeholder: 'ابحث عن موظف...',
+                language: {
+                    noResults: function() {
+                        return "لم يتم العثور على نتائج";
+                    }
+                }
+            });
+
+            // Enable generate button when employee is selected
+            $('#employeeSelect').on('select2:select', function(e) {
+                var data = e.params.data;
+                $('#generateBtn').prop('disabled', false).data('employeeId', data.id);
+            });
+
+            // Handle generate button click
+            $('#generateBtn').click(function() {
+                var employeeId = $(this).data('employeeId');
+                if (employeeId) {
+                    window.location.href = '@Url.Action("Generate", "PermitGeneration")?id=' + employeeId;
+                }
+            });
+        });
+
+        function searchByCode() {
+            var empCode = $('#quickEmpCode').val();
+            if (empCode) {
+                // Make sure controller name matches exactly
+                var url = '/PermitGeneration/QuickByCode?empCode=' + encodeURIComponent(empCode);
+                window.location.href = url;
+            } else {
+                alert('الرجاء إدخال كود الموظف');
+            }
+        }
+
+        function searchByCivilId() {
+            var civilId = $('#quickCivilId').val();
+            if (civilId) {
+                var url = '/PermitGeneration/QuickByCivilId?civilId=' + encodeURIComponent(civilId);
+                window.location.href = url;
+            } else {
+                alert('الرجاء إدخال الرقم المدني');
+            }
+        }
+
+        // Submit on Enter in quick search fields
+        $('#quickEmpCode, #quickCivilId').keypress(function(e) {
+            if (e.which == 13) {
+                if ($(this).attr('id') === 'quickEmpCode') {
+                    searchByCode();
+                } else {
+                    searchByCivilId();
+                }
+                return false; // Prevent form submission
+            }
+        });
+    </script>

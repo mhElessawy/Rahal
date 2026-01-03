@@ -1,0 +1,243 @@
+﻿@using RahalWeb.Models.MyModel
+@model RahalWeb.Models.ContractDetail
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var user = HttpContextAccessor.HttpContext!.Session.GetObjectFromJson<PasswordDatum>("CurrentUser");
+}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<form asp-action="Pay" asp-controller="ContractDetails" class="row g-3" method="post">
+    <!-- Add this hidden field for the ID -->
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="DailyCredit" />
+    <input type="hidden" asp-for="CarCredit" />
+    <input type="hidden" asp-for="DailyCreditDate" />
+    <input type="hidden" asp-for="ContractId" />
+    <div class="company-info-container" dir="rtl">
+        <div class="company-info-header">
+            <h4>بيانات الدفع</h4>
+            <div class="action-buttons">
+                <button type="submit" class="btn btn-primary">دفع</button>
+                <a asp-action="Index" class="btn btn-secondary">العوده لشاشة التحصيل</a>
+            </div>
+        </div>
+        <div class="company-info-body" dir="rtl">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="info-section">
+                        <h5>البيانات الأساسية</h5>
+                        <div class="info-item">
+                            <label>رقم العقد</label>
+                            <span>@Html.DisplayFor(model => model.Contract!.ContractNo)</span>
+                        </div>
+                        <div class="info-item">
+                            <label>اسم السائق</label>
+                            <span>@Html.DisplayFor(model => model.Contract!.Employee!.FullNameAr)</span>
+                        </div>
+                        <div class="info-item">
+                            <label>رقم السائق</label>
+                            <span>@Html.DisplayFor(model => model.Contract!.Employee!.EmpCode)</span>
+                        </div>
+                        <div class="info-item">
+                            <label>رقم السيارة</label>
+                            <span>@Html.DisplayFor(model => model.Contract!.Car!.CarCode)</span>
+                        </div>
+                        <div class="info-item">
+                            <label>تاريخ المراد دفعه</label>
+                            <span>@(Model.DailyCreditDate?.ToString("yyyy/MM/01") ?? "N/A")</span>
+                        </div>
+
+                        <div class="info-item">
+                            <label>إلى تاريخ</label>
+                            <span id="toDateField">@Html.DisplayFor(model => model.DailyCreditDate)</span>
+                        </div>
+                        <div>
+                            <label>عدد الأشهر المراد دفعها</label>
+                            <input type="number" value="1" id="NoOfMonth" name="NoOfMonth" min="1" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="info-section">
+                        <h5>بيانات الدفع</h5>
+                    
+                        <div class="info-item">
+                            <label>مبلغ الإيجار</label>
+                            <span id="dailyCredit">@Html.DisplayFor(model => model.DailyCredit)</span>
+                        </div>
+                      
+                        <div class="info-item">
+                            <label>مبلغ القسط</label>
+                            <span id="carCredit">@Html.DisplayFor(model => model.CarCredit)</span>
+                        </div>
+
+                        @if (user!.DebitLatePay == true)
+                        {
+                            <div class="info-item">
+                                <label>مبلغ الغرامه</label>
+
+                                <input type="number" id="latePay" name="latePay" value="@(ViewBag.LatePay ?? 0)" />
+                               
+                                @Html.Hidden("latePayId", ViewBag.LatePayId as int?)
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="info-item">
+                                <label>مبلغ الغرامه</label>
+
+                                <span id="latePay">@ViewBag.LatePay</span>
+                                @Html.Hidden("latePay", ViewBag.LatePay as decimal?)
+                                @Html.Hidden("latePayId", ViewBag.LatePayId as int?)
+
+                            </div>
+                        }
+                        
+
+
+
+                        <div>
+                            <label> سوف يتم تحويل الغرامه إلى دين </label>
+                        </div>
+                        <div class="info-item">
+                            <label>المبلغ الإجمالي</label>
+                            <span id="totalAmount">0</span>
+                        </div>
+                        
+                       
+                        <input type="hidden" asp-for="DailyCredit" />
+                        <input type="hidden" asp-for="CarCredit" />
+                        <input type="hidden" asp-for="ContractId" />
+                        <div class="info-item">
+                            <label>تاريخ الدفع</label>
+                            <span> @DateOnly.FromDateTime(DateTime.Now)</span>
+                        </div>
+                        <!-- Repeat for other owners -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</form>
+
+<script>
+        $(document).ready(function() {
+        const monthsInput = $("#NoOfMonth");
+        const toDateSpan = $("#toDateField");
+        const dailyCreditSpan = $("#dailyCredit");
+        const carCreditSpan = $("#carCredit");
+        const latePayInput = $("#latePay"); // This could be either input or span
+        const totalAmountSpan = $("#totalAmount");
+        const dailyCreditInput = $("#DailyCredit");
+        const carCreditInput = $("#CarCredit");
+
+        // Function to format number with commas
+        function formatNumber(num) {
+            return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
+        }
+
+        // Function to parse value from text (removes commas and converts to number)
+        function parseValue(text) {
+            return parseFloat(text.replace(/,/g, '')) || 0;
+        }
+
+        // Function to get late pay value based on element type
+        function getLatePayValue() {
+            // Check if the latePay element is an input (editable) or span (fixed)
+            if (latePayInput.is('input')) {
+                return parseFloat(latePayInput.val()) || 0;
+            } else {
+                return parseValue(latePayInput.text());
+            }
+        }
+
+        // Function to calculate and update the total
+        function calculateTotal() {
+            const dailyCredit = parseValue(dailyCreditSpan.text());
+            const carCredit = parseValue(carCreditSpan.text());
+            const latePay = getLatePayValue();
+
+            const total = dailyCredit + carCredit + latePay;
+            totalAmountSpan.text(formatNumber(total));
+        }
+
+        // Handle month changes
+        monthsInput.on('change', function() {
+            const months = $(this).val();
+            if (months <= 0) {
+                $(this).val(1);
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("GetPaymentDetails", "ContractDetails")',
+                type: 'GET',
+                data: {
+                    contractId: $("#ContractId").val(),
+                    months: months
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Update all displayed values
+                        toDateSpan.text(response.lastDate);
+                        dailyCreditSpan.text(formatNumber(response.totalDailyCredit));
+                        carCreditSpan.text(formatNumber(response.totalCarCredit));
+
+                        // Update hidden form fields
+                        dailyCreditInput.val(response.totalDailyCredit);
+                        carCreditInput.val(response.totalCarCredit);
+
+                        // Calculate the new total
+                        calculateTotal();
+                    } else {
+                        console.error("Server error:", response.message);
+                    }
+                },
+                error: function(xhr) {
+                    console.error("AJAX error:", xhr.responseText);
+                    alert('حدث خطأ أثناء جلب البيانات');
+                }
+            });
+        });
+
+        // Only add input event listener if the latePay is an input (DebitLatePay = true)
+        if (latePayInput.is('input')) {
+            latePayInput.on('input', function() {
+                calculateTotal();
+            });
+        }
+
+        // Initialize on load
+        monthsInput.trigger('change');
+    });
+     
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const latePayInput = document.getElementById('latePay');
+
+        // Initialize with 0 if empty
+        if (latePayInput.value === '') {
+            latePayInput.value = 0;
+        }
+
+        // Handle input events
+        latePayInput.addEventListener('input', function() {
+            if (this.value === '') {
+                this.value = 0;
+            }
+        });
+
+        // Handle blur event (when field loses focus)
+        latePayInput.addEventListener('blur', function() {
+            if (this.value === '') {
+                this.value = 0;
+            }
+        });
+    });
+</script>

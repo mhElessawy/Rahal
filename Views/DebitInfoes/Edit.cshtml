@@ -1,0 +1,143 @@
+﻿@model RahalWeb.Models.DebitInfo
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<hr />
+
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">تعديل الدين</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="DebitType" />
+                <input type="hidden" asp-for="EmpId" />
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">البيانات العامة</h5>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="DebitNo" class="form-label">رقم الدين</label>
+                    <input asp-for="DebitNo" class="form-control" readonly />
+                    <span asp-validation-for="DebitNo" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="DebitDate" class="form-label">تاريخ الدين</label>
+                    <input asp-for="DebitDate"  type="date" class="form-control" readonly />
+                    <span asp-validation-for="DebitDate" class="text-danger small"></span>
+                </div>
+
+
+                <!-- Arabic Name Section -->
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">بيانات الدين</h5>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">اسم السائق</label>
+                    @*  <select asp-for="EmployeeId" style="text-align:right"  class="form-select" asp-items="ViewBag.EmployeeId"  dir="rtl" required></select> *@
+                    @Html.DropDownList("EmpId", ViewBag.EmployeeId as SelectList, "-- إختيار السائق --", new { @class = "form-control", id = "EmployeeSelect", required = "required" })
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">نوع الدين</label>
+                    @*  <select asp-for="EmployeeId" style="text-align:right"  class="form-select" asp-items="ViewBag.EmployeeId"  dir="rtl" required></select> *@
+                    @Html.DropDownList("DebitTypeId", ViewBag.DefTypeId as SelectList, "-- إختيار نوع الدين --", new { @class = "form-control", id = "DebitTypeSelect", required = "required" })
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="DebitDescrp" class="form-label">السبب</label>
+                    <input asp-for="DebitDescrp" class="form-control" onchange="calculateToDateAndCost" required />
+                    <span asp-validation-for="DebitDescrp" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="DebitQty" class="form-label">المبلغ</label>
+                    <input asp-for="DebitQty" class="form-control" required />
+                    <span asp-validation-for="DebitQty" class="text-danger small"></span>
+                </div>
+
+             
+
+                <!-- English Name Section -->
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">البيانات الإضافية</h5>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="DebitPayed" class="form-label">المدفوع</label>
+                    <input asp-for="DebitPayed" class="form-control" />
+                    <span asp-validation-for="DebitPayed" class="text-danger small"></span>
+                </div>
+
+
+                 <div class="col-md-3">
+                    <label asp-for="DebitRemaining" class="form-label">الباقي</label>
+                    <input asp-for="DebitRemaining" class="form-control" readonly />
+                    <span asp-validation-for="DebitRemaining" class="text-danger small"></span>
+                </div> 
+
+              
+                <!-- Form Actions -->
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> تعديل بيانات فاتورة
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .card {
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    h5 {
+        color: #0d6efd;
+    }
+</style>
+
+
+<script>
+      document.querySelector("form").addEventListener("submit", function (e) {
+        const debitQty = parseFloat(document.getElementById("DebitQty").value);
+        const debitPayed = parseFloat(document.getElementById("DebitPayed").value);
+
+        if (debitQty <= 0) {
+            e.preventDefault();
+            alert("المبلغ يجب أن يكون أكبر من الصفر");
+            return false;
+        }
+
+        if (debitPayed > debitQty) {
+            e.preventDefault();
+            alert("المدفوع لا يمكن أن يكون أكبر من المبلغ");
+            return false;
+        }
+    });
+</script>

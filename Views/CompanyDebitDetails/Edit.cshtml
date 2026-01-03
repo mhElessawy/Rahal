@@ -1,0 +1,67 @@
+﻿@model RahalWeb.Models.CompanyDebitDetails
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit</h1>
+
+<h4>CompanyDebitDetails</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="CompDebitId" class="control-label"></label>
+                <select asp-for="CompDebitId" class="form-control" asp-items="ViewBag.CompDebitId"></select>
+                <span asp-validation-for="CompDebitId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CompDebitDetailsNo" class="control-label"></label>
+                <input asp-for="CompDebitDetailsNo" class="form-control" />
+                <span asp-validation-for="CompDebitDetailsNo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CompDebitPayed" class="control-label"></label>
+                <input asp-for="CompDebitPayed" class="form-control" />
+                <span asp-validation-for="CompDebitPayed" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CompDebitDate" class="control-label"></label>
+                <input asp-for="CompDebitDate" class="form-control" />
+                <span asp-validation-for="CompDebitDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CompDebitType" class="control-label"></label>
+                <input asp-for="CompDebitType" class="form-control" />
+                <span asp-validation-for="CompDebitType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserId" class="control-label"></label>
+                <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
+                <span asp-validation-for="UserId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserRecievedId" class="control-label"></label>
+                <select asp-for="UserRecievedId" class="form-control" asp-items="ViewBag.UserRecievedId"></select>
+                <span asp-validation-for="UserRecievedId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserRecievedDate" class="control-label"></label>
+                <input asp-for="UserRecievedDate" class="form-control" />
+                <span asp-validation-for="UserRecievedDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

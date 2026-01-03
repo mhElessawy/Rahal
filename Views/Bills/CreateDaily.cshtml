@@ -1,0 +1,189 @@
+﻿@model RahalWeb.Models.Bill
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<hr />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">دفع الفواتير للعقود اليومية </h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateDaily" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">البيانات الاساسية</h5>
+                </div>
+                
+                <div class="col-md-2">
+                    <label asp-for="BillNo" class="form-label">رقم الفاتورة</label>
+                    <input asp-for="BillNo" value="@ViewBag.maxBillNo" class="form-control" readonly />
+                    <span asp-validation-for="BillNo" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="BillDate" class="form-label">تاريخ الفاتورة</label>
+                    <input asp-for="BillDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" style="text-align:right" readonly/>
+                    <span asp-validation-for="BillDate" class="text-danger small"></span>
+                </div>
+
+
+                <div class="col-md-5">
+                    <label class="form-label">اسم السائق</label>
+                    <input name="EmployeeNameDisplay" value="@ViewBag.EmployeeId" class="form-control" readonly />
+                    <input type="hidden" name="EmployeeId"  value="@ViewBag.EmpId" />
+               </div>
+
+
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2"> تفاصيل آخر فاتورة </h5>
+                </div>
+                <div class="col-md-2">
+                    <label>رقم آخر فاتورة</label>
+                    <input id="LastBillInput" class="form-control" readonly
+                           value="@(ViewBag.LastBill?.BillNo ?? "")" />
+                    <span id="LastBillError" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label>تاريخ فاتورة</label>
+                    <input id="BillDateInput" class="form-control" readonly
+                           value="@(ViewBag.LastBill?.BillDate.ToString("yyyy-MM-dd") ?? "")" />
+                    <span id="BillDateDateError" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label>من تاريخ</label>
+                    <input id="LastFromDateInput" class="form-control" readonly
+                           value="@(ViewBag.LastBill?.FromDate.ToString("yyyy-MM-dd") ?? "")" />
+                    <span id="LastFromDateDateError" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label>إلى تاريخ</label>
+                    <input id="LastToDateInput" class="form-control" readonly
+                           value="@(ViewBag.LastBill?.ToDate.ToString("yyyy-MM-dd") ?? "")" />
+                    <span id="LastToDateError" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label>المبلغ اليومي</label>
+
+                    <input id="CostPerDay" class="form-control" readonly
+                           value="@ViewBag.dailyCost" />
+                    <span id="CostPerDayError" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">تفاصيل الفاتورة </h5>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="FromDate" class="form-label">من تاريخ</label>
+                    <input asp-for="FromDate" type="date" value="@ViewBag.fromDate.ToString("yyyy-MM-dd")" class="form-control" onchange="calculateToDateAndCost" readonly />
+                    <span asp-validation-for="FromDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="NoOfDays" class="form-label">عدد الأيام</label>
+                    <input asp-for="NoOfDays" value="1" class="form-control" min="1" oninput="validateMinValue(this)" />
+                    <span asp-validation-for="NoOfDays" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="ToDate" class="form-label">إلى تاريخ</label>
+                    <input asp-for="ToDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" readonly  />
+                    <span asp-validation-for="ToDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label>المبلغ الإجمالي</label>
+                    <input id="BillPayed" name="BillPayed" class="form-control" readonly />
+                    <span id="BillPayed" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">بيانات البنك</h5>
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label">اسم البنك</label>
+@*                  <select asp-for="BankIntNo" style="text-align:right" class="form-select" asp-items="ViewBag.BankId" dir="rtl" required></select>*@ 
+                    @Html.DropDownList("BankIntNo", ViewBag.BankId as SelectList, "-- إختيار البنك --", new { @class = "form-control", id = "BankSelect" })
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="BankBillNo" class="form-label">رقم البنك</label>
+                    <input asp-for="BankBillNo"  class="form-control"  />
+                    <span asp-validation-for="BankBillNo" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="BankDate" class="form-label">تاريخ دفع البنك</label>
+                    <input asp-for="BankDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control"  />
+                    <span asp-validation-for="BankDate" class="text-danger small"></span>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="IndexDaily" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> دفع الفاتورة
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function calculateToDateAndCost() {
+        const fromDateInput = document.getElementById('FromDate');
+        const noOfDaysInput = document.getElementById('NoOfDays');
+        const toDateInput = document.getElementById('ToDate');
+        const billPayedInput = document.getElementById('BillPayed');
+        const billCostBerDay = document.getElementById('CostPerDay');
+
+        if (fromDateInput.value && noOfDaysInput.value) {
+            // 1. Calculate ToDate by adding days
+            const fromDate = new Date(fromDateInput.value);
+            const noOfDays = parseInt(noOfDaysInput.value) || 0;
+            const toDate = new Date(fromDate);
+
+            // Add the number of days to the date
+            toDate.setDate(toDate.getDate() + noOfDays);
+
+            toDateInput.value = toDate.toISOString().split('T')[0];
+
+            // 2. Calculate Total Cost (using CostPerDay as per day)
+            const costPerDay = parseFloat(billCostBerDay.value) || 0;
+            const totalCost = noOfDays * costPerDay;
+            billPayedInput.value = totalCost;
+            console.log("Total Cost Calculated:", totalCost);
+        } else {
+            console.error("Missing required inputs (FromDate or NoOfDays)");
+        }
+    }
+
+    // Add event listeners
+    document.getElementById("FromDate").addEventListener("change", calculateToDateAndCost);
+    document.getElementById("NoOfDays").addEventListener("input", calculateToDateAndCost);
+    document.getElementById("CostPerDay").addEventListener("change", calculateToDateAndCost);
+
+    // Initialize the calculation when the page loads
+    window.addEventListener('load', calculateToDateAndCost);
+</script>
+
+<script>
+    function validateMinValue(input) {
+        if (input.value < 1) {
+            input.value = 1; // Reset to minimum allowed value
+        }
+    }
+</script>

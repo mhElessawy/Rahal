@@ -1,0 +1,148 @@
+﻿@model RahalWeb.Models.DebitInfo
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<hr />
+
+
+
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">تعديل الدين</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Pay" class="row g-3" >
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="DebitTypeId" />
+                <input type="hidden" asp-for="EmpId" />
+                <input type="hidden" asp-for="ViolationId" />
+
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">البيانات العامة</h5>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="DebitNo" class="form-label">رقم الدين</label>
+                    <input asp-for="DebitNo" class="form-control" readonly />
+                    <span asp-validation-for="DebitNo" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="DebitDate" class="form-label">تاريخ الدين</label>
+                    <input asp-for="DebitDate" type="date" class="form-control" readonly />
+                    <span asp-validation-for="DebitDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">اسم السائق</label>
+                    <input asp-for="Emp.FirstNameAr" value="@ViewBag.EmployeeFullNameAr" class="form-control" readonly />
+                    <span asp-validation-for="Emp.FullNameAr" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">نوع الدين</label>
+                    <input asp-for="DebitType.DeffName" class="form-control" readonly />
+                    <span asp-validation-for="DebitType.DeffName" class="text-danger small"></span>
+                </div>
+
+                <!-- Arabic Name Section -->
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">بيانات الدين</h5>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="DebitDescrp" class="form-label">السبب</label>
+                    <input asp-for="DebitDescrp" class="form-control" onchange="calculateToDateAndCost" readonly />
+                    <span asp-validation-for="DebitDescrp" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="DebitQty" class="form-label">المبلغ</label>
+                    <input asp-for="DebitQty" class="form-control" readonly />
+                    <span asp-validation-for="DebitQty" class="text-danger small"></span>
+                </div>
+               <div class="col-md-2">
+                    <label asp-for="DebitPayed" class="form-label">المدفوع</label>
+                    <input asp-for="DebitPayed" class="form-control" readonly />
+                    <span asp-validation-for="DebitPayed" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="DebitRemaining" class="form-label">الباقي</label>
+                    <input asp-for="DebitRemaining" class="form-control" readonly />
+                    <span asp-validation-for="DebitRemaining" class="text-danger small"></span>
+                </div>
+              
+
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">بيانات الدفع</h5>
+                </div>
+                <div class="col-md-2">
+                    <label id="DebitPayNo" class="form-label">رقم فاتورة الدفع</label>
+                    <input id="DebitPayNo" name="DebitPayNo" value="@ViewBag.MaxDebitPayNo" class="form-control" readonly />
+                    <span id="DebitPayNo" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label for="DebitPayQtyInput" class="form-label">المبلغ المراد دفعه</label>
+                    <input id="DebitPayQtyInput" name="DebitPayQty" class="form-control" required />
+                    <span id="DebitPayQtyValidation" class="text-danger small"></span>
+                </div>
+
+                  <!-- Form Actions -->
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> دفع فاتورة دين
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .card {
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    h5 {
+        color: #0d6efd;
+    }
+</style>
+
+
+<script>
+           $(document).ready(function() {
+        $('#DebitPayQtyInput').on('input', function() {
+            var debitRemaining = parseFloat($('#DebitRemaining').val()) || 0;
+            var debitPayQty = parseFloat($(this).val()) || 0;
+
+            if (debitPayQty > debitRemaining) {
+                $('#DebitPayQtyValidation').text('المبلغ المراد دفعه يجب أن يكون أقل من أو يساوي الباقي');
+                $(this).addClass('is-invalid');
+            } else {
+                $('#DebitPayQtyValidation').text('');
+                $(this).removeClass('is-invalid');
+            }
+        });
+    });
+</script>

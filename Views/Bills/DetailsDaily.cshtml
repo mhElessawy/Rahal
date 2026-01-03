@@ -1,0 +1,68 @@
+﻿@model RahalWeb.Models.Bill
+
+@{
+    ViewData["Title"] = "DetailsDaily";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="company-info-container" dir="rtl">
+    <div class="company-info-header">
+        <h4>بيانات الفاتورة</h4>
+        <div class="action-buttons">
+
+            <a asp-action="IndexDaily" class="btn btn-secondary">العوده لصفحة السيارات</a>
+        </div>
+    </div>
+
+    <div class="company-info-body" dir="rtl">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>البيانات الأساسية</h5>
+                    <div class="info-item">
+                        <label>رقم الفاتورة</label>
+                        <span>@Html.DisplayFor(model => model.BillNo)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>اسم السائق</label>
+                        <span>@Html.DisplayFor(model => model.Employee!.FullNameAr)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>تاريخ الفاتورة</label>
+                        <span>@Html.DisplayFor(model => model.BillDate)</span>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>بيانات الفاتورة</h5>
+                    <div class="info-item">
+                        <label>من تاريخ </label>
+                        <span>@Html.DisplayFor(model => model.FromDate)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>إلى تاريخ</label>
+                        <span>@Html.DisplayFor(model => model.ToDate)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>عدد الأيام </label>
+                        <span>@Html.DisplayFor(model => model.NoOfDays)</span>
+                    </div>
+
+                    <div class="info-item">
+                        <label>المبلغ </label>
+                        <span>@Html.DisplayFor(model => model.BillPayed)</span>
+                    </div>
+                    <!-- Repeat for other owners -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+

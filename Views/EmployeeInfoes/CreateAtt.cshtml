@@ -1,0 +1,83 @@
+﻿@model RahalWeb.Models.EmployeeInfoAtt
+
+@{
+    ViewData["Title"] = "CreateAtt";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var employee = ViewBag.EmployeeData as EmployeeInfo; // Cast ViewBag to the correct type
+}
+@if (employee != null)
+{
+    <div class="employee-details" dir="rtl">
+        <h3>بيانات الموظف</h3>
+        <p><strong>الاسم :</strong> @employee.FullNameAr</p>
+        <p><strong>كود الموظف :</strong> @employee.EmpCode</p>
+
+        <!-- Add more fields as needed -->
+    </div>
+}
+else
+{
+    <p>Employee not found.</p>
+}
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">إضافة موظف</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateAtt" class="row g-3" dir="rtl" enctype="multipart/form-data" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <input type="hidden" name="EmpId" value="@ViewBag.EmpId" />
+                             
+                <!-- Arabic Name Section -->
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">بيانات الملف</h5>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="TitleData" class="form-label">عنوان الملف</label>
+                    <input asp-for="TitleData" class="form-control" />
+                    <span asp-validation-for="TitleData" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="pdfFile1" class="control-label"></label>
+                    <input asp-for="pdfFile1" type="file" class="form-control" accept=".pdf,application/pdf" />
+                    <span asp-validation-for="pdfFile1" class="text-danger"></span>
+                </div>
+
+                <!-- Form Actions --> 
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="IndexAtt" asp-route-id="@ViewBag.EmpId" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> إضافة ملف
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    h5 {
+        color: #0d6efd;
+    }
+</style>
+

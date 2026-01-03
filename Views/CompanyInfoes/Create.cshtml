@@ -1,0 +1,166 @@
+﻿@model RahalWeb.Models.CompanyInfo
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 dir="rtl">إضافة شركة جديدة </h1>
+<hr />
+
+<form asp-action="Create" class="professional-form" dir="rtl" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="CompCode" class="control-label">كود الشركة</label>
+                <input asp-for="CompCode" class="form-control" required />
+                <span asp-validation-for="CompCode" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="CompNameAr" class="control-label">اسم الشركة</label>
+                <input asp-for="CompNameAr" class="form-control" required  />
+                <span asp-validation-for="CompNameAr" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CompNameEn" class="control-label">Company Name </label>
+                <input asp-for="CompNameEn" class="form-control" />
+                <span asp-validation-for="CompNameEn" class="text-danger"></span>
+            </div>
+            <div class="col-md-3" style="padding: 5px;">
+                <div class="col-md-12">
+                    <!-- Camera icon button with transparent background and no border -->
+                    <label for="ImageFile1" class="custom-file-upload">
+                        <i class="fas fa-camera" style="font-size: 30px; color: #007bff;"></i>
+                        <span style="color: #007bff;">1</span>
+                    </label>
+                    <input type="file" name="ImageFile1" id="ImageFile1" accept="image/*" style="display: none;" onchange="previewImage(event)" />
+                    <!-- Image preview area -->
+                    <div id="imagePreview" style="margin-top: 10px;">
+                        <img id="previewImg" src="" alt="Image Preview" style="max-width: 100%; max-height: 150px; display: none;" />
+                    </div>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="OwnerName1" class="control-label">اسم الشريك الأول</label>
+                <input asp-for="OwnerName1" class="form-control" required />
+                <span asp-validation-for="OwnerName1" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OwnerCivilId1" class="control-label">الرقم المدني للشريك الأول</label>
+                <input asp-for="OwnerCivilId1" class="form-control" required />
+                <span asp-validation-for="OwnerCivilId1" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OwnerName2" class="control-label">اسم الشريك الثاني</label>
+                <input asp-for="OwnerName2" class="form-control" />
+                <span asp-validation-for="OwnerName2" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OwnerCivilId2" class="control-label">الرقم المدني للشريك الثاني</label>
+                <input asp-for="OwnerCivilId2" class="form-control" />
+                <span asp-validation-for="OwnerCivilId2" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OwnerName3" class="control-label">اسم الشريك الثالث </label>
+                <input asp-for="OwnerName3" class="form-control" />
+                <span asp-validation-for="OwnerName3" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OwnerCivilId3" class="control-label">الرقم المدني للشريك الثالث</label>
+                <input asp-for="OwnerCivilId3" class="form-control" />
+                <span asp-validation-for="OwnerCivilId3" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CompOwnerNumber" class="control-label"> الرقم الموحد</label>
+                <input asp-for="CompOwnerNumber" class="form-control" required />
+                <span asp-validation-for="CompOwnerNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CompLicenseNo" class="control-label">رقم الرخصة</label>
+                <input asp-for="CompLicenseNo" class="form-control" required />
+                <span asp-validation-for="CompLicenseNo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CompFileNo" class="control-label">رقم الملف </label>
+                <input asp-for="CompFileNo" class="form-control"  required/>
+                <span asp-validation-for="CompFileNo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LocationId" class="control-label">المحافظة </label>
+                <select asp-for="LocationId" class ="form-control" asp-items="ViewBag.LocationId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="CityId" class="control-label">المنطقة السكنية </label>
+                <select asp-for="CityId" class ="form-control" asp-items="ViewBag.CityId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Address" class="control-label">العنوان</label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Tel1" class="control-label">رقم الهاتف الأول</label>
+                <input asp-for="Tel1" class="form-control" />
+                <span asp-validation-for="Tel1" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Tel2" class="control-label">رقم الهاتف الثاني</label>
+                <input asp-for="Tel2" class="form-control" />
+                <span asp-validation-for="Tel2" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+        <label asp-for="CompReleaseDate" class="control-label">تاريخ الاصدار</label>
+                <input asp-for="CompReleaseDate" class="form-control" />
+                <span asp-validation-for="CompReleaseDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+        <label asp-for="CompEndDate" class="control-label">تاريخ انتهاء الترخيص</label>
+        <input asp-for="CompEndDate" type="date" class="form-control" />
+                <span asp-validation-for="CompEndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AddressNo" class="control-label">رقم العنوان</label>
+                <input asp-for="AddressNo" class="form-control" />
+                <span asp-validation-for="AddressNo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+        <label asp-for="AcceptNewerDate" class="control-label">تاريخ تجديد الاعتماد</label>
+        <input asp-for="AcceptNewerDate" type="date" class="form-control" />
+                <span asp-validation-for="AcceptNewerDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RegDate" class="control-label">تاريخ التسجيل</label>
+                <input asp-for="RegDate" type="date" class="form-control" />
+                <span asp-validation-for="RegDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CompAutoNo" class="control-label">الرقم الآلي</label>
+                <input asp-for="CompAutoNo" class="form-control" />
+                <span asp-validation-for="CompAutoNo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CityId" class="control-label"> نوع النشاط </label>
+                <select asp-for="CompActivateId" class="form-control" asp-items="ViewBag.CompActivateId"></select>
+            </div>
+            <div class="professional-form-footer">
+                <div>
+                    <a asp-action="Index" class="btn btn-danger">إالغاء</a>
+                 @*    <a asp-action="Index">العوده للصفحة الشركات</a> *@
+                </div>
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+
+<script>
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            const previewImg = document.getElementById('previewImg');
+            previewImg.src = reader.result;
+            previewImg.style.display = 'block';
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+    
+</script>

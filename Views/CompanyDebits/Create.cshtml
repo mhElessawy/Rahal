@@ -1,0 +1,137 @@
+﻿@model RahalWeb.Models.CompanyDebit
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    .card {
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    h5 {
+        color: #0d6efd;
+    }
+</style>
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">إضافة ديون</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <!-- Personal Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">بيانات الدين</h5>
+                </div>
+               <div class="col-md-3">
+                    <label asp-for="CompDebitNo" class="form-label">رقم الدين</label>
+                    <input asp-for="CompDebitNo" class="form-control" value="@ViewBag.maxCompDebitNo" />
+                    <span asp-validation-for="CompDebitNo" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="DebitQty" class="form-label">مبلغ الدين</label>
+                    <input asp-for="DebitQty" class="form-control" required />
+                    <span asp-validation-for="DebitQty" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="DebitDate" class="form-label">تاريخ الدين</label>
+                    <input asp-for="DebitDate" type="date" class="form-control" value="@DateTime.Now.ToString("dd-MM-yyyy")" />
+                    <span asp-validation-for="DebitDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">سبب الدين</h5>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="DebitReson" class="form-label">السبب</label>
+                    <input asp-for="DebitReson" class="form-control" required />
+                    <span asp-validation-for="DebitReson" class="text-danger small"></span>
+                </div>
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">بيانات الموظف</h5>
+                </div>
+
+              
+                    <div class="col-md-3">
+                        <label asp-for="Employee.EmpCode" class="form-label">كود الموظف</label>
+                        <input asp-for="Employee.EmpCode" type="number" value="" class="form-control" id="empCode" />
+                        <span asp-validation-for="Employee.EmpCode" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Employee.FullNameAr" class="form-label">اسم الموظف الدائن</label>
+                        <input asp-for="Employee.FullNameAr" class="form-control" id="fullNameAr" readonly />
+                        <span asp-validation-for="Employee.FullNameAr" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <input asp-for="EmpId" class="form-control" id="empId" hidden />
+                    </div>
+               
+                <div class="col-md-6">
+                    <label asp-for="OtherData" class="form-label">دين لشخص آخر</label>
+                    <input asp-for="OtherData" class="form-control" />
+                    <span asp-validation-for="OtherData" class="text-danger small"></span>
+                </div>
+              
+
+              
+
+                <!-- Form Actions -->
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> إضافة دين
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+    <script>
+        $(document).ready(function() {
+            $('#empCode').on('change', function() {
+                var empCode = $(this).val();
+
+                if (empCode && empCode.length > 0) {
+                    $.ajax({
+                        url: '/CompanyDebits/GetEmployeeByCode', // Adjust this URL to your controller
+                        type: 'GET',
+                        data: { empCode: empCode },
+                        success: function(response) {
+                            if (response.success) {
+                                $('#fullNameAr').val(response.fullNameAr);
+                                $('#empId').val(response.id);
+                            } else {
+                                $('#fullNameAr').val('');
+                                $('#empId').val('');
+                                alert('Employee not found!');
+                            }
+                        },
+                        error: function() {
+                            $('#fullNameAr').val('');
+                            $('#empId').val('');
+                            alert('Error fetching employee data!');
+                        }
+                    });
+                }
+            });
+        });
+    </script>

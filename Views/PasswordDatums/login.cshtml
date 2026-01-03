@@ -1,0 +1,74 @@
+﻿@{
+    ViewData["Title"] = "تسجيل دخول";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card mt-5">
+                <div class="card-body">
+                    <h1 class="card-title text-center">تسجيل دخول</h1>
+
+                    @if (ViewData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @ViewData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <form method="post" asp-action="Login" asp-controller="PasswordDatums" dir="rtl">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">اسم المستخدم</label>
+                            <input type="text" class="form-control" id="username" name="username"
+                                   value="@ViewData["PreservedUsername"]" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">كلمة المرور</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">دخول</button>
+                        </div>
+                    </form>
+
+                    <div class="mt-3 text-center">
+                        <a href="/Account/ForgotPassword">نسيت كلمة المرور؟</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Optional: Add JavaScript for better UX -->
+
+    <script>
+        // Clear error when user starts typing
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input');
+            const errorAlert = document.querySelector('.alert-danger');
+
+            if (errorAlert) {
+                inputs.forEach(input => {
+                    input.addEventListener('input', function() {
+                        errorAlert.style.display = 'none';
+                    });
+                });
+
+                // Auto focus on password field if username is already filled
+                const usernameField = document.getElementById('username');
+                const passwordField = document.getElementById('password');
+
+                if (usernameField.value.trim() !== '') {
+                    passwordField.focus();
+                } else {
+                    usernameField.focus();
+                }
+            } else {
+                // No error, focus on username
+                document.getElementById('username').focus();
+            }
+        });
+    </script>

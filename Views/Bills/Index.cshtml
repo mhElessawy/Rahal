@@ -1,0 +1,417 @@
+﻿@using RahalWeb.Data
+@model PaginatedList<RahalWeb.Models.Bill>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Determine current sort order and field
+    string currentSort = ViewData["CurrentSort"] as string ?? "";
+    string currentField = ViewData["CurrentField"] as string ?? "";
+}
+
+<style>
+    .pagination-container {
+        margin-top: 20px;
+    }
+
+    .pagination a {
+        margin: 0 5px;
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+    }
+
+    .pagination .active a {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+
+    .sortable {
+        cursor: pointer;
+        position: relative;
+        padding-right: 20px !important;
+    }
+
+        .sortable:hover {
+            background-color: #f5f5f5;
+        }
+
+        .sortable.asc:after {
+            content: "▲";
+            font-size: 12px;
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .sortable.desc:after {
+            content: "▼";
+            font-size: 12px;
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+</style>
+
+<h1 dir="rtl">تقرير التحصيل</h1>
+
+<div class="search-container" dir="rtl">
+    <form asp-action="Index" method="get">
+        <div class="form-group">
+            <label for="userId"> اسم المستخدم:</label>
+            <select name="userId" asp-items="ViewBag.UserId" class="form-control" style="width:120px">
+                <option value="">-- اسم المستخدم --</option>
+            </select>
+
+            <label for="CarNoSearch"> رقم السيارة:</label>
+            <input type="text" name="CarNoSearch" value="@ViewData["CarNoFilter"]" placeholder=" رقم السيارة" style="width:100px" />
+
+            <label for="EmpNoSearch"> رقم الموظف:</label>
+            <input type="number" name="EmpNoSearch" value="@ViewData["EmpNoFilter"]" placeholder=" رقم الموظف" style="width:120px" />
+
+            <label for="EmpNameSearch"> اسم الموظف:</label>
+            <input type="text" name="EmpNameSearch" value="@ViewData["EmpNameFilter"]" placeholder=" اسم الموظف" style="width:200px" />
+
+            <label for="ContractNoSearch"> رقم العقد:</label>
+            <input type="text" name="ContractNoSearch" value="@ViewData["ContractNoFilter"]" placeholder=" رقم العقد" style="width:120px" />
+
+            <label for="companyId">اسم الشركة:</label>
+            <select name="companyId" asp-items="ViewBag.Companies" class="form-control" style="width:180px">
+                <option value="">-- جميع الشركات --</option>
+            </select>
+
+            <label for="FromDateSearch"> من تاريخ  </label>
+            <input type="date" name="FromDateSearch" value="@ViewData["FromDateFilter"]" placeholder="من تاريخ" style="width:130px" />
+
+            <label for="ToDateSearch">إلى تاريخ</label>
+            <input type="date" name="ToDateSearch" value="@ViewData["ToDateFilter"]" placeholder="إلى تاريخ" style="width:130px" />
+
+            <input type="submit" value="بحث" class="btn btn-primary" />
+            <a asp-action="IndexDaily" class="btn btn-secondary">إعادة تعيين</a>
+
+            <!-- Hidden fields to preserve sort parameters -->
+            <input type="hidden" name="sortOrder" value="@ViewData["CurrentSort"]" />
+            <input type="hidden" name="sortField" value="@ViewData["CurrentField"]" />
+        </div>
+    </form>
+</div>
+
+<table class="bordered-table" dir="rtl">
+    <thead>
+        <tr>
+            <th class="@((currentField == "BillNo") ? currentSort : "")">
+                <a asp-action="Index"
+                   asp-route-sortField="BillNo"
+                   asp-route-sortOrder="@((currentField == "BillNo" && currentSort == "asc") ? "desc" : "asc")"
+                   asp-route-CarNoSearch="@ViewData["CarNoFilter"]"
+                   asp-route-EmpNoSearch="@ViewData["EmpNoFilter"]"
+                   asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+                   asp-route-ContractNoSearch="@ViewData["ContractNoFilter"]"
+                   asp-route-companyId="@ViewData["CompanyFilter"]"
+                   asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+                   asp-route-ToDateSearch="@ViewData["ToDateFilter"]">
+                    رقم الفاتورة
+                </a>
+            </th>
+            <th class="@((currentField == "ContractNo") ? currentSort : "")">
+                <a asp-action="Index"
+                   asp-route-sortField="ContractNo"
+                   asp-route-sortOrder="@((currentField == "ContractNo" && currentSort == "asc") ? "desc" : "asc")"
+                   asp-route-CarNoSearch="@ViewData["CarNoFilter"]"
+                   asp-route-EmpNoSearch="@ViewData["EmpNoFilter"]"
+                   asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+                   asp-route-ContractNoSearch="@ViewData["ContractNoFilter"]"
+                   asp-route-companyId="@ViewData["CompanyFilter"]"
+                   asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+                   asp-route-ToDateSearch="@ViewData["ToDateFilter"]">
+                    رقم العقد
+                </a>
+            </th>
+            <th class="@((currentField == "CarNo") ? currentSort : "")">
+                <a asp-action="Index"
+                   asp-route-sortField="CarNo"
+                   asp-route-sortOrder="@((currentField == "CarNo" && currentSort == "asc") ? "desc" : "asc")"
+                   asp-route-CarNoSearch="@ViewData["CarNoFilter"]"
+                   asp-route-EmpNoSearch="@ViewData["EmpNoFilter"]"
+                   asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+                   asp-route-ContractNoSearch="@ViewData["ContractNoFilter"]"
+                   asp-route-companyId="@ViewData["CompanyFilter"]"
+                   asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+                   asp-route-ToDateSearch="@ViewData["ToDateFilter"]">
+                    رقم السيارة
+                </a>
+            </th>
+            <th class="@((currentField == "EmpCode") ? currentSort : "")">
+                <a asp-action="Index"
+                   asp-route-sortField="EmpCode"
+                   asp-route-sortOrder="@((currentField == "EmpCode" && currentSort == "asc") ? "desc" : "asc")"
+                   asp-route-CarNoSearch="@ViewData["CarNoFilter"]"
+                   asp-route-EmpNoSearch="@ViewData["EmpNoFilter"]"
+                   asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+                   asp-route-ContractNoSearch="@ViewData["ContractNoFilter"]"
+                   asp-route-companyId="@ViewData["CompanyFilter"]"
+                   asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+                   asp-route-ToDateSearch="@ViewData["ToDateFilter"]">
+                    رقم السائق
+                </a>
+            </th>
+            <th class="@((currentField == "CivilID") ? currentSort : "")">
+                <a asp-action="Index"
+                   asp-route-sortField="EmpCode"
+                   asp-route-sortOrder="@((currentField == "CivilID" && currentSort == "asc") ? "desc" : "asc")"
+                   asp-route-CarNoSearch="@ViewData["CarNoFilter"]"
+                   asp-route-EmpNoSearch="@ViewData["EmpNoFilter"]"
+                   asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+                   asp-route-ContractNoSearch="@ViewData["ContractNoFilter"]"
+                   asp-route-companyId="@ViewData["CompanyFilter"]"
+                   asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+                   asp-route-ToDateSearch="@ViewData["ToDateFilter"]">
+                    الرقم المدني
+                </a>
+            </th>
+
+            <th class="@((currentField == "FullNameAr") ? currentSort : "")">
+                <a asp-action="Index"
+                   asp-route-sortField="FullNameAr"
+                   asp-route-sortOrder="@((currentField == "FullNameAr" && currentSort == "asc") ? "desc" : "asc")"
+                   asp-route-CarNoSearch="@ViewData["CarNoFilter"]"
+                   asp-route-EmpNoSearch="@ViewData["EmpNoFilter"]"
+                   asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+                   asp-route-ContractNoSearch="@ViewData["ContractNoFilter"]"
+                   asp-route-companyId="@ViewData["CompanyFilter"]"
+                   asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+                   asp-route-ToDateSearch="@ViewData["ToDateFilter"]">
+                    اسم السائق
+                </a>
+            </th>
+            <th class="@((currentField == "BillDate") ? currentSort : "")">
+                <a asp-action="Index"
+                   asp-route-sortField="BillDate"
+                   asp-route-sortOrder="@((currentField == "BillDate" && currentSort == "asc") ? "desc" : "asc")"
+                   asp-route-CarNoSearch="@ViewData["CarNoFilter"]"
+                   asp-route-EmpNoSearch="@ViewData["EmpNoFilter"]"
+                   asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+                   asp-route-ContractNoSearch="@ViewData["ContractNoFilter"]"
+                   asp-route-companyId="@ViewData["CompanyFilter"]"
+                   asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+                   asp-route-ToDateSearch="@ViewData["ToDateFilter"]">
+                    تاريخ الفاتورة
+                </a>
+            </th>
+            <th class="@((currentField == "BillTime") ? currentSort : "")">
+                <a asp-action="Index"
+                   asp-route-sortField="BillTime"
+                   asp-route-sortOrder="@((currentField == "BillTime" && currentSort == "asc") ? "desc" : "asc")"
+                   asp-route-CarNoSearch="@ViewData["CarNoFilter"]"
+                   asp-route-EmpNoSearch="@ViewData["EmpNoFilter"]"
+                   asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+                   asp-route-ContractNoSearch="@ViewData["ContractNoFilter"]"
+                   asp-route-companyId="@ViewData["CompanyFilter"]"
+                   asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+                   asp-route-ToDateSearch="@ViewData["ToDateFilter"]">
+                    الوقت
+                </a>
+            </th>
+            <th class="@((currentField == "FromDate") ? currentSort : "")">
+                <a asp-action="Index"
+                   asp-route-sortField="FromDate"
+                   asp-route-sortOrder="@((currentField == "FromDate" && currentSort == "asc") ? "desc" : "asc")"
+                   asp-route-CarNoSearch="@ViewData["CarNoFilter"]"
+                   asp-route-EmpNoSearch="@ViewData["EmpNoFilter"]"
+                   asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+                   asp-route-ContractNoSearch="@ViewData["ContractNoFilter"]"
+                   asp-route-companyId="@ViewData["CompanyFilter"]"
+                   asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+                   asp-route-ToDateSearch="@ViewData["ToDateFilter"]">
+                    من تاريخ
+                </a>
+            </th>
+            <th class="@((currentField == "ToDate") ? currentSort : "")">
+                <a asp-action="Index"
+                   asp-route-sortField="ToDate"
+                   asp-route-sortOrder="@((currentField == "ToDate" && currentSort == "asc") ? "desc" : "asc")"
+                   asp-route-CarNoSearch="@ViewData["CarNoFilter"]"
+                   asp-route-EmpNoSearch="@ViewData["EmpNoFilter"]"
+                   asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+                   asp-route-ContractNoSearch="@ViewData["ContractNoFilter"]"
+                   asp-route-companyId="@ViewData["CompanyFilter"]"
+                   asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+                   asp-route-ToDateSearch="@ViewData["ToDateFilter"]">
+                    إلى تاريخ
+                </a>
+            </th>
+            <th class="@((currentField == "NoOfDays") ? currentSort : "")">
+                <a asp-action="Index"
+                   asp-route-sortField="NoOfDays"
+                   asp-route-sortOrder="@((currentField == "NoOfDays" && currentSort == "asc") ? "desc" : "asc")"
+                   asp-route-CarNoSearch="@ViewData["CarNoFilter"]"
+                   asp-route-EmpNoSearch="@ViewData["EmpNoFilter"]"
+                   asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+                   asp-route-ContractNoSearch="@ViewData["ContractNoFilter"]"
+                   asp-route-companyId="@ViewData["CompanyFilter"]"
+                   asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+                   asp-route-ToDateSearch="@ViewData["ToDateFilter"]">
+                    عدد الأيام
+                </a>
+            </th>
+            <th class="@((currentField == "BillPayed") ? currentSort : "")">
+                <a asp-action="Index"
+                   asp-route-sortField="BillPayed"
+                   asp-route-sortOrder="@((currentField == "BillPayed" && currentSort == "asc") ? "desc" : "asc")"
+                   asp-route-CarNoSearch="@ViewData["CarNoFilter"]"
+                   asp-route-EmpNoSearch="@ViewData["EmpNoFilter"]"
+                   asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+                   asp-route-ContractNoSearch="@ViewData["ContractNoFilter"]"
+                   asp-route-companyId="@ViewData["CompanyFilter"]"
+                   asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+                   asp-route-ToDateSearch="@ViewData["ToDateFilter"]">
+                    المبلغ
+                </a>
+            </th>
+            <th class="@((currentField == "ContractType") ? currentSort : "")">
+                <a asp-action="Index"
+                   asp-route-sortField="ContractType"
+                   asp-route-sortOrder="@((currentField == "ContractType" && currentSort == "asc") ? "desc" : "asc")"
+                   asp-route-CarNoSearch="@ViewData["CarNoFilter"]"
+                   asp-route-EmpNoSearch="@ViewData["EmpNoFilter"]"
+                   asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+                   asp-route-ContractNoSearch="@ViewData["ContractNoFilter"]"
+                   asp-route-companyId="@ViewData["CompanyFilter"]"
+                   asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+                   asp-route-ToDateSearch="@ViewData["ToDateFilter"]">
+                    نوع العقد
+                </a>
+            </th>
+            <th class="@((currentField == "BillHent") ? currentSort : "")">
+                <a asp-action="Index"
+                   asp-route-sortField="BillHent"
+                   asp-route-sortOrder="@((currentField == "BillHent" && currentSort == "asc") ? "desc" : "asc")"
+                   asp-route-CarNoSearch="@ViewData["CarNoFilter"]"
+                   asp-route-EmpNoSearch="@ViewData["EmpNoFilter"]"
+                   asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+                   asp-route-ContractNoSearch="@ViewData["ContractNoFilter"]"
+                   asp-route-companyId="@ViewData["CompanyFilter"]"
+                   asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+                   asp-route-ToDateSearch="@ViewData["ToDateFilter"]">
+                    ملاحظات
+                </a>
+            </th>
+            <th>الإجراءات</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.BillNo)</td>
+                <td>@Html.DisplayFor(modelItem => item.Contract!.ContractNo)</td>
+                <td>@Html.DisplayFor(modelItem => item.Contract!.Car!.CarNo)</td>
+                <td>@Html.DisplayFor(modelItem => item.Employee!.EmpCode)</td>
+                <td>@Html.DisplayFor(modelItem => item.Employee!.CivilId)</td>
+                <td>@Html.DisplayFor(modelItem => item.Employee!.FullNameAr)</td>
+                <td>@Html.DisplayFor(modelItem => item.BillDate)</td>
+                <td>@Html.DisplayFor(modelItem => item.BillTime)</td>
+                <td>@Html.DisplayFor(modelItem => item.FromDate)</td>
+                <td>@Html.DisplayFor(modelItem => item.ToDate)</td>
+                <td>@Html.DisplayFor(modelItem => item.NoOfDays)</td>
+                <td>@Html.DisplayFor(modelItem => item.BillPayed)</td>
+                <td>
+                    @if (item.Contract!.ContractType == 0)
+                    {
+                        <label>يومي</label>
+                    }
+                    else
+                    {
+                        <label>شهري</label>
+                    }
+                </td>
+                <td>@Html.DisplayFor(modelItem => item.BillHent)</td>
+                <td class="action-links">
+                    <a asp-action="PayPrint" asp-controller="ContractDetails" asp-route-id="@item.Id" class="btn-info"><i class="fas fa-print"></i> طباعة</a>
+                    <a asp-action="DeleteMonthly" asp-controller="Bills" asp-route-id="@item.Id" class="btn-info"><i class="fas fa-print"></i> حذف</a>
+
+                    </td>
+              
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="pagination-container" dir="rtl">
+    @{
+        var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+        var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+    }
+
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex - 1)"
+       asp-route-CarNoSearch="@ViewData["CarNoFilter"]"
+       asp-route-EmpNoSearch="@ViewData["EmpNoFilter"]"
+       asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+       asp-route-ContractNoSearch="@ViewData["ContractNoFilter"]"
+       asp-route-companyId="@ViewData["CompanyFilter"]"
+       asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+       asp-route-ToDateSearch="@ViewData["ToDateFilter"]"
+       asp-route-UserId="@ViewData["UserFilter"]"
+       asp-route-sortField="@ViewData["CurrentField"]"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       class="btn btn-default @prevDisabled">
+        السابق
+    </a>
+
+    <span>الصفحة @Model.PageIndex من @Model.TotalPages</span>
+
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex + 1)"
+       asp-route-CarNoSearch="@ViewData["CarNoFilter"]"
+       asp-route-EmpNoSearch="@ViewData["EmpNoFilter"]"
+       asp-route-EmpNameSearch="@ViewData["EmpNameFilter"]"
+       asp-route-ContractNoSearch="@ViewData["ContractNoFilter"]"
+       asp-route-companyId="@ViewData["CompanyFilter"]"
+       asp-route-FromDateSearch="@ViewData["FromDateFilter"]"
+       asp-route-ToDateSearch="@ViewData["ToDateFilter"]"
+       asp-route-UserId="@ViewData["UserFilter"]"
+       asp-route-sortField="@ViewData["CurrentField"]"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       class="btn btn-default @nextDisabled">
+        التالي
+    </a>
+</div>
+
+<div dir="rtl">
+    إجمالي الإيراد: @String.Format("{0:C}", ViewBag.TotalBillPayed)
+</div>
+<button onclick="printBills()" class="btn btn-success">طباعة</button>
+<form asp-action="ExportToExcel" method="post" style="display:inline">
+    <!-- Hidden fields to preserve all filter parameters -->
+    <input type="hidden" name="CarNoSearch" value="@ViewData["CarNoFilter"]" />
+    <input type="hidden" name="EmpNoSearch" value="@ViewData["EmpNoFilter"]" />
+    <input type="hidden" name="EmpNameSearch" value="@ViewData["EmpNameFilter"]" />
+    <input type="hidden" name="ContractNoSearch" value="@ViewData["ContractNoFilter"]" />
+    <input type="hidden" name="companyId" value="@ViewData["CompanyFilter"]" />
+    <input type="hidden" name="FromDateSearch" value="@ViewData["FromDateFilter"]" />
+    <input type="hidden" name="ToDateSearch" value="@ViewData["ToDateFilter"]" />
+    <input type="hidden" name="userId" value="@ViewData["UserFilter"]" />
+
+    <button type="submit" class="btn btn-success">
+        <i class="fas fa-file-excel"></i> تصدير إيكسل
+    </button>
+</form>
+
+<script>
+    function printBills() {
+        var printContents = document.querySelector('.bordered-table').outerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML =
+            '<h1 style="text-align:center">فواتير الأقساط</h1>' +
+            printContents +
+            '<div style="margin-top:20px;font-weight:bold">إجمالي الإيراد: @String.Format("{0:C}", ViewBag.TotalBillPayed)</div>';
+
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+</script>

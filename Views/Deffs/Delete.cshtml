@@ -1,0 +1,45 @@
+﻿@model RahalWeb.Models.Deff
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@if (@TempData["DeffName"] == null)
+{
+    <meta http-equiv="refresh" content="0; url=/Home/DeffTypeIndex" />
+}
+
+
+<h1 dir="rtl">حذف  @TempData["DeffName"] </h1>
+
+<h3 dir="rtl"> هل انت متأكد من عملية الحذف</h3>
+<div dir="rtl">
+   
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+           <label> الإسم</label>
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.DeffName)
+        </dd>
+      
+      
+        <dt class = "col-sm-2">
+            <label> Name </label>
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.DeffNameEng)
+        </dd>
+       
+    </dl>
+    
+    <form asp-action="Delete" class="professional-form-footer">
+        <input type="hidden" asp-for="Id" />
+        <div>
+            <a asp-action="Index" asp-route-id="@TempData["DeffTypeId"]" asp-route-name="@TempData["DeffName"]" class="btn btn-danger">Cancel</a>
+        </div>
+        <input type="submit" value="حذف" class="btn btn-primary" />
+        
+    </form>
+</div>
