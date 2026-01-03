@@ -295,10 +295,82 @@ public class WordDocumentService
         }
     }
 
+    // Generate Market License Document using ReNewPermSp.doc template
+    public byte[] GenerateMarketLicenseDocument(int employeeId)
+    {
+        // Get employee with related data
+        var employee = _context.EmployeeInfos
+            .Include(e => e.Nationality)
+            .Include(e => e.JobTitle)
+            .Include(e => e.Company)
+            .FirstOrDefault(e => e.Id == employeeId);
+
+        if (employee == null)
+            throw new Exception("Employee not found");
+
+        // Path to template
+        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "ReNewPermSp.doc");
+
+        if (!File.Exists(templatePath))
+            throw new FileNotFoundException("Template file not found", templatePath);
+
+        // Create temporary file
+        string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.doc");
+        File.Copy(templatePath, tempFilePath, true);
+
+        try
+        {
+            using (WordprocessingDocument doc = WordprocessingDocument.Open(tempFilePath, true))
+            {
+                var body = doc.MainDocumentPart.Document.Body;
+
+                // Update bookmarks
+                UpdateBookmarks(doc, employee);
+
+                // Also update any text placeholders
+                UpdateTextPlaceholders(body, employee);
+
+                doc.Save();
+            }
+
+            return File.ReadAllBytes(tempFilePath);
+        }
+        finally
+        {
+            // Clean up
+            if (File.Exists(tempFilePath))
+                File.Delete(tempFilePath);
+        }
+    }
+
     // Method to list all bookmarks in template (for debugging)
     public List<string> GetTemplateBookmarks()
     {
         string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "NewPerm.docx");
+
+        if (!File.Exists(templatePath))
+            return new List<string> { "Template file not found" };
+
+        var bookmarks = new List<string>();
+
+        using (WordprocessingDocument doc = WordprocessingDocument.Open(templatePath, false))
+        {
+            var body = doc.MainDocumentPart.Document.Body;
+            var bookmarkStarts = body.Descendants<BookmarkStart>().ToList();
+
+            foreach (var bookmark in bookmarkStarts)
+            {
+                bookmarks.Add(bookmark.Name);
+            }
+        }
+
+        return bookmarks;
+    }
+
+    // Get bookmarks from specific template
+    public List<string> GetTemplateBookmarksByPath(string templateName)
+    {
+        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", templateName);
 
         if (!File.Exists(templatePath))
             return new List<string> { "Template file not found" };
