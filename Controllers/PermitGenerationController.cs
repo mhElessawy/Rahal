@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RahalWeb.Models;
+using System.IO;
 
 
 public class PermitGenerationController : Controller
