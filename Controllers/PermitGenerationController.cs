@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RahalWeb.Models;
-using System.IO;
+using IO = System.IO;
 
 
 public class PermitGenerationController : Controller
@@ -131,7 +131,7 @@ public class PermitGenerationController : Controller
             string fileName = $"تصريح_إجرة_{employee?.FullNameAr}_{DateTime.Now:yyyyMMdd}.docx";
 
             // Clean file name
-            fileName = string.Join("_", fileName.Split(Path.GetInvalidFileNameChars()));
+            fileName = string.Join("_", fileName.Split(IO.Path.GetInvalidFileNameChars()));
 
             return File(documentBytes,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
