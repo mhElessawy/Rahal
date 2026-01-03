@@ -53,11 +53,16 @@
                 <div class="col-md-3">
                     <label class="form-label">تاريخ الأجازة الجديد</label>
                     @Html.DropDownList("ContractDetailsId", ViewBag.WorkMonth as SelectList,
-                    "-- اختيار شهر الأجازة --", new { @class = "form-control", id = "fromDate", required = "required" })
+                    "-- اختيار شهر الأجازة --", new { @class = "form-control", id = "vacationMonth", required = "required" })
                  </div>
                 <div class="col-md-2">
+                    <label asp-for="FromDate" class="form-label">من تاريخ</label>
+                    <input type="text" class="form-control" readonly id="fromDateDisplay" />
+                    <span asp-validation-for="FromDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
                     <label asp-for="ToDate" class="form-label">إلى تاريخ</label>
-                    <input asp-for="ToDate" class="form-control" readonly id="toDate" />
+                    <input type="text" class="form-control" readonly id="toDateDisplay" />
                     <span asp-validation-for="ToDate" class="text-danger small"></span>
                 </div>
 
@@ -97,30 +102,51 @@
 </style>
 
 <script>
-        document.getElementById("fromDate").addEventListener("change", function() {
+    document.getElementById("vacationMonth").addEventListener("change", function() {
         const selectedOption = this.options[this.selectedIndex];
-            const dateString = selectedOption.text;
+        const dateString = selectedOption.text;
 
-        if (!dateString || dateString === "-- اختيار شهر الأجازة --") return;
+        if (!dateString || dateString === "-- اختيار شهر الأجازة --") {
+            // Clear fields if no selection
+            document.querySelector('input[name="FromDate"]').value = '';
+            document.querySelector('input[name="ToDate"]').value = '';
+            document.getElementById('fromDateDisplay').value = '';
+            document.getElementById('toDateDisplay').value = '';
+            return;
+        }
 
         // Parse date in DD/MM/YYYY format
         const [day, month, year] = dateString.split('/').map(num => parseInt(num, 10));
 
-        // JavaScript months are 0-indexed (Jan=0, Feb=1, etc.)
-        const fromDate = new Date(year, month - 1, day);
+        if (!day || !month || !year) return;
 
-        console.log("Parsed From Date:", fromDate); // Debugging
+        // Create first day of month (FromDate)
+        const fromDate = new Date(year, month - 1, 1);
 
-        if (!isNaN(fromDate.getTime())) {
-            // Calculate end of month (next month, day 0)
-            const toDate = new Date(year, month, 0); // month is already 1-based here
+        // Create last day of month (ToDate)
+        const toDate = new Date(year, month, 0);
 
-            // Format as YYYY-MM-DD for the input field
+        console.log("From Date (First day):", fromDate);
+        console.log("To Date (Last day):", toDate);
+
+        if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
+            // Format as YYYY-MM-DD for hidden inputs
+            const formattedFromDate = `${fromDate.getFullYear()}-${String(fromDate.getMonth() + 1).padStart(2, '0')}-${String(fromDate.getDate()).padStart(2, '0')}`;
             const formattedToDate = `${toDate.getFullYear()}-${String(toDate.getMonth() + 1).padStart(2, '0')}-${String(toDate.getDate()).padStart(2, '0')}`;
 
-            document.getElementById('toDate').value = formattedToDate;
+            // Update hidden inputs
+            document.querySelector('input[name="FromDate"]').value = formattedFromDate;
+            document.querySelector('input[name="ToDate"]').value = formattedToDate;
+
+            // Format as DD/MM/YYYY for display inputs
+            const displayFromDate = `${String(fromDate.getDate()).padStart(2, '0')}/${String(fromDate.getMonth() + 1).padStart(2, '0')}/${fromDate.getFullYear()}`;
+            const displayToDate = `${String(toDate.getDate()).padStart(2, '0')}/${String(toDate.getMonth() + 1).padStart(2, '0')}/${toDate.getFullYear()}`;
+
+            // Update display inputs
+            document.getElementById('fromDateDisplay').value = displayFromDate;
+            document.getElementById('toDateDisplay').value = displayToDate;
         } else {
-            console.error("Invalid date:", selectedValue);
+            console.error("Invalid date parsing");
         }
     });
 </script>
