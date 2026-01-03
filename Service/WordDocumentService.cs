@@ -14,6 +14,16 @@ public class WordDocumentService
 
     public byte[] GeneratePermitDocument(int employeeId)
     {
+        return GenerateDocument(employeeId, "NewPerm.docx");
+    }
+
+    public byte[] GenerateRenewalDocument(int employeeId)
+    {
+        return GenerateDocument(employeeId, "ReNewPermSp.doc");
+    }
+
+    private byte[] GenerateDocument(int employeeId, string templateFileName)
+    {
         // Get employee with related data
         var employee = _context.EmployeeInfos
             .Include(e => e.Nationality)
@@ -25,13 +35,14 @@ public class WordDocumentService
             throw new Exception("Employee not found");
 
         // Path to template
-        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "NewPerm.docx");
+        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", templateFileName);
 
         if (!File.Exists(templatePath))
             throw new FileNotFoundException("Template file not found", templatePath);
 
-        // Create temporary file
-        string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.docx");
+        // Create temporary file with correct extension
+        string extension = Path.GetExtension(templateFileName);
+        string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}{extension}");
         File.Copy(templatePath, tempFilePath, true);
 
         try

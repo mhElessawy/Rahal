@@ -17,7 +17,14 @@ public class PermitGenerationController : Controller
 
     public IActionResult Index()
     {
+        ViewBag.DocumentType = "permit";
         return View();
+    }
+
+    public IActionResult IndexRenewal()
+    {
+        ViewBag.DocumentType = "renewal";
+        return View("Index");
     }
 
     // GET: Search page
@@ -119,6 +126,52 @@ public class PermitGenerationController : Controller
         return RedirectToAction("Generate", new { id = employee.Id });
     }
 
+    // GET: Quick search by employee code for renewal
+    public IActionResult QuickByCodeRenewal(string empCode)
+    {
+        if (string.IsNullOrEmpty(empCode))
+        {
+            TempData["ErrorMessage"] = "الرجاء إدخال كود الموظف";
+            return RedirectToAction("IndexRenewal");
+        }
+
+        var employee = _context.EmployeeInfos
+            .Include(e => e.Nationality)
+            .Include(e => e.JobTitle)
+            .FirstOrDefault(e => e.EmpCode.ToString() == empCode);
+
+        if (employee == null)
+        {
+            TempData["ErrorMessage"] = "لم يتم العثور على موظف بهذا الكود";
+            return RedirectToAction("IndexRenewal");
+        }
+
+        return RedirectToAction("GenerateRenewal", new { id = employee.Id });
+    }
+
+    // GET: Quick search by civil ID for renewal
+    public IActionResult QuickByCivilIdRenewal(string civilId)
+    {
+        if (string.IsNullOrEmpty(civilId))
+        {
+            TempData["ErrorMessage"] = "الرجاء إدخال الرقم المدني";
+            return RedirectToAction("IndexRenewal");
+        }
+
+        var employee = _context.EmployeeInfos
+            .Include(e => e.Nationality)
+            .Include(e => e.JobTitle)
+            .FirstOrDefault(e => e.CivilId == civilId);
+
+        if (employee == null)
+        {
+            TempData["ErrorMessage"] = "لم يتم العثور على موظف بهذا الرقم المدني";
+            return RedirectToAction("IndexRenewal");
+        }
+
+        return RedirectToAction("GenerateRenewal", new { id = employee.Id });
+    }
+
     // GET: Generate document for specific employee
     public IActionResult Generate(int id)
     {
@@ -141,6 +194,31 @@ public class PermitGenerationController : Controller
         {
             TempData["ErrorMessage"] = $"خطأ في إنشاء المستند: {ex.Message}";
             return RedirectToAction("Index");
+        }
+    }
+
+    // GET: Generate renewal document for specific employee
+    public IActionResult GenerateRenewal(int id)
+    {
+        try
+        {
+            var documentBytes = _wordService.GenerateRenewalDocument(id);
+
+            // Get employee name for file name
+            var employee = _context.EmployeeInfos.Find(id);
+            string fileName = $"تجديد_رخصة_{employee?.FullNameAr}_{DateTime.Now:yyyyMMdd}.doc";
+
+            // Clean file name
+            fileName = string.Join("_", fileName.Split(IO.Path.GetInvalidFileNameChars()));
+
+            return File(documentBytes,
+                "application/msword",
+                fileName);
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = $"خطأ في إنشاء المستند: {ex.Message}";
+            return RedirectToAction("IndexRenewal");
         }
     }
 

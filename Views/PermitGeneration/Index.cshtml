@@ -1,5 +1,9 @@
 ﻿@{
-    ViewData["Title"] = "إنشاء تصريح إجرة جوالة";
+    var docType = ViewBag.DocumentType ?? "permit";
+    ViewData["Title"] = docType == "renewal" ? "تجديد رخصة سوق" : "إنشاء تصريح إجرة جوالة";
+    var generateAction = docType == "renewal" ? "GenerateRenewal" : "Generate";
+    var quickAction = docType == "renewal" ? "QuickByCodeRenewal" : "QuickByCode";
+    var quickCivilAction = docType == "renewal" ? "QuickByCivilIdRenewal" : "QuickByCivilId";
 }
 
 <div class="container mt-4" dir="rtl">
@@ -68,7 +72,7 @@
                         </select>
                         <div class="text-center mt-3">
                             <button id="generateBtn" class="btn btn-warning" disabled>
-                                <i class="fas fa-file-word"></i> إنشاء التصريح
+                                <i class="fas fa-file-word"></i> @(docType == "renewal" ? "إنشاء التجديد" : "إنشاء التصريح")
                             </button>
                         </div>
                     </div>
@@ -117,16 +121,18 @@
             $('#generateBtn').click(function() {
                 var employeeId = $(this).data('employeeId');
                 if (employeeId) {
-                    window.location.href = '@Url.Action("Generate", "PermitGeneration")?id=' + employeeId;
+                    window.location.href = '@Url.Action(generateAction, "PermitGeneration")?id=' + employeeId;
                 }
             });
         });
 
         function searchByCode() {
             var empCode = $('#quickEmpCode').val();
+            var docType = '@docType';
             if (empCode) {
                 // Make sure controller name matches exactly
-                var url = '/PermitGeneration/QuickByCode?empCode=' + encodeURIComponent(empCode);
+                var action = docType === 'renewal' ? 'QuickByCodeRenewal' : 'QuickByCode';
+                var url = '/PermitGeneration/' + action + '?empCode=' + encodeURIComponent(empCode);
                 window.location.href = url;
             } else {
                 alert('الرجاء إدخال كود الموظف');
@@ -135,8 +141,10 @@
 
         function searchByCivilId() {
             var civilId = $('#quickCivilId').val();
+            var docType = '@docType';
             if (civilId) {
-                var url = '/PermitGeneration/QuickByCivilId?civilId=' + encodeURIComponent(civilId);
+                var action = docType === 'renewal' ? 'QuickByCivilIdRenewal' : 'QuickByCivilId';
+                var url = '/PermitGeneration/' + action + '?civilId=' + encodeURIComponent(civilId);
                 window.location.href = url;
             } else {
                 alert('الرجاء إدخال الرقم المدني');
