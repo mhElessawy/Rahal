@@ -184,4 +184,23 @@ public class PermitGenerationController : Controller
             return Content($"Error: {ex.Message}");
         }
     }
+
+    // GET: Check if template files exist
+    public IActionResult CheckTemplate()
+    {
+        var templatePath1 = IO.Path.Combine(Directory.GetCurrentDirectory(), "Templates", "NewPerm.docx");
+        var templatePath2 = IO.Path.Combine(Directory.GetCurrentDirectory(), "Templates", "ReNewPermSp.doc");
+
+        var info = new System.Text.StringBuilder();
+        info.AppendLine("Template Files Check:");
+        info.AppendLine($"\nNewPerm.docx: {(IO.File.Exists(templatePath1) ? "✓ Found" : "✗ Not Found")}");
+        if (IO.File.Exists(templatePath1))
+            info.AppendLine($"  Path: {templatePath1}");
+
+        info.AppendLine($"\nReNewPermSp.doc: {(IO.File.Exists(templatePath2) ? "✓ Found" : "✗ Not Found")}");
+        if (IO.File.Exists(templatePath2))
+            info.AppendLine($"  Path: {templatePath2}");
+
+        return Content(info.ToString(), "text/plain");
+    }
 }
