@@ -96,9 +96,6 @@ namespace RahalWeb.Controllers
            
         }
 
-
-
-
         // GET: EmployeeInfoes/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -668,11 +665,6 @@ namespace RahalWeb.Controllers
                 companyDebitDetails = await queryCompanyDebitDetails.ToListAsync(),
                 TotalBillPayed = totalCombined
             };
-
-
-
-
-
 
 
             ViewData["UserIdFilter"] = UserId;

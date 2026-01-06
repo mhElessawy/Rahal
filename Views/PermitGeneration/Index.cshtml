@@ -1,5 +1,9 @@
 ﻿@{
-    ViewData["Title"] = "إنشاء تصريح إجرة جوالة";
+    var docType = ViewBag.DocumentType ?? "permit";
+    ViewData["Title"] = docType == "renewal" ? "تجديد رخصة سوق" : "إنشاء تصريح إجرة جوالة";
+    var generateAction = docType == "renewal" ? "GenerateRenewal" : "Generate";
+    var quickAction = docType == "renewal" ? "QuickByCodeRenewal" : "QuickByCode";
+    var quickCivilAction = docType == "renewal" ? "QuickByCivilIdRenewal" : "QuickByCivilId";
 }
 
 <div class="container mt-4" dir="rtl">
@@ -55,7 +59,7 @@
 
                     <!-- Advanced Search Link -->
                     <div class="text-center">
-                        <a asp-controller="PermitGeneration" asp-action="Search" class="btn btn-primary btn-lg">
+                        <a asp-controller="PermitGeneration" asp-action="Search" asp-route-documentType="@docType" class="btn btn-primary btn-lg">
                             <i class="fas fa-search-plus"></i> بحث متقدم
                         </a>
                     </div>
@@ -68,7 +72,7 @@
                         </select>
                         <div class="text-center mt-3">
                             <button id="generateBtn" class="btn btn-warning" disabled>
-                                <i class="fas fa-file-word"></i> إنشاء التصريح
+                                <i class="fas fa-file-word"></i> @(docType == "renewal" ? "إنشاء التجديد" : "إنشاء التصريح")
                             </button>
                         </div>
                     </div>
@@ -79,79 +83,83 @@
 </div>
 
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <script>
-        $(document).ready(function() {
-            // Initialize Select2
-            $('#employeeSelect').select2({
-                ajax: {
-                    url: '@Url.Action("GetEmployeeSuggestions", "PermitGeneration")',
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return { term: params.term };
-                    },
-                    processResults: function(data) {
-                        return { results: data };
-                    }
+<script>
+    $(document).ready(function() {
+        // Initialize Select2
+        $('#employeeSelect').select2({
+            ajax: {
+                url: '@Url.Action("GetEmployeeSuggestions", "PermitGeneration")',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return { term: params.term };
                 },
-                minimumInputLength: 2,
-                placeholder: 'ابحث عن موظف...',
-                language: {
-                    noResults: function() {
-                        return "لم يتم العثور على نتائج";
-                    }
+                processResults: function(data) {
+                    return { results: data };
                 }
-            });
-
-            // Enable generate button when employee is selected
-            $('#employeeSelect').on('select2:select', function(e) {
-                var data = e.params.data;
-                $('#generateBtn').prop('disabled', false).data('employeeId', data.id);
-            });
-
-            // Handle generate button click
-            $('#generateBtn').click(function() {
-                var employeeId = $(this).data('employeeId');
-                if (employeeId) {
-                    window.location.href = '@Url.Action("Generate", "PermitGeneration")?id=' + employeeId;
+            },
+            minimumInputLength: 2,
+            placeholder: 'ابحث عن موظف...',
+            language: {
+                noResults: function() {
+                    return "لم يتم العثور على نتائج";
                 }
-            });
-        });
-
-        function searchByCode() {
-            var empCode = $('#quickEmpCode').val();
-            if (empCode) {
-                // Make sure controller name matches exactly
-                var url = '/PermitGeneration/QuickByCode?empCode=' + encodeURIComponent(empCode);
-                window.location.href = url;
-            } else {
-                alert('الرجاء إدخال كود الموظف');
-            }
-        }
-
-        function searchByCivilId() {
-            var civilId = $('#quickCivilId').val();
-            if (civilId) {
-                var url = '/PermitGeneration/QuickByCivilId?civilId=' + encodeURIComponent(civilId);
-                window.location.href = url;
-            } else {
-                alert('الرجاء إدخال الرقم المدني');
-            }
-        }
-
-        // Submit on Enter in quick search fields
-        $('#quickEmpCode, #quickCivilId').keypress(function(e) {
-            if (e.which == 13) {
-                if ($(this).attr('id') === 'quickEmpCode') {
-                    searchByCode();
-                } else {
-                    searchByCivilId();
-                }
-                return false; // Prevent form submission
             }
         });
-    </script>
+
+        // Enable generate button when employee is selected
+        $('#employeeSelect').on('select2:select', function(e) {
+            var data = e.params.data;
+            $('#generateBtn').prop('disabled', false).data('employeeId', data.id);
+        });
+
+        // Handle generate button click
+        $('#generateBtn').click(function() {
+            var employeeId = $(this).data('employeeId');
+            if (employeeId) {
+                window.location.href = '@Url.Action(generateAction, "PermitGeneration")?id=' + employeeId;
+            }
+        });
+    });
+
+    function searchByCode() {
+        var empCode = $('#quickEmpCode').val();
+        var docType = '@docType';
+        if (empCode) {
+            // Make sure controller name matches exactly
+            var action = docType === 'renewal' ? 'QuickByCodeRenewal' : 'QuickByCode';
+            var url = '/PermitGeneration/' + action + '?empCode=' + encodeURIComponent(empCode);
+            window.location.href = url;
+        } else {
+            alert('الرجاء إدخال كود الموظف');
+        }
+    }
+
+    function searchByCivilId() {
+        var civilId = $('#quickCivilId').val();
+        var docType = '@docType';
+        if (civilId) {
+            var action = docType === 'renewal' ? 'QuickByCivilIdRenewal' : 'QuickByCivilId';
+            var url = '/PermitGeneration/' + action + '?civilId=' + encodeURIComponent(civilId);
+            window.location.href = url;
+        } else {
+            alert('الرجاء إدخال الرقم المدني');
+        }
+    }
+
+    // Submit on Enter in quick search fields
+    $('#quickEmpCode, #quickCivilId').keypress(function(e) {
+        if (e.which == 13) {
+            if ($(this).attr('id') === 'quickEmpCode') {
+                searchByCode();
+            } else {
+                searchByCivilId();
+            }
+            return false; // Prevent form submission
+        }
+    });
+</script>

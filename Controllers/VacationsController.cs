@@ -141,22 +141,31 @@ namespace RahalWeb.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id,  Vacation vacation,string ContractDetailsId)
+        public async Task<IActionResult> Edit(int id, Vacation vacation, string ContractDetailsId, string? OldFromDate, string? OldToDate)
         {
             if (id != vacation.Id)
             {
                 return NotFound();
             }
-            // change contractDetails Vacation 
-            if (int.Parse(ContractDetailsId) != 0 )
+            // change contractDetails Vacation
+            if (int.Parse(ContractDetailsId) != 0)
             {
                 ContractDetail? NewVacation = (ContractDetail?)_context.ContractDetails.Where(a => a.Id == int.Parse(ContractDetailsId)).FirstOrDefault();
 
-                if (NewVacation !=null  )
+                if (NewVacation != null)
                 {
-                    ContractDetail? changeVacation = (ContractDetail?)_context.ContractDetails.Where(a => a.Contract!.Employee!.Id == vacation.EmpId && a.DailyCreditDate == vacation.FromDate).FirstOrDefault(); ;
+                    // استخدام التاريخ القديم للمقارنة
+                    DateOnly oldToDateValue = DateOnly.MinValue;
+                    if (!string.IsNullOrEmpty(OldToDate))
+                    {
+                        oldToDateValue = DateOnly.Parse(OldToDate);
+                    }
 
-                    if (changeVacation != null )
+                    ContractDetail? changeVacation = (ContractDetail?)_context.ContractDetails
+                        .Where(a => a.Contract!.Employee!.Id == vacation.EmpId && a.DailyCreditDate == oldToDateValue)
+                        .FirstOrDefault();
+
+                    if (changeVacation != null)
                     {
                         changeVacation.DailyCredit = NewVacation.DailyCredit;
                         changeVacation.Status = 0;
@@ -169,12 +178,13 @@ namespace RahalWeb.Controllers
                         await _context.SaveChangesAsync();
 
                     }
-                    vacation.FromDate = NewVacation.DailyCreditDate;
+                   // vacation.FromDate = NewVacation.DailyCreditDate;
                     DateOnly tempDate = (DateOnly)vacation.FromDate!;
                     vacation.NoOfDays = (tempDate.AddMonths(1).DayNumber - tempDate.DayNumber);
+                    vacation.Emp = null;
                     _context.Update(vacation);
                     await _context.SaveChangesAsync();
-                     return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index));
                 }
             }
             return View(vacation);

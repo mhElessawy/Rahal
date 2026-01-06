@@ -361,31 +361,7 @@ namespace RahalWeb.Controllers
                 try
                 {
 
-                    //var existingDetail = await _context.ContractDetails
-                    //    .Include(c => c.Contract)
-                    //    .Where(c => c.Contract!.Id == contractDetails.ContractId && (c.Status == 0 || c.Status == 2))
-                    //    .Select(c => new
-                    //    {
-                    //        ContractDetail = c,
-                    //        HasStatus3 = _context.ContractDetails
-                    //            .Any(last => last.ContractId == contractDetails.ContractId && last.Status == 3),
-                    //        LastStatus3Date = _context.ContractDetails
-                    //            .Where(last => last.ContractId == contractDetails.ContractId && last.Status == 3)
-                    //            .OrderByDescending(last => last.Id)
-                    //            .Select(last => last.DailyCreditDate)
-                    //            .FirstOrDefault(),
-                    //        IsFirstStatus02 = c.Id == _context.ContractDetails
-                    //            .Where(first => first.ContractId == contractDetails.ContractId && (first.Status == 0 || first.Status == 2))
-                    //            .OrderBy(first => first.Id)
-                    //            .Select(first => first.Id)
-                    //            .FirstOrDefault()
-                    //    })
-                    //    .Where(x => (!x.HasStatus3 && x.IsFirstStatus02) ||
-                    //                (x.HasStatus3 && x.ContractDetail.DailyCreditDate > x.LastStatus3Date))
-                    //    .Select(x => x.ContractDetail)
-                    //    .OrderBy(c => c.Id)
-                    //    .Take(NoOfMonth)
-                    //    .ToListAsync();
+                   
                     var existingDetail = await _context.ContractDetails
                         .Include(c => c.Contract)
                         .Where(c => c.Contract!.Id == contractDetails.ContractId && (c.Status == 0 || c.Status == 2))
@@ -508,7 +484,28 @@ namespace RahalWeb.Controllers
                         _context.Add(debitIfo);
                         await _context.SaveChangesAsync();
 
-                        
+                        // save payed for DebitPayed
+
+                        int MaxDebitInfoId = await _context.DebitInfos.MaxAsync(b => (int)b.Id!);
+
+                        int maxDebitPayNo = await _context.DebitPayInfos.MaxAsync(b => (int)b.DebitPayNo!);
+                        ViewBag.MaxDebitPayNo = maxDebitPayNo + 1;
+
+                        var debitPayInfo = new DebitPayInfo
+                        {
+                            DebitPayNo = ViewBag.MaxDebitPayNo,
+                            DebitPayDate = DateOnly.FromDateTime(DateTime.Now),
+                            DebitPayQty = (decimal?)latePay,
+                            DeleteFlag = 0,
+                            ViolationId = 0,
+                            UserId = HttpContext.Session.GetInt32("UserId"),
+                            UserRecievedId = HttpContext.Session.GetInt32("UserId"),
+                            DebitInfoId = MaxDebitInfoId,
+                        };
+
+                        _context.DebitPayInfos.Add(debitPayInfo);
+                        await _context.SaveChangesAsync();
+
                     }
                     return RedirectToAction("PayPrint", "ContractDetails", new { Id = billId  });
 

@@ -1,0 +1,66 @@
+@{
+    ViewData["Title"] = "بحث عن موظف - تجديد رخصة سوق";
+}
+
+<div class="container mt-4" dir="rtl">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">
+                <i class="fas fa-search"></i> @ViewData["Title"]
+                <small class="float-start">تجديد رخصة سوق</small>
+            </h4>
+        </div>
+        <div class="card-body">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <form asp-action="SearchMarket" method="post">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">نوع البحث:</label>
+                        <select name="searchType" class="form-select">
+                            <option value="all">جميع الحقول</option>
+                            <option value="code">كود الموظف</option>
+                            <option value="civilId">الرقم المدني</option>
+                            <option value="name">الاسم</option>
+                        </select>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">كلمة البحث:</label>
+                        <input type="text" name="searchTerm" class="form-control"
+                               placeholder="اكتب للبحث..." value="@ViewBag.SearchTerm" autofocus>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-search"></i> بحث
+                    </button>
+                    <a asp-action="SelectDocument" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-arrow-right"></i> رجوع
+                    </a>
+                </div>
+            </form>
+
+            <hr class="my-4">
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> معلومات:</h6>
+                        <ul class="mb-0">
+                            <li>ابحث عن الموظف باستخدام الكود أو الرقم المدني أو الاسم</li>
+                            <li>سيتم إنشاء مستند تجديد رخصة السوق من القالب: <strong>ReNewPermSp.docx</strong></li>
+                            <li>تأكد من صحة بيانات الموظف قبل إنشاء المستند</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

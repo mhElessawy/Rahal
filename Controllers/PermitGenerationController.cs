@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RahalWeb.Models;
+using IO = System.IO;
 
 
 public class PermitGenerationController : Controller
 {
-    private readonly RahalWebContext  _context;
+    private readonly RahalWebContext _context;
     private readonly WordDocumentService _wordService;
 
     public PermitGenerationController(RahalWebContext context)
@@ -16,18 +17,26 @@ public class PermitGenerationController : Controller
 
     public IActionResult Index()
     {
+        ViewBag.DocumentType = "permit";
         return View();
     }
 
-    // GET: Search page
-    public IActionResult Search()
+    public IActionResult IndexRenewal()
     {
+        ViewBag.DocumentType = "renewal";
+        return View("Index");
+    }
+
+    // GET: Search page
+    public IActionResult Search(string documentType = "permit")
+    {
+        ViewBag.DocumentType = documentType;
         return View();
     }
 
     // POST: Search for employees
     [HttpPost]
-    public IActionResult Search(string searchTerm, string searchType)
+    public IActionResult Search(string searchTerm, string searchType, string documentType = "permit")
     {
         IQueryable<EmployeeInfo> query = _context.EmployeeInfos
             .Include(e => e.Nationality)
@@ -68,6 +77,7 @@ public class PermitGenerationController : Controller
 
         ViewBag.SearchTerm = searchTerm;
         ViewBag.SearchType = searchType;
+        ViewBag.DocumentType = documentType;
 
         return View("SearchResults", employees);
     }
@@ -118,6 +128,52 @@ public class PermitGenerationController : Controller
         return RedirectToAction("Generate", new { id = employee.Id });
     }
 
+    // GET: Quick search by employee code for renewal
+    public IActionResult QuickByCodeRenewal(string empCode)
+    {
+        if (string.IsNullOrEmpty(empCode))
+        {
+            TempData["ErrorMessage"] = "الرجاء إدخال كود الموظف";
+            return RedirectToAction("IndexRenewal");
+        }
+
+        var employee = _context.EmployeeInfos
+            .Include(e => e.Nationality)
+            .Include(e => e.JobTitle)
+            .FirstOrDefault(e => e.EmpCode.ToString() == empCode);
+
+        if (employee == null)
+        {
+            TempData["ErrorMessage"] = "لم يتم العثور على موظف بهذا الكود";
+            return RedirectToAction("IndexRenewal");
+        }
+
+        return RedirectToAction("GenerateRenewal", new { id = employee.Id });
+    }
+
+    // GET: Quick search by civil ID for renewal
+    public IActionResult QuickByCivilIdRenewal(string civilId)
+    {
+        if (string.IsNullOrEmpty(civilId))
+        {
+            TempData["ErrorMessage"] = "الرجاء إدخال الرقم المدني";
+            return RedirectToAction("IndexRenewal");
+        }
+
+        var employee = _context.EmployeeInfos
+            .Include(e => e.Nationality)
+            .Include(e => e.JobTitle)
+            .FirstOrDefault(e => e.CivilId == civilId);
+
+        if (employee == null)
+        {
+            TempData["ErrorMessage"] = "لم يتم العثور على موظف بهذا الرقم المدني";
+            return RedirectToAction("IndexRenewal");
+        }
+
+        return RedirectToAction("GenerateRenewal", new { id = employee.Id });
+    }
+
     // GET: Generate document for specific employee
     public IActionResult Generate(int id)
     {
@@ -130,7 +186,7 @@ public class PermitGenerationController : Controller
             string fileName = $"تصريح_إجرة_{employee?.FullNameAr}_{DateTime.Now:yyyyMMdd}.docx";
 
             // Clean file name
-            fileName = string.Join("_", fileName.Split(Path.GetInvalidFileNameChars()));
+            fileName = string.Join("_", fileName.Split(IO.Path.GetInvalidFileNameChars()));
 
             return File(documentBytes,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -140,6 +196,31 @@ public class PermitGenerationController : Controller
         {
             TempData["ErrorMessage"] = $"خطأ في إنشاء المستند: {ex.Message}";
             return RedirectToAction("Index");
+        }
+    }
+
+    // GET: Generate renewal document for specific employee
+    public IActionResult GenerateRenewal(int id)
+    {
+        try
+        {
+            var documentBytes = _wordService.GenerateRenewalDocument(id);
+
+            // Get employee name for file name
+            var employee = _context.EmployeeInfos.Find(id);
+            string fileName = $"تجديد_رخصة_{employee?.FullNameAr}_{DateTime.Now:yyyyMMdd}.doc";
+
+            // Clean file name
+            fileName = string.Join("_", fileName.Split(IO.Path.GetInvalidFileNameChars()));
+
+            return File(documentBytes,
+                "application/msword",
+                fileName);
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = $"خطأ في إنشاء المستند: {ex.Message}";
+            return RedirectToAction("IndexRenewal");
         }
     }
 
@@ -182,5 +263,24 @@ public class PermitGenerationController : Controller
         {
             return Content($"Error: {ex.Message}");
         }
+    }
+
+    // GET: Check if template files exist
+    public IActionResult CheckTemplate()
+    {
+        var templatePath1 = IO.Path.Combine(Directory.GetCurrentDirectory(), "Templates", "NewPerm.docx");
+        var templatePath2 = IO.Path.Combine(Directory.GetCurrentDirectory(), "Templates", "ReNewPermSp.docx");
+
+        var info = new System.Text.StringBuilder();
+        info.AppendLine("Template Files Check:");
+        info.AppendLine($"\nNewPerm.docx: {(IO.File.Exists(templatePath1) ? "✓ Found" : "✗ Not Found")}");
+        if (IO.File.Exists(templatePath1))
+            info.AppendLine($"  Path: {templatePath1}");
+
+        info.AppendLine($"\nReNewPermSp.docx: {(IO.File.Exists(templatePath2) ? "✓ Found" : "✗ Not Found")}");
+        if (IO.File.Exists(templatePath2))
+            info.AppendLine($"  Path: {templatePath2}");
+
+        return Content(info.ToString(), "text/plain");
     }
 }

@@ -5,7 +5,7 @@ using RahalWeb.Models;
 
 public class WordDocumentService
 {
-    private readonly RahalWebContext  _context;
+    private readonly RahalWebContext _context;
 
     public WordDocumentService(RahalWebContext context)
     {
@@ -13,6 +13,16 @@ public class WordDocumentService
     }
 
     public byte[] GeneratePermitDocument(int employeeId)
+    {
+        return GenerateDocument(employeeId, "NewPerm.docx");
+    }
+
+    public byte[] GenerateRenewalDocument(int employeeId)
+    {
+        return GenerateDocument(employeeId, "ReNewPermSp.docx");
+    }
+
+    private byte[] GenerateDocument(int employeeId, string templateFileName)
     {
         // Get employee with related data
         var employee = _context.EmployeeInfos
@@ -25,13 +35,14 @@ public class WordDocumentService
             throw new Exception("Employee not found");
 
         // Path to template
-        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "NewPerm.docx");
+        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", templateFileName);
 
         if (!File.Exists(templatePath))
             throw new FileNotFoundException("Template file not found", templatePath);
 
-        // Create temporary file
-        string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.docx");
+        // Create temporary file with correct extension
+        string extension = Path.GetExtension(templateFileName);
+        string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}{extension}");
         File.Copy(templatePath, tempFilePath, true);
 
         try
@@ -147,11 +158,11 @@ public class WordDocumentService
             case "FourthName2":
                 return employee.ForthNameAr!;
             case "LastName":
-            case "LastName2":   
+            case "LastName2":
                 return employee.LastNameAr!;
             case "ArName":
             case "FullArName3":
-               return employee.FullNameAr!;
+                return employee.FullNameAr!;
             case "NameEn":
             case "Name":
                 return employee.FullNameEn ?? "";
@@ -187,7 +198,7 @@ public class WordDocumentService
             case "كود":
                 return employee.EmpCode?.ToString() ?? "";
 
-           
+
 
             case "LicenseType":
             case "نوع_الرخصة":
@@ -251,7 +262,7 @@ public class WordDocumentService
             case "فصيلة الدم":
                 return "O+"; // Default or add to employee model
             case "CompanyName":
-                return employee.Company!.OwnerName1  ?? "";
+                return employee.Company!.OwnerName1 ?? "";
             case "TraficLocationName":
                 return "";
             default:

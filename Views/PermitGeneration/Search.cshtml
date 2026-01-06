@@ -1,7 +1,7 @@
 ﻿@{
-    ViewData["Title"] = ViewBag.DocumentName ?? "بحث عن موظف";
-    var documentType = ViewBag.DocumentType ?? "taxi";
-    var documentName = ViewBag.DocumentName ?? "تصريح إجرة جوالة";
+    var documentType = ViewBag.DocumentType ?? "permit";
+    var documentName = documentType == "renewal" ? "تجديد رخصة سوق" : "تصريح إجرة جوالة";
+    ViewData["Title"] = "بحث عن موظف - " + documentName;
 }
 
 <div class="container mt-4" dir="rtl">
@@ -37,7 +37,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-search"></i> بحث
                     </button>
-                    <a asp-action="SelectDocument" class="btn btn-secondary">رجوع</a>
+                    <a asp-action="@(documentType == "renewal" ? "IndexRenewal" : "Index")" class="btn btn-secondary">رجوع</a>
                 </div>
             </form>
         </div>
