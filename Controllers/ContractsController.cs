@@ -147,7 +147,7 @@ namespace RahalWeb.Controllers
             var branches = _context.CarInfos
                         .Where(b => b.CompanyId == Id &&
                      !_context.Contracts
-                         .Where(c => c.DeleteFlag != 0 && c.Status != 0)
+                         .Where(c => c.DeleteFlag == 0 && c.Status == 0)
                          .Any(c => c.CarId == b.Id)) // ← Use the correct column name here
                         .Select(b => new {
                             id = b.Id,

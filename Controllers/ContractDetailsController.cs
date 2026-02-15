@@ -480,7 +480,6 @@ namespace RahalWeb.Controllers
                             DebitQty = (decimal?)latePay,
                             DebitRemaining = 0,
                         };
-
                         _context.Add(debitIfo);
                         await _context.SaveChangesAsync();
 

@@ -153,6 +153,42 @@
         }
 
 
+        @foreach (var item in Model.companyDebitDetails)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompDebitDetailsNo)
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompanyDebits!.Employee!.EmpCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompanyDebits!.Employee!.FullNameAr)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompDebitDate)
+                </td>
+
+                <td>
+                </td>
+                <td>
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompDebitPayed)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompanyDebits!.DebitReson)
+                </td>
+            </tr>
+        }
 
 
     </tbody>

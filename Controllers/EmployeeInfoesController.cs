@@ -916,7 +916,8 @@ namespace RahalWeb.Controllers
                 .Include(c => c.CompanyDebits)
                 .Include(c => c.CompanyDebits!.Employee)
                 .Include(c => c.UserInfo)
-                .Where(m => m.CompDebitType == 1 && m.UserRecievedNo  == maxRecievedNoCompDebit)
+                .Include(c => c.UserInfoRecieve)
+                .Where(m => m.CompDebitType == 1 && m.UserRecievedNo == maxRecievedNoCompDebit)
                 .OrderBy(e => e.CompDebitDetailsNo);
 
             //if (UserRecievedId.HasValue)
