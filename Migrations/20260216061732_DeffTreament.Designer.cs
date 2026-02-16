@@ -12,8 +12,8 @@ using RahalWeb.Models;
 namespace RahalWeb.Migrations
 {
     [DbContext(typeof(RahalWebContext))]
-    [Migration("20260216060115_DeffTreament2")]
-    partial class DeffTreament2
+    [Migration("20260216061732_DeffTreament")]
+    partial class DeffTreament
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

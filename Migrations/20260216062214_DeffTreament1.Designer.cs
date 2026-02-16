@@ -12,8 +12,8 @@ using RahalWeb.Models;
 namespace RahalWeb.Migrations
 {
     [DbContext(typeof(RahalWebContext))]
-    [Migration("20260216052507_DeffTreament")]
-    partial class DeffTreament
+    [Migration("20260216062214_DeffTreament1")]
+    partial class DeffTreament1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -889,16 +889,23 @@ namespace RahalWeb.Migrations
             modelBuilder.Entity("RahalWeb.Models.DeffEmpTreatment", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("DeffCode")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("DeffName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int?>("DeleteFlag")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<decimal?>("Price1")
                         .HasColumnType("decimal(18,2)");
