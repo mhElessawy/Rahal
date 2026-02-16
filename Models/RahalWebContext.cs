@@ -62,6 +62,7 @@ public partial class RahalWebContext : DbContext
     public virtual DbSet<CompanyDebit> CompanyDebits { get; set; }
     public virtual DbSet<CompanyDebitDetails> CompanyDebitDetails { get; set; }
     public virtual DbSet<DeffEmpTreatment> DeffEmpTreatments { get; set; }
+    public virtual DbSet<EmpTreatment> EmpTreatments { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -660,6 +661,33 @@ public partial class RahalWebContext : DbContext
             entity.Property(e => e.Price2).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Price3).HasColumnType("decimal(18,2)");
             entity.Property(e => e.DeleteFlag).HasDefaultValue(0);
+        });
+
+        modelBuilder.Entity<EmpTreatment>(entity =>
+        {
+            entity.ToTable("EmpTreatment");
+
+            entity.Property(e => e.TreatmentDetails).HasMaxLength(500);
+            entity.Property(e => e.TreatmentExtraMoney).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.TreatmentTotal).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Date).HasColumnType("datetime");
+            entity.Property(e => e.DeleteFlag).HasDefaultValue(0);
+
+            entity.HasOne(d => d.Emp).WithMany(p => p.EmpTreatments)
+                .HasForeignKey(d => d.EmpId)
+                .HasConstraintName("FK_EmpTreatment_EmployeeInfo");
+
+            entity.HasOne(d => d.DeffEmpTreatment).WithMany(p => p.EmpTreatments)
+                .HasForeignKey(d => d.DeffEmpTreatmentId)
+                .HasConstraintName("FK_EmpTreatment_DeffEmpTreatment");
+
+            entity.HasOne(d => d.User).WithMany(p => p.EmpTreatmentsUser)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_EmpTreatment_PasswordData");
+
+            entity.HasOne(d => d.UserRecieved).WithMany(p => p.EmpTreatmentsUserRecieved)
+                .HasForeignKey(d => d.UserRecievedId)
+                .HasConstraintName("FK_EmpTreatment_PasswordData1");
         });
 
         OnModelCreatingPartial(modelBuilder);

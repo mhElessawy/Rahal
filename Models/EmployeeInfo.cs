@@ -116,5 +116,6 @@ public partial class EmployeeInfo
     public virtual ICollection<Vacation> Vacations { get; set; } = new List<Vacation>();
     public virtual ICollection<ViolationInfo> ViolationInfos { get; set; } = new List<ViolationInfo>();
     public virtual ICollection<CompanyDebit> CompanyDebits { get; set; } = new List<CompanyDebit>();
+    public virtual ICollection<EmpTreatment> EmpTreatments { get; set; } = new List<EmpTreatment>();
 
 }

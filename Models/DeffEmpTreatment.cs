@@ -9,5 +9,6 @@ namespace RahalWeb.Models
         public decimal? Price2 { get; set; }
         public decimal? Price3 { get; set; }
         public int? DeleteFlag { get; set; }
+        public virtual ICollection<EmpTreatment> EmpTreatments { get; set; } = new List<EmpTreatment>();
     }
 }
