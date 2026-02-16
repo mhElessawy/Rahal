@@ -26,50 +26,43 @@
 <div class="container mt-4" dir="rtl">
     <div class="card shadow">
         <div class="card-header bg-primary text-white">
-            <h4 class="mb-0" style="color:white">إضافة معاملة موظف</h4>
+            <h4 class="mb-0" style="color:white">إضافة تعريف معاملة</h4>
         </div>
         <div class="card-body">
             <form asp-action="Create" class="row g-3">
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-                <input type="hidden" asp-for="UserId" value="@ViewBag.UserId" />
                 <!-- Treatment Information Section -->
                 <div class="col-md-12">
                     <h5 class="border-bottom pb-2">بيانات المعاملة</h5>
                 </div>
                 <div class="col-md-3">
-                    <label asp-for="TreatmentNo" class="control-label">رقم المعاملة</label>
-                    <input asp-for="TreatmentNo" value="@ViewBag.maxTreatmentNo" class="form-control" readonly />
-                    <span asp-validation-for="TreatmentNo" class="text-danger small"></span>
+                    <label asp-for="DeffCode" class="control-label">الكود</label>
+                    <input asp-for="DeffCode" class="form-control" />
+                    <span asp-validation-for="DeffCode" class="text-danger small"></span>
                 </div>
 
                 <div class="col-md-3">
-                    <label asp-for="EmpId" class="control-label">اسم الموظف</label>
-                    <select asp-for="EmpId" class="form-control" asp-items="ViewBag.EmpId" required></select>
-                    <span asp-validation-for="EmpId" class="text-danger small"></span>
+                    <label asp-for="DeffName" class="control-label">اسم المعاملة</label>
+                    <input asp-for="DeffName" class="form-control" required />
+                    <span asp-validation-for="DeffName" class="text-danger small"></span>
                 </div>
 
-                <div class="col-md-3">
-                    <label asp-for="DeffId" class="control-label">نوع المعاملة</label>
-                    <select asp-for="DeffId" class="form-control" asp-items="ViewBag.DeffId" required></select>
-                    <span asp-validation-for="DeffId" class="text-danger small"></span>
+                <div class="col-md-2">
+                    <label asp-for="Price1" class="control-label">السعر 1</label>
+                    <input asp-for="Price1" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="Price1" class="text-danger small"></span>
                 </div>
 
-                <div class="col-md-3">
-                    <label asp-for="TreatmentDate" class="control-label">التاريخ</label>
-                    <input asp-for="TreatmentDate" type="date" class="form-control" required />
-                    <span asp-validation-for="TreatmentDate" class="text-danger small"></span>
+                <div class="col-md-2">
+                    <label asp-for="Price2" class="control-label">السعر 2</label>
+                    <input asp-for="Price2" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="Price2" class="text-danger small"></span>
                 </div>
 
-                <div class="col-md-3">
-                    <label asp-for="TreatmentAmount" class="control-label">المبلغ</label>
-                    <input asp-for="TreatmentAmount" type="number" step="0.01" class="form-control" required />
-                    <span asp-validation-for="TreatmentAmount" class="text-danger small"></span>
-                </div>
-
-                <div class="col-md-9">
-                    <label asp-for="Notes" class="control-label">ملاحظات</label>
-                    <input asp-for="Notes" class="form-control" />
-                    <span asp-validation-for="Notes" class="text-danger small"></span>
+                <div class="col-md-2">
+                    <label asp-for="Price3" class="control-label">السعر 3</label>
+                    <input asp-for="Price3" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="Price3" class="text-danger small"></span>
                 </div>
 
                 <!-- Form Actions -->

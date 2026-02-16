@@ -654,23 +654,12 @@ public partial class RahalWebContext : DbContext
         {
             entity.ToTable("DeffEmpTreatment");
 
-            entity.Property(e => e.TreatmentAmount)
-                .HasColumnType("decimal(18,2)");
-
-            entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.Property(e => e.DeffCode).HasMaxLength(50);
+            entity.Property(e => e.DeffName).HasMaxLength(500);
+            entity.Property(e => e.Price1).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Price2).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Price3).HasColumnType("decimal(18,2)");
             entity.Property(e => e.DeleteFlag).HasDefaultValue(0);
-
-            entity.HasOne(d => d.Employee).WithMany(p => p.DeffEmpTreatments)
-                .HasForeignKey(d => d.EmpId)
-                .HasConstraintName("FK_DeffEmpTreatment_EmployeeInfo");
-
-            entity.HasOne(d => d.DeffTreatment).WithMany(p => p.DeffEmpTreatments)
-                .HasForeignKey(d => d.DeffId)
-                .HasConstraintName("FK_DeffEmpTreatment_Deff");
-
-            entity.HasOne(d => d.User).WithMany(p => p.DeffEmpTreatments)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK_DeffEmpTreatment_PasswordData");
         });
 
         OnModelCreatingPartial(modelBuilder);

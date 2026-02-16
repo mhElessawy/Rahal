@@ -188,22 +188,19 @@
     <thead>
         <tr>
             <th>
-                <label>رقم المعاملة</label>
+                <label>الكود</label>
             </th>
             <th>
-               <label>التاريخ</label>
+                <label>اسم المعاملة</label>
             </th>
             <th>
-                <label>اسم الموظف</label>
+                <label>السعر 1</label>
             </th>
             <th>
-                <label>نوع المعاملة</label>
+                <label>السعر 2</label>
             </th>
             <th>
-                <label>المبلغ</label>
-            </th>
-            <th>
-                <label>ملاحظات</label>
+                <label>السعر 3</label>
             </th>
             <th></th>
         </tr>
@@ -212,22 +209,19 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                    @Html.DisplayFor(modelItem => item.TreatmentNo)
+                @Html.DisplayFor(modelItem => item.DeffCode)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TreatmentDate)
+                @Html.DisplayFor(modelItem => item.DeffName)
             </td>
             <td>
-                    @Html.DisplayFor(modelItem => item.Employee!.FullNameAr)
+                @Html.DisplayFor(modelItem => item.Price1)
             </td>
             <td>
-                    @Html.DisplayFor(modelItem => item.DeffTreatment!.DeffName)
+                @Html.DisplayFor(modelItem => item.Price2)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TreatmentAmount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Notes)
+                @Html.DisplayFor(modelItem => item.Price3)
             </td>
             <td>
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn-edit"><i class="fas fa-edit"></i> تعديل</a>

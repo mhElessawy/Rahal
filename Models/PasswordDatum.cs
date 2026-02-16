@@ -137,6 +137,5 @@ public partial class PasswordDatum
     public virtual ICollection<CompanyDebitDetails> CompanyDebitsDetailsUser { get; set; } = new List<CompanyDebitDetails>();
     public virtual ICollection<CompanyDebitDetails> CompanyDebitsDetailsUserRecieved { get; set; } = new List<CompanyDebitDetails>();
     public virtual ICollection<EmployeeSalary> EmployeeSalarys { get; set; } = new List<EmployeeSalary>();
-    public virtual ICollection<DeffEmpTreatment> DeffEmpTreatments { get; set; } = new List<DeffEmpTreatment>();
 
 }

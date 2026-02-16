@@ -16,43 +16,38 @@
 
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                 <input type="hidden" asp-for="Id" />
-                <input type="hidden" asp-for="UserId" />
                 <!-- Treatment Information Section -->
                 <div class="col-md-12">
                     <h5 class="border-bottom pb-2">بيانات المعاملة</h5>
                 </div>
                 <div class="col-md-3">
-                    <label asp-for="TreatmentNo" class="form-label">رقم المعاملة</label>
-                    <input asp-for="TreatmentNo" class="form-control" readonly />
-                    <span asp-validation-for="TreatmentNo" class="text-danger small"></span>
+                    <label asp-for="DeffCode" class="form-label">الكود</label>
+                    <input asp-for="DeffCode" class="form-control" />
+                    <span asp-validation-for="DeffCode" class="text-danger small"></span>
                 </div>
 
                 <div class="col-md-3">
-                    <label asp-for="EmpId" class="form-label">اسم الموظف</label>
-                    <select asp-for="EmpId" class="form-select" asp-items="ViewBag.EmpId" dir="rtl" required></select>
+                    <label asp-for="DeffName" class="form-label">اسم المعاملة</label>
+                    <input asp-for="DeffName" class="form-control" required />
+                    <span asp-validation-for="DeffName" class="text-danger small"></span>
                 </div>
 
-                <div class="col-md-3">
-                    <label asp-for="DeffId" class="form-label">نوع المعاملة</label>
-                    <select asp-for="DeffId" class="form-select" asp-items="ViewBag.DeffId" dir="rtl" required></select>
+                <div class="col-md-2">
+                    <label asp-for="Price1" class="form-label">السعر 1</label>
+                    <input asp-for="Price1" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="Price1" class="text-danger small"></span>
                 </div>
 
-                <div class="col-md-3">
-                    <label asp-for="TreatmentDate" class="form-label">تاريخ المعاملة</label>
-                    <input asp-for="TreatmentDate" type="date" class="form-control" required />
-                    <span asp-validation-for="TreatmentDate" class="text-danger small"></span>
+                <div class="col-md-2">
+                    <label asp-for="Price2" class="form-label">السعر 2</label>
+                    <input asp-for="Price2" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="Price2" class="text-danger small"></span>
                 </div>
 
-                <div class="col-md-3">
-                    <label asp-for="TreatmentAmount" class="form-label">المبلغ</label>
-                    <input asp-for="TreatmentAmount" type="number" step="0.01" class="form-control" required />
-                    <span asp-validation-for="TreatmentAmount" class="text-danger small"></span>
-                </div>
-
-                <div class="col-md-9">
-                    <label asp-for="Notes" class="form-label">ملاحظات</label>
-                    <input asp-for="Notes" class="form-control" />
-                    <span asp-validation-for="Notes" class="text-danger small"></span>
+                <div class="col-md-2">
+                    <label asp-for="Price3" class="form-label">السعر 3</label>
+                    <input asp-for="Price3" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="Price3" class="text-danger small"></span>
                 </div>
 
                 <!-- Form Actions -->

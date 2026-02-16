@@ -19,28 +19,24 @@
                 <div class="info-section">
                     <h5>البيانات العامة</h5>
                     <div class="info-item">
-                        <label>رقم المعاملة</label>
-                        <span>@Html.DisplayFor(model => model.TreatmentNo)</span>
+                        <label>الكود</label>
+                        <span>@Html.DisplayFor(model => model.DeffCode)</span>
                     </div>
                     <div class="info-item">
-                        <label>تاريخ المعاملة</label>
-                        <span>@Html.DisplayFor(model => model.TreatmentDate)</span>
+                        <label>اسم المعاملة</label>
+                        <span>@Html.DisplayFor(model => model.DeffName)</span>
                     </div>
                     <div class="info-item">
-                        <label>اسم الموظف</label>
-                        <span>@Html.DisplayFor(model => model.Employee!.FullNameAr)</span>
+                        <label>السعر 1</label>
+                        <span>@Html.DisplayFor(model => model.Price1)</span>
                     </div>
                     <div class="info-item">
-                        <label>نوع المعاملة</label>
-                        <span>@Html.DisplayFor(model => model.DeffTreatment!.DeffName)</span>
+                        <label>السعر 2</label>
+                        <span>@Html.DisplayFor(model => model.Price2)</span>
                     </div>
                     <div class="info-item">
-                        <label>المبلغ</label>
-                        <span>@Html.DisplayFor(model => model.TreatmentAmount)</span>
-                    </div>
-                    <div class="info-item">
-                        <label>ملاحظات</label>
-                        <span>@Html.DisplayFor(model => model.Notes)</span>
+                        <label>السعر 3</label>
+                        <span>@Html.DisplayFor(model => model.Price3)</span>
                     </div>
                 </div>
             </div>
