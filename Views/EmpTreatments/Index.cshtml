@@ -200,7 +200,13 @@
                 <label>نوع المعاملة</label>
             </th>
             <th>
-                <label>التفاصيل</label>
+                <label>السعر 1</label>
+            </th>
+            <th>
+                <label>السعر 2</label>
+            </th>
+            <th>
+                <label>السعر 3</label>
             </th>
             <th>
                 <label>مبلغ اضافى</label>
@@ -227,7 +233,13 @@
                 @Html.DisplayFor(modelItem => item.DeffEmpTreatment!.DeffName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TreatmentDetails)
+                @Html.DisplayFor(modelItem => item.DeffEmpTreatment!.Price1)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DeffEmpTreatment!.Price2)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DeffEmpTreatment!.Price3)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.TreatmentExtraMoney)
