@@ -67,7 +67,7 @@
                     <!-- Uncomment the line below if you also wish to use an image logo -->
                     <!-- <img src="assets/img/logo.png" alt=""> -->
                     <h1 class="sitename"> رحال للأجره الجوال </h1>
-                    
+
                 </a>
                 <nav id="navmenu" class="navmenu" dir="rtl">
                     <ul>
@@ -78,19 +78,19 @@
                                 {
                                     <li><a asp-action="Index" asp-controller="EmployeeInfoes"><strong>بيانات الموظفين</strong></a></li>
                                 }
-                      
+
                                 @if (user!.DebitView == true)
                                 {
                                     <li class="dropdown">
-                                            <a href="#"><strong><span>الديون</span></strong> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                                        <a href="#"><strong><span>الديون</span></strong> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
                                         <ul>
-                                           @*  <li><a asp-action="Index" asp-controller="DebitPayInfoes"><strong>تحصيل ديون</strong></a></li> *@
+                                            @*  <li><a asp-action="Index" asp-controller="DebitPayInfoes"><strong>تحصيل ديون</strong></a></li> *@
                                             <li><a asp-action="Index" asp-controller="DebitInfoes"><strong>إضافة وإستلام دين</strong></a></li>
                                             <li><a href="#"><strong>إضافة ديون جماعية</strong></a></li>
                                         </ul>
                                     </li>
                                 }
-                                 @if (user.PayView == true)
+                                @if (user.PayView == true)
                                 {
                                     <li><a asp-action="Index" asp-controller="ContractDetails"><strong> الإيجار الشهري و المتأخر</strong></a></li>
                                 }
@@ -98,32 +98,35 @@
                                 {
                                     <li><a asp-action="Index" asp-controller="Vacations"><strong>الأجازات</strong></a></li>
                                 }
-                                 @if (user.EmpTakeMoney == true)
+                                @if (user.EmpTakeMoney == true)
                                 {
                                     <li><a asp-action="Index" asp-controller="EmployeeTakeMoneys"><strong>العهد</strong></a></li>
                                 }
                                 @if (user.EmpArchive == true)
                                 {
-                                 <li><a asp-action="Index" asp-controller="EmployeeInfoes"><strong>أرشيف الموظفين</strong></a></li>
+                                    <li><a asp-action="Index" asp-controller="EmployeeInfoes"><strong>أرشيف الموظفين</strong></a></li>
                                 }
-                                 @if (user.RecievedMoney == true)
+                                @if (user.RecievedMoney == true)
                                 {
                                     <li><a asp-action="RecievedMoney" asp-controller="EmployeeInfoes"><strong>استلام المبالغ</strong></a></li>
                                 }
-                                @if (user.CompDebitView== true)
+                                @if (user.CompDebitView == true)
                                 {
                                     <li><a asp-action="Index" asp-controller="CompanyDebits"><strong>ديون الشركات </strong></a></li>
                                 }
-                               
-                                    <li class="dropdown">
-                                        <a href="#"><strong><span>الرواتب</span></strong> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-                                        <ul>
+
+                                <li><a asp-action="Index" asp-controller="DeffEmpTreatments"><strong>تعريف المعاملات</strong></a></li>
+                                <li><a asp-action="Index" asp-controller="EmpTreatments"><strong>معاملات الموظفين</strong></a></li>
+
+                                <li class="dropdown">
+                                    <a href="#"><strong><span>الرواتب</span></strong> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                                    <ul>
                                         <li><a asp-action="Index" asp-controller="EmployeeSalaries"><strong>إضافة راتب</strong></a></li>
 
-                                            
-                                        </ul>
-                                    </li>
-                                
+
+                                    </ul>
+                                </li>
+
 
                             </ul>
                         </li>
@@ -136,11 +139,11 @@
                                 }
 
                                 <li><a asp-action="IndexCredit" asp-controller="Contracts"><strong>أقساط السيارات</strong></a></li>
-                                @if(user.ViolationView == true)
+                                @if (user.ViolationView == true)
                                 {
                                     <li><a asp-action="Index" asp-controller="ViolationInfoes"><strong>المخالفات</strong></a></li>
                                 }
-                               
+
                                 <li><a asp-action="IndexCredit" asp-controller="Contracts"><strong>أرشيف السيارات</strong></a></li>
                             </ul>
                         </li>
@@ -157,28 +160,27 @@
                                 }
                                 @if (user!.ContractArchive == true)
                                 {
-                                    <li><a asp-action ="IndexArchive" asp-controller="Contracts"><strong>أرشبف العقود</strong></a></li>
+                                    <li><a asp-action="IndexArchive" asp-controller="Contracts"><strong>أرشبف العقود</strong></a></li>
                                 }
                             </ul>
                         </li>
-                       @if (user.CompView == true)
+                        @if (user.CompView == true)
                         {
                             <li><a asp-action="Index" asp-controller="CompanyInfoes"><strong>الشركات</strong></a></li>
                         }
-                         @if (user.PurshaseView== true)
+                        @if (user.PurshaseView == true)
                         {
                             <li><a asp-action="Index" asp-controller="Purshases"><strong> المصروفات</strong></a></li>
                         }
-                         @if (user.UserAdmin == true)
+                        @if (user.UserAdmin == true)
                         {
                             <li class="dropdown">
                                 <a href="#"><strong><span>مسئول البرنامج</span></strong> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
                                 <ul>
                                     <li><a asp-action="Index" asp-controller="PasswordDatums"><strong>المستخدمين</strong></a></li>
-                                    <li><a ><strong>متابعة المستخدمين</strong></a></li>
+                                    <li><a><strong>متابعة المستخدمين</strong></a></li>
                                     <li><a asp-controller="Home" asp-action="DeffTypeIndex" asp-route-pageIndex="1"><strong>التعريفات</strong></a></li>
                                     <li><a asp-controller="DeffInformations" asp-action="Edit" asp-route-Id="1"><strong>البيانات العامة </strong></a></li>
-                                    <li><a asp-controller="DeffEmpTreatments" asp-action="Index" ><strong>تعريف متابعة الموظفين </strong></a></li>
                                 </ul>
                             </li>
                         }
@@ -216,15 +218,15 @@
                             </ul>
                         </li>
 
-                        
+
                         <li><a asp-action="login" asp-controller="PasswordDatums"><strong>تسجيل خروج</strong></a></li>
                     </ul>
                     <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
                 </nav>
-           
+
             </div>
         </div>
-        
+
     </header>
     <div class="container">
         <h3 dir="rtl"> اسم المستخدم  @TempData["Username"] </h3>

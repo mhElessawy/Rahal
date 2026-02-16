@@ -62,6 +62,8 @@ public partial class RahalWebContext : DbContext
     public virtual DbSet<CompanyDebit> CompanyDebits { get; set; }
     public virtual DbSet<CompanyDebitDetails> CompanyDebitDetails { get; set; }
     public virtual DbSet<DeffEmpTreatment> DeffEmpTreatments { get; set; }
+
+    public virtual DbSet<EmpTreatment> EmpTreatments { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("SQL_Latin1_General_CP1_CI_AS");
