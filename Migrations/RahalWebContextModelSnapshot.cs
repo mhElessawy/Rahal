@@ -1137,8 +1137,8 @@ namespace RahalWeb.Migrations
                     b.Property<decimal>("AddTravel")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("Approve")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("Approve")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("DeductAdvance")
                         .HasColumnType("decimal(18,2)");
@@ -1169,14 +1169,11 @@ namespace RahalWeb.Migrations
                     b.Property<DateOnly>("EntryDate")
                         .HasColumnType("date");
 
-                    b.Property<int>("EntrySalaryDay")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("Net")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("SalaryRecieved")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("SalaryRecieved")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("TotalDeduuct")
                         .HasColumnType("decimal(18,2)");
@@ -1184,9 +1181,14 @@ namespace RahalWeb.Migrations
                     b.Property<decimal>("TotalPayed")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EmpId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("EmployeeSalary", (string)null);
                 });
@@ -2002,7 +2004,16 @@ namespace RahalWeb.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_EmployeeSalary_EmployeeInfo");
 
+                    b.HasOne("RahalWeb.Models.PasswordDatum", "User")
+                        .WithMany("EmployeeSalarys")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmployeeSalary_PasswordData");
+
                     b.Navigation("Emp");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("RahalWeb.Models.EmployeeTakeMoney", b =>
@@ -2230,6 +2241,8 @@ namespace RahalWeb.Migrations
                     b.Navigation("EmployeeTakeMoneyTakeUser");
 
                     b.Navigation("EmployeeTakeMoneyUser");
+
+                    b.Navigation("EmployeeSalarys");
 
                     b.Navigation("UserCompanyNotAppears");
 
