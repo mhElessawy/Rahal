@@ -21,6 +21,15 @@
     h5 {
         color: #0d6efd;
     }
+
+    .price-display {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        padding: 8px 12px;
+        font-weight: 600;
+        text-align: center;
+    }
 </style>
 
 <div class="container mt-4" dir="rtl">
@@ -50,6 +59,11 @@
                     <span asp-validation-for="Date" class="text-danger small"></span>
                 </div>
 
+                <div class="col-md-2">
+                    <label class="control-label">كود الموظف</label>
+                    <input type="number" id="empCode" class="form-control" placeholder="ادخل الكود" />
+                </div>
+
                 <div class="col-md-4">
                     <label asp-for="EmpId" class="control-label">اسم الموظف</label>
                     <select asp-for="EmpId" class="form-control" asp-items="@ViewBag.EmpId" required>
@@ -60,10 +74,38 @@
 
                 <div class="col-md-4">
                     <label asp-for="DeffEmpTreatmentId" class="control-label">نوع المعاملة</label>
-                    <select asp-for="DeffEmpTreatmentId" class="form-control" asp-items="@ViewBag.DeffEmpTreatmentId" required>
+                    <select asp-for="DeffEmpTreatmentId" class="form-control" asp-items="@ViewBag.DeffEmpTreatmentId" required id="deffTreatmentSelect">
                         <option value="">-- اختر نوع المعاملة --</option>
                     </select>
                     <span asp-validation-for="DeffEmpTreatmentId" class="text-danger small"></span>
+                </div>
+
+                <!-- Prices Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">أسعار المعاملة</h5>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="control-label">السعر 1</label>
+                    <div class="price-display" id="price1Display">0.00</div>
+                    <input type="hidden" id="price1Val" value="0" />
+                </div>
+
+                <div class="col-md-2">
+                    <label class="control-label">السعر 2</label>
+                    <div class="price-display" id="price2Display">0.00</div>
+                    <input type="hidden" id="price2Val" value="0" />
+                </div>
+
+                <div class="col-md-2">
+                    <label class="control-label">السعر 3</label>
+                    <div class="price-display" id="price3Display">0.00</div>
+                    <input type="hidden" id="price3Val" value="0" />
+                </div>
+
+                <!-- Details and Totals -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">التفاصيل والمبالغ</h5>
                 </div>
 
                 <div class="col-md-4">
@@ -74,13 +116,13 @@
 
                 <div class="col-md-2">
                     <label asp-for="TreatmentExtraMoney" class="control-label">مبلغ اضافى</label>
-                    <input asp-for="TreatmentExtraMoney" type="number" step="0.01" class="form-control" />
+                    <input asp-for="TreatmentExtraMoney" type="number" step="0.01" class="form-control" id="extraMoney" value="0" />
                     <span asp-validation-for="TreatmentExtraMoney" class="text-danger small"></span>
                 </div>
 
                 <div class="col-md-2">
                     <label asp-for="TreatmentTotal" class="control-label">الإجمالى</label>
-                    <input asp-for="TreatmentTotal" type="number" step="0.01" class="form-control" />
+                    <input asp-for="TreatmentTotal" type="number" step="0.01" class="form-control" id="totalField" readonly />
                     <span asp-validation-for="TreatmentTotal" class="text-danger small"></span>
                 </div>
 
@@ -99,3 +141,66 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Search employee by code
+    document.getElementById('empCode').addEventListener('change', function () {
+        var code = this.value;
+        if (!code) return;
+        fetch('/EmpTreatments/GetEmployeeByCode?code=' + code)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('EmpId').value = data.id;
+                } else {
+                    alert('لا يوجد موظف بهذا الكود');
+                    document.getElementById('EmpId').value = '';
+                }
+            });
+    });
+
+    // Get prices when treatment type is selected
+    document.getElementById('deffTreatmentSelect').addEventListener('change', function () {
+        var id = this.value;
+        if (!id) {
+            document.getElementById('price1Display').textContent = '0.00';
+            document.getElementById('price2Display').textContent = '0.00';
+            document.getElementById('price3Display').textContent = '0.00';
+            document.getElementById('price1Val').value = 0;
+            document.getElementById('price2Val').value = 0;
+            document.getElementById('price3Val').value = 0;
+            calcTotal();
+            return;
+        }
+        fetch('/EmpTreatments/GetTreatmentPrices?id=' + id)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    var p1 = data.price1 || 0;
+                    var p2 = data.price2 || 0;
+                    var p3 = data.price3 || 0;
+                    document.getElementById('price1Display').textContent = p1.toFixed(2);
+                    document.getElementById('price2Display').textContent = p2.toFixed(2);
+                    document.getElementById('price3Display').textContent = p3.toFixed(2);
+                    document.getElementById('price1Val').value = p1;
+                    document.getElementById('price2Val').value = p2;
+                    document.getElementById('price3Val').value = p3;
+                    calcTotal();
+                }
+            });
+    });
+
+    // Recalculate total when extra money changes
+    document.getElementById('extraMoney').addEventListener('input', function () {
+        calcTotal();
+    });
+
+    function calcTotal() {
+        var p1 = parseFloat(document.getElementById('price1Val').value) || 0;
+        var p2 = parseFloat(document.getElementById('price2Val').value) || 0;
+        var p3 = parseFloat(document.getElementById('price3Val').value) || 0;
+        var extra = parseFloat(document.getElementById('extraMoney').value) || 0;
+        var total = p1 + p2 + p3 + extra;
+        document.getElementById('totalField').value = total.toFixed(2);
+    }
+</script>

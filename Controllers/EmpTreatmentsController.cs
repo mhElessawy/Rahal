@@ -175,5 +175,31 @@ namespace RahalWeb.Controllers
         {
             return _context.EmpTreatments.Any(e => e.Id == id);
         }
+
+        // API: Get employee by code
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeeByCode(int code)
+        {
+            var emp = await _context.EmployeeInfos
+                .Where(e => e.EmpCode == code && e.DeleteFlag == 0)
+                .Select(e => new { e.Id, e.FullNameAr })
+                .FirstOrDefaultAsync();
+            if (emp == null)
+                return Json(new { success = false });
+            return Json(new { success = true, id = emp.Id, name = emp.FullNameAr });
+        }
+
+        // API: Get treatment prices by DeffEmpTreatment id
+        [HttpGet]
+        public async Task<IActionResult> GetTreatmentPrices(int id)
+        {
+            var item = await _context.DeffEmpTreatments
+                .Where(d => d.Id == id)
+                .Select(d => new { d.Price1, d.Price2, d.Price3 })
+                .FirstOrDefaultAsync();
+            if (item == null)
+                return Json(new { success = false });
+            return Json(new { success = true, price1 = item.Price1, price2 = item.Price2, price3 = item.Price3 });
+        }
     }
 }

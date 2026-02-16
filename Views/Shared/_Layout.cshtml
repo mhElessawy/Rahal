@@ -90,6 +90,7 @@
                                         </ul>
                                     </li>
                                 }
+  
                                 @if (user.PayView == true)
                                 {
                                     <li><a asp-action="Index" asp-controller="ContractDetails"><strong> الإيجار الشهري و المتأخر</strong></a></li>
@@ -114,10 +115,14 @@
                                 {
                                     <li><a asp-action="Index" asp-controller="CompanyDebits"><strong>ديون الشركات </strong></a></li>
                                 }
-
-                                <li><a asp-action="Index" asp-controller="DeffEmpTreatments"><strong>تعريف المعاملات</strong></a></li>
-                                <li><a asp-action="Index" asp-controller="EmpTreatments"><strong>معاملات الموظفين</strong></a></li>
-
+                                @if (user.DeffEmpTreatment  == true)
+                                {
+                                    <li><a asp-action="Index" asp-controller="DeffEmpTreatments"><strong>تعريف المعاملات</strong></a></li>
+                                }
+                                 @if (user.DeffEmpTreatment  == true)
+                                 {
+                                   <li><a asp-action="Index" asp-controller="EmpTreatments"><strong>معاملات الموظفين</strong></a></li> 
+                                 }
                                 <li class="dropdown">
                                     <a href="#"><strong><span>الرواتب</span></strong> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
                                     <ul>

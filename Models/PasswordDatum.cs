@@ -108,6 +108,12 @@ public partial class PasswordDatum
     public bool CompDebitDelete { get; set; } = false;
     public bool CompDebitUpdate { get; set; } = false;
 
+    public bool DeffEmpTreatment { get; set; } = false;
+
+    public bool EmpTreatment { get; set; } = false;
+
+
+
     public string? CompanyData { get; set; }
     public virtual ICollection<Bill> Bills { get; set; } = new List<Bill>();
 

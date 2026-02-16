@@ -363,7 +363,19 @@
                     <input type="checkbox" asp-for="CompDebitDelete" class="form-check-input" />
                     <span asp-validation-for="CompDebitDelete" class="text-danger small"></span>
                 </div>
-
+                <div class="col-md-12 mt-3">
+                    <h5 class="border-bottom pb-2">صلاحية المعاملات </h5>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="DeffEmpTreatment" class="form-label">تعريف المعاملات</label>
+                    <input type="checkbox" asp-for="DeffEmpTreatment" class="form-check-input" />
+                    <span asp-validation-for="DeffEmpTreatment" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="EmpTreatment" class="form-label">إضافة المعاملات</label>
+                    <input type="checkbox" asp-for="EmpTreatment" class="form-check-input" />
+                    <span asp-validation-for="EmpTreatment" class="text-danger small"></span>
+                </div>
                 <!-- Form Actions -->
                 <div class="col-md-12"> </div>
                 <!-- Arabic Name Section -->
