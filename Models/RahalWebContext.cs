@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using RahalWeb.Models;
 
 namespace RahalWeb.Models;
 
@@ -61,6 +62,9 @@ public partial class RahalWebContext : DbContext
 
     public virtual DbSet<CompanyDebit> CompanyDebits { get; set; }
     public virtual DbSet<CompanyDebitDetails> CompanyDebitDetails { get; set; }
+
+    public virtual DbSet<DeffEmpTreatment> DeffEmpTreatments { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -436,9 +440,6 @@ public partial class RahalWebContext : DbContext
 
         });
 
-
-
-
         modelBuilder.Entity<PasswordDatum>(entity =>
         {
             entity.Property(e => e.CompDelete).HasDefaultValue(false);
@@ -650,8 +651,14 @@ public partial class RahalWebContext : DbContext
                   .HasConstraintName("FK_EmployeeTakeMoneyUser_PasswordData");
         });
         OnModelCreatingPartial(modelBuilder);
+
+       
+
+
     }
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 public DbSet<DeffInformation> DeffInformation { get; set; } = default!;
+
+public DbSet<RahalWeb.Models.DeffEmpTreatment> DeffEmpTreatment { get; set; } = default!;
 
 }

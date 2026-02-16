@@ -1,0 +1,56 @@
+﻿@model RahalWeb.Models.DeffEmpTreatment
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Create</h1>
+
+<h4>DeffEmpTreatment</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="DeffCode" class="control-label"></label>
+                <input asp-for="DeffCode" class="form-control" />
+                <span asp-validation-for="DeffCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DeffName" class="control-label"></label>
+                <input asp-for="DeffName" class="form-control" />
+                <span asp-validation-for="DeffName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price1" class="control-label"></label>
+                <input asp-for="Price1" class="form-control" />
+                <span asp-validation-for="Price1" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price2" class="control-label"></label>
+                <input asp-for="Price2" class="form-control" />
+                <span asp-validation-for="Price2" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price3" class="control-label"></label>
+                <input asp-for="Price3" class="form-control" />
+                <span asp-validation-for="Price3" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DeleteFlag" class="control-label"></label>
+                <input asp-for="DeleteFlag" class="form-control" />
+                <span asp-validation-for="DeleteFlag" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RahalWeb.Models;
 
@@ -11,9 +12,11 @@ using RahalWeb.Models;
 namespace RahalWeb.Migrations
 {
     [DbContext(typeof(RahalWebContext))]
-    partial class RahalWebContextModelSnapshot : ModelSnapshot
+    [Migration("20260216052507_DeffTreament")]
+    partial class DeffTreament
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -886,10 +889,7 @@ namespace RahalWeb.Migrations
             modelBuilder.Entity("RahalWeb.Models.DeffEmpTreatment", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("DeffCode")
                         .HasColumnType("nvarchar(max)");
@@ -911,7 +911,7 @@ namespace RahalWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DeffEmpTreatment");
+                    b.ToTable("DeffEmpTreatment", (string)null);
                 });
 
             modelBuilder.Entity("RahalWeb.Models.DeffInformation", b =>
