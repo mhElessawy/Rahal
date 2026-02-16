@@ -55,5 +55,6 @@ public partial class Deff
 
     public virtual DeffInformation? DeffInformation { get; set; }
     public virtual ICollection<ViolationInfo> ViolationInfos { get; set; } = new List<ViolationInfo>();
+    public virtual ICollection<DeffEmpTreatment> DeffEmpTreatments { get; set; } = new List<DeffEmpTreatment>();
 
 }

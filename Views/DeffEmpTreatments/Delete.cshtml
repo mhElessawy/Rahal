@@ -1,0 +1,63 @@
+@model RahalWeb.Models.DeffEmpTreatment
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="delete-confirmation-container" dir="rtl">
+    <div class="delete-header">
+        <h1 class="delete-title">حذف بيانات معاملة</h1>
+        <div class="delete-warning alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>تحذير:</strong> سوف يتم حذف بيانات المعاملة و لا يمكن استعادتها مرة آخرى.
+        </div>
+    </div>
+    <div class="company-details-card">
+        <div class="card-header">
+            <h4>تفاصيل بيانات المعاملة</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="detail-group">
+                        <label>رقم المعاملة</label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.TreatmentNo)</div>
+                    </div>
+                    <div class="detail-group">
+                        <label>اسم الموظف</label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.Employee!.FullNameAr)</div>
+                    </div>
+                    <div class="detail-group">
+                        <label>نوع المعاملة</label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.DeffTreatment!.DeffName)</div>
+                    </div>
+                    <div class="detail-group">
+                        <label>تاريخ المعاملة</label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.TreatmentDate)</div>
+                    </div>
+                    <div class="detail-group">
+                        <label>المبلغ</label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.TreatmentAmount)</div>
+                    </div>
+                    <div class="detail-group">
+                        <label>ملاحظات</label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.Notes)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="delete-actions">
+        <form asp-action="Delete" class="delete-form">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger btn-lg delete-button">
+                <i class="fas fa-trash-alt"></i> تأكيد الحذف
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-lg cancel-button">
+                <i class="fas fa-times"></i> إلغاء
+            </a>
+        </form>
+    </div>
+</div>

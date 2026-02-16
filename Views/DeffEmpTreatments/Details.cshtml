@@ -1,0 +1,49 @@
+@model RahalWeb.Models.DeffEmpTreatment
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="company-info-container" dir="rtl">
+    <div class="company-info-header">
+        <h4>بيانات المعاملة</h4>
+        <div class="action-buttons">
+            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">تعديل</a>
+            <a asp-action="Index" class="btn btn-secondary">العوده لصفحة المعاملات</a>
+        </div>
+    </div>
+    <div class="company-info-body" dir="rtl">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>البيانات العامة</h5>
+                    <div class="info-item">
+                        <label>رقم المعاملة</label>
+                        <span>@Html.DisplayFor(model => model.TreatmentNo)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>تاريخ المعاملة</label>
+                        <span>@Html.DisplayFor(model => model.TreatmentDate)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>اسم الموظف</label>
+                        <span>@Html.DisplayFor(model => model.Employee!.FullNameAr)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>نوع المعاملة</label>
+                        <span>@Html.DisplayFor(model => model.DeffTreatment!.DeffName)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>المبلغ</label>
+                        <span>@Html.DisplayFor(model => model.TreatmentAmount)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>ملاحظات</label>
+                        <span>@Html.DisplayFor(model => model.Notes)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

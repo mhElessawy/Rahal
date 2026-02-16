@@ -61,6 +61,7 @@ public partial class RahalWebContext : DbContext
 
     public virtual DbSet<CompanyDebit> CompanyDebits { get; set; }
     public virtual DbSet<CompanyDebitDetails> CompanyDebitDetails { get; set; }
+    public virtual DbSet<DeffEmpTreatment> DeffEmpTreatments { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -649,6 +650,29 @@ public partial class RahalWebContext : DbContext
                   .HasForeignKey(d => d.UserId)
                   .HasConstraintName("FK_EmployeeTakeMoneyUser_PasswordData");
         });
+        modelBuilder.Entity<DeffEmpTreatment>(entity =>
+        {
+            entity.ToTable("DeffEmpTreatment");
+
+            entity.Property(e => e.TreatmentAmount)
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.Property(e => e.DeleteFlag).HasDefaultValue(0);
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.DeffEmpTreatments)
+                .HasForeignKey(d => d.EmpId)
+                .HasConstraintName("FK_DeffEmpTreatment_EmployeeInfo");
+
+            entity.HasOne(d => d.DeffTreatment).WithMany(p => p.DeffEmpTreatments)
+                .HasForeignKey(d => d.DeffId)
+                .HasConstraintName("FK_DeffEmpTreatment_Deff");
+
+            entity.HasOne(d => d.User).WithMany(p => p.DeffEmpTreatments)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_DeffEmpTreatment_PasswordData");
+        });
+
         OnModelCreatingPartial(modelBuilder);
     }
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
