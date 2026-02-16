@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RahalWeb.Models;
 
@@ -21,7 +16,11 @@ namespace RahalWeb.Controllers
         // GET: DeffEmpTreatments
         public async Task<IActionResult> Index()
         {
-            return View(await _context.DeffEmpTreatment.ToListAsync());
+            TempData.Keep();
+            var data = _context.DeffEmpTreatments
+                .Where(d => d.DeleteFlag == 0)
+                .OrderBy(d => d.DeffCode);
+            return View(await data.ToListAsync());
         }
 
         // GET: DeffEmpTreatments/Details/5
@@ -32,28 +31,27 @@ namespace RahalWeb.Controllers
                 return NotFound();
             }
 
-            var deffEmpTreatment = await _context.DeffEmpTreatment
+            var item = await _context.DeffEmpTreatments
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (deffEmpTreatment == null)
+            if (item == null)
             {
                 return NotFound();
             }
 
-            return View(deffEmpTreatment);
+            return View(item);
         }
 
         // GET: DeffEmpTreatments/Create
         public IActionResult Create()
         {
+            TempData.Keep();
             return View();
         }
 
         // POST: DeffEmpTreatments/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,DeffCode,DeffName,Price1,Price2,Price3,DeleteFlag")] DeffEmpTreatment deffEmpTreatment)
+        public async Task<IActionResult> Create(DeffEmpTreatment deffEmpTreatment)
         {
             if (ModelState.IsValid)
             {
@@ -71,18 +69,16 @@ namespace RahalWeb.Controllers
             {
                 return NotFound();
             }
-
-            var deffEmpTreatment = await _context.DeffEmpTreatment.FindAsync(id);
-            if (deffEmpTreatment == null)
+            TempData.Keep();
+            var item = await _context.DeffEmpTreatments.FindAsync(id);
+            if (item == null)
             {
                 return NotFound();
             }
-            return View(deffEmpTreatment);
+            return View(item);
         }
 
         // POST: DeffEmpTreatments/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,DeffCode,DeffName,Price1,Price2,Price3,DeleteFlag")] DeffEmpTreatment deffEmpTreatment)
@@ -123,14 +119,14 @@ namespace RahalWeb.Controllers
                 return NotFound();
             }
 
-            var deffEmpTreatment = await _context.DeffEmpTreatment
+            var item = await _context.DeffEmpTreatments
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (deffEmpTreatment == null)
+            if (item == null)
             {
                 return NotFound();
             }
 
-            return View(deffEmpTreatment);
+            return View(item);
         }
 
         // POST: DeffEmpTreatments/Delete/5
@@ -138,10 +134,10 @@ namespace RahalWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var deffEmpTreatment = await _context.DeffEmpTreatment.FindAsync(id);
-            if (deffEmpTreatment != null)
+            var item = await _context.DeffEmpTreatments.FindAsync(id);
+            if (item != null)
             {
-                _context.DeffEmpTreatment.Remove(deffEmpTreatment);
+                _context.DeffEmpTreatments.Remove(item);
             }
 
             await _context.SaveChangesAsync();
@@ -150,7 +146,7 @@ namespace RahalWeb.Controllers
 
         private bool DeffEmpTreatmentExists(int id)
         {
-            return _context.DeffEmpTreatment.Any(e => e.Id == id);
+            return _context.DeffEmpTreatments.Any(e => e.Id == id);
         }
     }
 }

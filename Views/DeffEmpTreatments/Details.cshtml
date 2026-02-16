@@ -5,51 +5,41 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Details</h1>
-
-<div>
-    <h4>DeffEmpTreatment</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DeffCode)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DeffCode)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DeffName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DeffName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price1)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price1)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price2)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price2)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price3)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price3)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DeleteFlag)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DeleteFlag)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="company-info-container" dir="rtl">
+    <div class="company-info-header">
+        <h4>بيانات المعاملة</h4>
+        <div class="action-buttons">
+            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">تعديل</a>
+            <a asp-action="Index" class="btn btn-secondary">العوده لصفحة المعاملات</a>
+        </div>
+    </div>
+    <div class="company-info-body" dir="rtl">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h5>البيانات العامة</h5>
+                    <div class="info-item">
+                        <label>الكود</label>
+                        <span>@Html.DisplayFor(model => model.DeffCode)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>اسم المعاملة</label>
+                        <span>@Html.DisplayFor(model => model.DeffName)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>السعر 1</label>
+                        <span>@Html.DisplayFor(model => model.Price1)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>السعر 2</label>
+                        <span>@Html.DisplayFor(model => model.Price2)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>السعر 3</label>
+                        <span>@Html.DisplayFor(model => model.Price3)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

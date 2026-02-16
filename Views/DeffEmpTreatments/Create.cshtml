@@ -5,52 +5,78 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
+<style>
+    .card {
+        border-radius: 10px;
+    }
 
-<h4>DeffEmpTreatment</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="DeffCode" class="control-label"></label>
-                <input asp-for="DeffCode" class="form-control" />
-                <span asp-validation-for="DeffCode" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DeffName" class="control-label"></label>
-                <input asp-for="DeffName" class="form-control" />
-                <span asp-validation-for="DeffName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Price1" class="control-label"></label>
-                <input asp-for="Price1" class="form-control" />
-                <span asp-validation-for="Price1" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Price2" class="control-label"></label>
-                <input asp-for="Price2" class="form-control" />
-                <span asp-validation-for="Price2" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Price3" class="control-label"></label>
-                <input asp-for="Price3" class="form-control" />
-                <span asp-validation-for="Price3" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DeleteFlag" class="control-label"></label>
-                <input asp-for="DeleteFlag" class="form-control" />
-                <span asp-validation-for="DeleteFlag" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    h5 {
+        color: #0d6efd;
+    }
+</style>
+
+<div class="container mt-4" dir="rtl">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" style="color:white">إضافة تعريف معاملة</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <!-- Treatment Information Section -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2">بيانات المعاملة</h5>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="DeffCode" class="control-label">الكود</label>
+                    <input asp-for="DeffCode" class="form-control" />
+                    <span asp-validation-for="DeffCode" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="DeffName" class="control-label">اسم المعاملة</label>
+                    <input asp-for="DeffName" class="form-control" required />
+                    <span asp-validation-for="DeffName" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="Price1" class="control-label">السعر 1</label>
+                    <input asp-for="Price1" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="Price1" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="Price2" class="control-label">السعر 2</label>
+                    <input asp-for="Price2" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="Price2" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="Price3" class="control-label">السعر 3</label>
+                    <input asp-for="Price3" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="Price3" class="text-danger small"></span>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> العوده للصفحة الرئيسية
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> إضافة معاملة
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-

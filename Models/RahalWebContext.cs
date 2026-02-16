@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using RahalWeb.Models;
 
 namespace RahalWeb.Models;
 
@@ -28,12 +27,12 @@ public partial class RahalWebContext : DbContext
 
     public virtual DbSet<Contract> Contracts { get; set; }
 
-  
+
     public virtual DbSet<ContractDetail> ContractDetails { get; set; }
 
     public virtual DbSet<CreditBill> CreditBills { get; set; }
 
-  
+
 
     public virtual DbSet<DebitInfo> DebitInfos { get; set; }
 
@@ -41,11 +40,11 @@ public partial class RahalWebContext : DbContext
 
     public virtual DbSet<Deff> Deffs { get; set; }
 
-   
+
     public virtual DbSet<DeffType> DeffTypes { get; set; }
 
-   
- 
+
+
     public virtual DbSet<EmployeeInfo> EmployeeInfos { get; set; }
 
     public virtual DbSet<EmployeeInfoAtt> EmployeeInfoAtts { get; set; }
@@ -62,9 +61,7 @@ public partial class RahalWebContext : DbContext
 
     public virtual DbSet<CompanyDebit> CompanyDebits { get; set; }
     public virtual DbSet<CompanyDebitDetails> CompanyDebitDetails { get; set; }
-
     public virtual DbSet<DeffEmpTreatment> DeffEmpTreatments { get; set; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -183,7 +180,7 @@ public partial class RahalWebContext : DbContext
 
         modelBuilder.Entity<CompanyInfoAtt>(entity =>
         {
-            
+
             entity.ToTable("CompanyInfoAtt");
 
             entity.Property(e => e.PathFileData).HasMaxLength(500);
@@ -353,7 +350,7 @@ public partial class RahalWebContext : DbContext
                 .HasForeignKey(d => d.DeffType)
                 .HasConstraintName("FK_Deff_DeffType");
         });
-   
+
         modelBuilder.Entity<DeffType>(entity =>
         {
             entity.ToTable("DeffType");
@@ -361,7 +358,7 @@ public partial class RahalWebContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
         });
 
-       modelBuilder.Entity<EmployeeInfo>(entity =>
+        modelBuilder.Entity<EmployeeInfo>(entity =>
         {
             entity.ToTable("EmployeeInfo");
 
@@ -439,6 +436,9 @@ public partial class RahalWebContext : DbContext
               .HasConstraintName("FK_EmployeeSalary_PasswordData");
 
         });
+
+
+
 
         modelBuilder.Entity<PasswordDatum>(entity =>
         {
@@ -528,7 +528,7 @@ public partial class RahalWebContext : DbContext
               .HasForeignKey(d => d.UserRecievedId)
               .HasConstraintName("FK_CompanyDebit_UserInfoRecieve");
 
-           
+
             entity.HasOne(d => d.Employee).WithMany(p => p.CompanyDebits)
                .HasForeignKey(d => d.EmpId)
                .HasConstraintName("FK_CompanyDebit_Employee");
@@ -606,20 +606,20 @@ public partial class RahalWebContext : DbContext
         {
             entity.ToTable("ViolationInfo");
 
-            
+
             entity.Property(e => e.DeleteFlag).HasDefaultValue(0);
             entity.Property(e => e.TransfereToDebit).HasDefaultValue(0);
             entity.Property(e => e.ViolationCost).HasColumnType("money");
             entity.Property(e => e.ViolationNo).HasMaxLength(50);
-          
+
             entity.Property(e => e.ViolationPlace).HasMaxLength(500);
             entity.Property(e => e.ViolationTime).HasColumnType("datetime");
-          
+
 
             entity.HasOne(d => d.Employee).WithMany(p => p.ViolationInfos)
                 .HasForeignKey(d => d.EmpId)
                 .HasConstraintName("FK_ViolationInfo_EmployeeInfo");
-            
+
             entity.HasOne(d => d.Car).WithMany(p => p.ViolationInfos)
                 .HasForeignKey(d => d.CarId)
                 .HasConstraintName("FK_ViolationInfo_CarInfo");
@@ -650,15 +650,21 @@ public partial class RahalWebContext : DbContext
                   .HasForeignKey(d => d.UserId)
                   .HasConstraintName("FK_EmployeeTakeMoneyUser_PasswordData");
         });
+        modelBuilder.Entity<DeffEmpTreatment>(entity =>
+        {
+            entity.ToTable("DeffEmpTreatment");
+
+            entity.Property(e => e.DeffCode).HasMaxLength(50);
+            entity.Property(e => e.DeffName).HasMaxLength(500);
+            entity.Property(e => e.Price1).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Price2).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Price3).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.DeleteFlag).HasDefaultValue(0);
+        });
+
         OnModelCreatingPartial(modelBuilder);
-
-       
-
-
     }
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-public DbSet<DeffInformation> DeffInformation { get; set; } = default!;
-
-public DbSet<RahalWeb.Models.DeffEmpTreatment> DeffEmpTreatment { get; set; } = default!;
+    public DbSet<DeffInformation> DeffInformation { get; set; } = default!;
 
 }

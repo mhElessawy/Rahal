@@ -5,54 +5,55 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Delete</h1>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>DeffEmpTreatment</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DeffCode)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DeffCode)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DeffName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DeffName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price1)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price1)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price2)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price2)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price3)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price3)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DeleteFlag)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DeleteFlag)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+<div class="delete-confirmation-container" dir="rtl">
+    <div class="delete-header">
+        <h1 class="delete-title">حذف بيانات معاملة</h1>
+        <div class="delete-warning alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>تحذير:</strong> سوف يتم حذف بيانات المعاملة و لا يمكن استعادتها مرة آخرى.
+        </div>
+    </div>
+    <div class="company-details-card">
+        <div class="card-header">
+            <h4>تفاصيل بيانات المعاملة</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="detail-group">
+                        <label>الكود</label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.DeffCode)</div>
+                    </div>
+                    <div class="detail-group">
+                        <label>اسم المعاملة</label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.DeffName)</div>
+                    </div>
+                    <div class="detail-group">
+                        <label>السعر 1</label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.Price1)</div>
+                    </div>
+                    <div class="detail-group">
+                        <label>السعر 2</label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.Price2)</div>
+                    </div>
+                    <div class="detail-group">
+                        <label>السعر 3</label>
+                        <div class="detail-value">@Html.DisplayFor(model => model.Price3)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="delete-actions">
+        <form asp-action="Delete" class="delete-form">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger btn-lg delete-button">
+                <i class="fas fa-trash-alt"></i> تأكيد الحذف
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-lg cancel-button">
+                <i class="fas fa-times"></i> إلغاء
+            </a>
+        </form>
+    </div>
 </div>
