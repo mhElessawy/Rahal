@@ -235,6 +235,19 @@ namespace RahalWeb.Controllers
             ViewData["EmpNameFilter"] = EmpNameSearch;
             ViewData["CompanyFilter"] = companyId;
 
+            // Contracts with DiscountDate within the next 7 days
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var in7Days = today.AddDays(7);
+            var approachingDiscount = await _context.Contracts
+                .Include(c => c.Employee)
+                .Include(c => c.Car)
+                .Where(m => m.DeleteFlag == 0 && m.Status == 0 && m.ContractType == 0
+                    && m.DiscountDate.HasValue
+                    && m.DiscountDate.Value >= today
+                    && m.DiscountDate.Value <= in7Days)
+                .ToListAsync();
+            ViewBag.ApproachingDiscountContracts = approachingDiscount;
+
             // Pagination
             int pageSize = 10; // Set your page size
             return View(await PaginatedList<Contract>.CreateAsync(query.AsNoTracking(), pageNumber ?? 1, pageSize));

@@ -342,6 +342,55 @@
 
 
 <h1 dir="rtl">العقود اليومية </h1>
+
+@{
+    var approachingContracts = ViewBag.ApproachingDiscountContracts as List<RahalWeb.Models.Contract>;
+}
+@if (approachingContracts != null && approachingContracts.Count > 0)
+{
+    <div class="alert alert-warning alert-dismissible fade show" dir="rtl" role="alert" style="border-right: 5px solid #f39c12; border-radius: 8px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <i class="fas fa-bell" style="font-size: 1.2rem; color: #856404;"></i>
+            <strong style="font-size: 1rem; color: #856404;">تنبيه: عقود تقترب من تاريخ التخفيض (@approachingContracts.Count عقد)</strong>
+        </div>
+        <table style="width:100%; font-size:0.82em; border-collapse:collapse;">
+            <thead>
+                <tr style="background-color: rgba(133,100,4,0.1);">
+                    <th style="padding:5px 10px; text-align:center; border-bottom:1px solid #f0c14b;">رقم العقد</th>
+                    <th style="padding:5px 10px; text-align:center; border-bottom:1px solid #f0c14b;">اسم الموظف</th>
+                    <th style="padding:5px 10px; text-align:center; border-bottom:1px solid #f0c14b;">كود السيارة</th>
+                    <th style="padding:5px 10px; text-align:center; border-bottom:1px solid #f0c14b;">تاريخ التخفيض</th>
+                    <th style="padding:5px 10px; text-align:center; border-bottom:1px solid #f0c14b;">الأيام المتبقية</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in approachingContracts)
+                {
+                    var daysLeft = c.DiscountDate!.Value.DayNumber - DateOnly.FromDateTime(DateTime.Today).DayNumber;
+                    var rowColor = daysLeft <= 1 ? "#fff3cd" : "transparent";
+                    <tr style="background-color:@rowColor;">
+                        <td style="padding:4px 10px; text-align:center;">@c.ContractNo</td>
+                        <td style="padding:4px 10px; text-align:center;">@c.Employee?.FullNameAr</td>
+                        <td style="padding:4px 10px; text-align:center;">@c.Car?.CarCode</td>
+                        <td style="padding:4px 10px; text-align:center;">@c.DiscountDate</td>
+                        <td style="padding:4px 10px; text-align:center;">
+                            @if (daysLeft == 0)
+                            {
+                                <span style="color:#dc3545; font-weight:bold;">اليوم</span>
+                            }
+                            else
+                            {
+                                <span style="color:#856404; font-weight:bold;">@daysLeft يوم</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="position:absolute; top:10px; left:10px;"></button>
+    </div>
+}
+
 @if (user!.ContractDailySave == true)
 {
 
