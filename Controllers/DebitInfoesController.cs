@@ -107,7 +107,7 @@ namespace RahalWeb.Controllers
             {
                 query = (IOrderedQueryable<DebitInfo>)query.Where(e => e.DebitDate <= DateOnly.FromDateTime((DateTime)ToDateSearch));
             }
-            if (FromDateSearch == null && ToDateSearch == null)
+            if (FromDateSearch == null && ToDateSearch == null && !EmpCodeString.HasValue && string.IsNullOrEmpty(EmpSearch))
             {
                 var today = DateOnly.FromDateTime(DateTime.Now);
                 var sevenDaysAgo = today.AddDays(-7); // Subtract 7 days
@@ -589,7 +589,7 @@ namespace RahalWeb.Controllers
             {
                 query = (IOrderedQueryable<DebitInfo>)query.Where(e => e.DebitDate <= DateOnly.FromDateTime((DateTime)ToDateSearch));
             }
-            if (FromDateSearch == null && ToDateSearch == null)
+            if (FromDateSearch == null && ToDateSearch == null && !EmpCodeString.HasValue && string.IsNullOrEmpty(EmpSearch))
             {
                 var today = DateOnly.FromDateTime(DateTime.Now);
                 var sevenDaysAgo = today.AddDays(-7); // Subtract 7 days
