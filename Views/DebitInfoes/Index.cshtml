@@ -387,15 +387,6 @@
 
 
 
-@if ((bool)(ViewData["NoFilters"] ?? false))
-{
-    <div dir="rtl" style="text-align:center; padding:40px; color:#6c757d; font-size:1.1em;">
-        <i class="fas fa-search" style="font-size:2em; margin-bottom:10px; display:block;"></i>
-        الرجاء اختيار فلتر للبحث عن البيانات
-    </div>
-}
-else
-{
 <div class="table-container">
 <table class="bordered-table" dir="rtl">
     <thead>
@@ -481,11 +472,8 @@ else
     </tbody>
 </table>
 </div>
-}
 
 
-@if (!(bool)(ViewData["NoFilters"] ?? false))
-{
 <div class="pagination-container" dir="rtl">
     @{
         var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
@@ -518,15 +506,12 @@ else
         التالي
     </a>
 </div>
-}
 
-@if (!(bool)(ViewData["NoFilters"] ?? false))
-{
+
 <div dir="rtl">
     إجمالي الإيراد   @String.Format("{0:C}", ViewBag.TotalBillPayed)
 </div>
 <button onclick="printBills()" class="btn btn-success">طباعة</button>
-}
 
 <script>
     function printBills() {
