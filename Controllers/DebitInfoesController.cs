@@ -107,17 +107,16 @@ namespace RahalWeb.Controllers
             {
                 query = (IOrderedQueryable<DebitInfo>)query.Where(e => e.DebitDate <= DateOnly.FromDateTime((DateTime)ToDateSearch));
             }
-            if (FromDateSearch == null && ToDateSearch == null && !EmpCodeString.HasValue && string.IsNullOrEmpty(EmpSearch))
-            {
-                var today = DateOnly.FromDateTime(DateTime.Now);
-                var sevenDaysAgo = today.AddDays(-7); // Subtract 7 days
-                query = (IOrderedQueryable<DebitInfo>)query.Where(e => e.DebitDate >= sevenDaysAgo);
-            }
+            bool noFilters = !EmpCodeString.HasValue && string.IsNullOrEmpty(EmpSearch)
+                && !DefTypeId.HasValue && !companyId.HasValue
+                && FromDateSearch == null && ToDateSearch == null;
+
             // Store current search values for the view
             ViewData["EmpCodeFilter"] = EmpCodeString;
             ViewData["EmpFilter"] = EmpSearch;
             ViewData["DefTypeFilter"] = DefTypeId;
             ViewData["CompanyFilter"] = companyId;
+            ViewData["NoFilters"] = noFilters;
             if (FromDateSearch == null)
             {
                 ViewData["FromDateFilter"] = "";
@@ -135,7 +134,12 @@ namespace RahalWeb.Controllers
                 ViewData["ToDateFilter"] = ToDateSearch.Value.ToString("yyyy-MM-dd");
             }
 
-
+            if (noFilters)
+            {
+                ViewBag.TotalBillPayed = 0;
+                return View(await PaginatedList<DebitInfo>.CreateAsync(
+                    query.Where(e => false).AsNoTracking(), 1, 50));
+            }
 
             decimal? totalBillPayed = (decimal?)query.Sum(item => item.DebitQty);
 
