@@ -437,11 +437,17 @@ namespace RahalWeb.Controllers
             var companyIds = userCompanyData.Split(',').Select(int.Parse).ToList();
             var companyIdsString = string.Join(",", companyIds);
 
-            // check if the credit start date > start date make it error and not save the contract 
+            // check if the credit start date > start date make it error and not save the contract
             if (contract.CreditStartDate < contract.StartDate)
             {
                 ModelState.AddModelError("DebitQty", "بداية القسط أكبر من بداية العقد");
-                return View();
+                ViewData["CarId"] = new SelectList(_context.CarInfos, "Id", "CarNo", contract.CarId);
+                ViewData["EmployeeId"] = new SelectList(Enumerable.Empty<SelectListItem>());
+                ViewData["UserId"] = new SelectList(_context.PasswordData, "Id", "UserFullName", contract.UserId);
+                ViewData["CompanyId"] = new SelectList(_context.CompanyInfos
+                    .FromSqlRaw($"SELECT * FROM CompanyInfo WHERE DeleteFlag = 0 AND Id IN ({companyIdsString})")
+                    .Where(c => c.DeleteFlag == 0), "Id", "CompNameAr");
+                return View(contract);
             }
 
             if (ModelState.IsValid)
@@ -583,7 +589,7 @@ namespace RahalWeb.Controllers
                     int countMonth = 1;
                     while (tempDate < contract.EndDate)
                     {
-                        if (tempDate.Month == tempCreditDate.Month && tempCreditDate <= contract.CreditEndDate)
+                        if (tempDate.Month == tempCreditDate.Month && tempDate.Year == tempCreditDate.Year && tempCreditDate <= contract.CreditEndDate)
                         {
                             var newContractDetails = new ContractDetail
                             {
@@ -629,7 +635,7 @@ namespace RahalWeb.Controllers
                 return RedirectToAction(nameof(IndexMonthly));
             }
             ViewData["CarId"] = new SelectList(_context.CarInfos, "Id", "CarNo", contract.CarId);
-            //ViewData["EmployeeId"] = new SelectList(_context.EmployeeInfos, "Id", "Id", contract.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(Enumerable.Empty<SelectListItem>());
             ViewData["UserId"] = new SelectList(_context.PasswordData, "Id", "UserFullName", contract.UserId);
             ViewData["CompanyId"] = new SelectList(_context.CompanyInfos
                 .FromSqlRaw($"SELECT * FROM CompanyInfo WHERE DeleteFlag = 0 AND Id IN ({companyIdsString})")
