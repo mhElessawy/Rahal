@@ -294,6 +294,11 @@
             }
     }
 
+    .table-container {
+        overflow-x: auto;
+        width: 100%;
+    }
+
     @@media (max-width: 992px) {
         .table-container {
             overflow-x: auto;
@@ -339,7 +344,7 @@
 </style>
 
 <h1 dir="rtl">بيانات الديون</h1>
- @if (user!.PaySave == true)
+@if (user!.PaySave == true)
 {
     <p dir="rtl">
 
@@ -347,7 +352,7 @@
             <i class="fas fa-plus-circle"></i> إضافة دين
         </a>
     </p>
- }
+}
 <div class="search-container" dir="rtl">
     <form asp-action="Index" method="get">
         <div class="form-group">
@@ -382,89 +387,92 @@
 
 
 
-<table class="bordered-table" dir="rtl">
-    <thead>
-        <tr>
-            <th>
-                رقم الدين
-            </th>
-            <th>
-               اسم الموظف
-            </th>
-            <th>
-               نوع الدين
-            </th>
-            <th>
-                تاريخ الدين
-            </th>
-            <th>
-              المبلغ
-            </th>
-             <th>
-              المدفوع
-            </th>
-            <th>
-                الباقي
-            </th>
-            <th>
-                التفاصيل
-            </th>
-           
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.DebitNo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Emp!.FullNameAr)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DebitType!.DeffName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DebitDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DebitQty)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DebitPayed)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DebitRemaining)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DebitDescrp)
-            </td>
-          
-            <td class="action-links">
-                @if (user!.PaySave == true)
-                {
-                    <a asp-action="Pay" asp-route-id="@item.Id" class="btn-success"><i class="fas fa-save"></i> دفع</a>
-                    
-                }
-                @if (user!.DebitUpdate == true )
-                {
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn-edit"><i class="fas fa-edit"></i> تعديل</a>
-                    }
-                <a asp-action="Details" asp-route-id="@item.Id" class="btn-details"><i class="fas fa-info-circle"></i> تفاصيل</a>
-                @if (item.DebitPayed == 0)
-                {
-                    @if (user!.DebitDelete == true)
-                    {
-                       <a asp-action="Delete" asp-route-id="@item.Id" class="btn-delete"><i class="fas fa-trash-alt"></i> حذف</a>
-                    }
-                }
-                    <a asp-action="PayPrint" asp-route-id="@item.Id" class="btn-edit"><i class="fas fa-edit"></i>طباعة</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="table-container">
+    <table class="bordered-table" dir="rtl">
+        <thead>
+            <tr>
+                <th>
+                    رقم الدين
+                </th>
+                <th>
+                    اسم الموظف
+                </th>
+                <th>
+                    نوع الدين
+                </th>
+                <th>
+                    تاريخ الدين
+                </th>
+                <th>
+                    المبلغ
+                </th>
+                <th>
+                    المدفوع
+                </th>
+                <th>
+                    الباقي
+                </th>
+                <th>
+                    التفاصيل
+                </th>
+
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DebitNo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Emp!.FullNameAr)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DebitType!.DeffName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DebitDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DebitQty)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DebitPayed)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DebitRemaining)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DebitDescrp)
+                    </td>
+
+                    <td class="action-links">
+                        @if (user!.PaySave == true)
+                        {
+                            <a asp-action="Pay" asp-route-id="@item.Id" class="btn-success"><i class="fas fa-save"></i> دفع</a>
+
+                        }
+                        @if (user!.DebitUpdate == true)
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn-edit"><i class="fas fa-edit"></i> تعديل</a>
+                        }
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn-details"><i class="fas fa-info-circle"></i> تفاصيل</a>
+                        @if (item.DebitPayed == 0)
+                        {
+                            @if (user!.DebitDelete == true)
+                            {
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn-delete"><i class="fas fa-trash-alt"></i> حذف</a>
+                            }
+                        }
+                        <a asp-action="PayPrint" asp-route-id="@item.Id" class="btn-edit"><i class="fas fa-edit"></i>طباعة</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
 
 <div class="pagination-container" dir="rtl">

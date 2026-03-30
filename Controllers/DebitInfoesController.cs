@@ -21,7 +21,7 @@ namespace RahalWeb.Controllers
         }
 
         // GET: DebitInfoes
-        public async Task<IActionResult> Index(int? EmpCodeString, string? EmpSearch, int? DefTypeId, int? companyId, int? pageNumber , DateTime? FromDateSearch, DateTime? ToDateSearch)
+        public async Task<IActionResult> Index(int? EmpCodeString, string? EmpSearch, int? DefTypeId, int? companyId, int? pageNumber, DateTime? FromDateSearch, DateTime? ToDateSearch)
         {
 
             // Get companies for dropdown
@@ -85,7 +85,7 @@ namespace RahalWeb.Controllers
 
             if (!string.IsNullOrEmpty(EmpSearch))
             {
-                query = (IOrderedQueryable<DebitInfo>)query.Where(e => e.Emp!.FullNameAr! .Contains(EmpSearch));
+                query = (IOrderedQueryable<DebitInfo>)query.Where(e => e.Emp!.FullNameAr!.Contains(EmpSearch));
             }
 
             if (DefTypeId.HasValue)
@@ -107,12 +107,13 @@ namespace RahalWeb.Controllers
             {
                 query = (IOrderedQueryable<DebitInfo>)query.Where(e => e.DebitDate <= DateOnly.FromDateTime((DateTime)ToDateSearch));
             }
-            if (FromDateSearch == null && ToDateSearch == null)
+            if (FromDateSearch == null && ToDateSearch == null && !EmpCodeString.HasValue && string.IsNullOrEmpty(EmpSearch))
             {
                 var today = DateOnly.FromDateTime(DateTime.Now);
-                var sevenDaysAgo = today.AddDays(-7); // Subtract 7 days
+                var sevenDaysAgo = today.AddDays(-7);
                 query = (IOrderedQueryable<DebitInfo>)query.Where(e => e.DebitDate >= sevenDaysAgo);
             }
+
             // Store current search values for the view
             ViewData["EmpCodeFilter"] = EmpCodeString;
             ViewData["EmpFilter"] = EmpSearch;
@@ -135,8 +136,6 @@ namespace RahalWeb.Controllers
                 ViewData["ToDateFilter"] = ToDateSearch.Value.ToString("yyyy-MM-dd");
             }
 
-
-
             decimal? totalBillPayed = (decimal?)query.Sum(item => item.DebitQty);
 
             ViewBag.TotalBillPayed = totalBillPayed;
@@ -157,7 +156,7 @@ namespace RahalWeb.Controllers
                 return NotFound();
             }
 
-            var debitInfo = await _context.DebitInfos.Include(c=>c.Emp).Include(c=>c.DebitType)
+            var debitInfo = await _context.DebitInfos.Include(c => c.Emp).Include(c => c.DebitType)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (debitInfo == null)
             {
@@ -175,7 +174,7 @@ namespace RahalWeb.Controllers
             ViewBag.MaxDebitNo = maxDebitNo + 1;
 
 
-            ViewBag.EmployeeId = new SelectList( 
+            ViewBag.EmployeeId = new SelectList(
                                     _context.EmployeeInfos
                                        .Where(a => a.DeleteFlag == 0),
 
@@ -202,7 +201,7 @@ namespace RahalWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                debitInfo.UserId = HttpContext.Session.GetInt32("UserId") ;
+                debitInfo.UserId = HttpContext.Session.GetInt32("UserId");
                 debitInfo.ViolationId = null;
                 debitInfo.DebitPayed = 0;
                 debitInfo.DebitRemaining = debitInfo.DebitQty;
@@ -211,7 +210,7 @@ namespace RahalWeb.Controllers
 
                 _context.Add(debitInfo);
                 await _context.SaveChangesAsync();
-                
+
                 int DebitId = _context.DebitInfos.Max(a => Convert.ToInt32(a.Id));
 
                 return RedirectToAction("PayPrint", "DebitInfoes", new { Id = DebitId });
@@ -228,7 +227,7 @@ namespace RahalWeb.Controllers
             {
                 return NotFound();
             }
-            var printBill = _context.DebitInfos.Include(c => c.Emp).Include(c => c.User).Include(c=>c.DebitType).Where(c => c.Id == Id).FirstOrDefault();
+            var printBill = _context.DebitInfos.Include(c => c.Emp).Include(c => c.User).Include(c => c.DebitType).Where(c => c.Id == Id).FirstOrDefault();
 
             if (printBill == null)
             {
@@ -241,7 +240,7 @@ namespace RahalWeb.Controllers
         // GET: DebitInfoes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-           
+
 
             var debitInfo = await _context.DebitInfos.FindAsync(id);
             if (debitInfo == null)
@@ -249,14 +248,14 @@ namespace RahalWeb.Controllers
                 return NotFound();
             }
 
-            ViewBag.EmployeeId = new SelectList(_context.EmployeeInfos, "Id", "FullNameAr",debitInfo.EmpId);
+            ViewBag.EmployeeId = new SelectList(_context.EmployeeInfos, "Id", "FullNameAr", debitInfo.EmpId);
             ViewBag.DefTypeId = new SelectList(
                 await _context.Deffs
                    .Where(c => c.DeffType == 20)
                    .OrderBy(c => c.DeffName)
                    .ToListAsync(),
                "Id",
-               "DeffName",debitInfo.DebitTypeId);
+               "DeffName", debitInfo.DebitTypeId);
 
 
             return View(debitInfo);
@@ -290,7 +289,7 @@ namespace RahalWeb.Controllers
             {
                 try
                 {
-                    debitInfo.UserId = HttpContext.Session.GetInt32("UserId"); 
+                    debitInfo.UserId = HttpContext.Session.GetInt32("UserId");
                     debitInfo.ViolationId = 569;
                     debitInfo.DebitRemaining = debitInfo.DebitQty - debitInfo.DebitPayed;
                     debitInfo.DeleteFlag = 0;
@@ -335,7 +334,7 @@ namespace RahalWeb.Controllers
 
             if (employee != null)
             {
-               
+
                 ViewBag.EmployeeFullNameAr = employee.FullNameAr;
             }
             ViewBag.DefTypeId = new SelectList(
@@ -347,7 +346,7 @@ namespace RahalWeb.Controllers
                "DeffName", debitInfo.DebitTypeId);
 
             return View(debitInfo);
-        
+
         }
 
         [HttpPost]
@@ -382,9 +381,9 @@ namespace RahalWeb.Controllers
                     }
 
                     // Update only the necessary fields
-                    existingDebitInfo.UserId = HttpContext.Session.GetInt32("UserId"); 
+                    existingDebitInfo.UserId = HttpContext.Session.GetInt32("UserId");
 
-                    existingDebitInfo.ViolationId = debitInfo.ViolationId ;
+                    existingDebitInfo.ViolationId = debitInfo.ViolationId;
                     existingDebitInfo.DebitRemaining = existingDebitInfo.DebitQty - (existingDebitInfo.DebitPayed + DebitPayQty);
                     existingDebitInfo.DebitPayed += DebitPayQty;
                     existingDebitInfo.DeleteFlag = 0;
@@ -411,7 +410,7 @@ namespace RahalWeb.Controllers
                     int DebitPayId = _context.DebitPayInfos.Max(a => Convert.ToInt32(a.Id));
 
                     return RedirectToAction("DebitPayPrint", "DebitInfoes", new { Id = DebitPayId });
-                  //  return RedirectToAction(nameof(Index));
+                    //  return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -589,7 +588,7 @@ namespace RahalWeb.Controllers
             {
                 query = (IOrderedQueryable<DebitInfo>)query.Where(e => e.DebitDate <= DateOnly.FromDateTime((DateTime)ToDateSearch));
             }
-            if (FromDateSearch == null && ToDateSearch == null)
+            if (FromDateSearch == null && ToDateSearch == null && !EmpCodeString.HasValue && string.IsNullOrEmpty(EmpSearch))
             {
                 var today = DateOnly.FromDateTime(DateTime.Now);
                 var sevenDaysAgo = today.AddDays(-7); // Subtract 7 days
@@ -618,7 +617,7 @@ namespace RahalWeb.Controllers
             }
 
             decimal? totalBillPayed = (decimal?)query.Sum(item => item.DebitQty);
-       
+
             ViewBag.TotalBillPayed = totalBillPayed;
 
             // Pagination
@@ -630,7 +629,7 @@ namespace RahalWeb.Controllers
         {
             var employee = _context.EmployeeInfos
                 .Include(e => e.Company)
-                .FirstOrDefault(e => e.EmpCode == empCode && e.DeleteFlag == 0 );
+                .FirstOrDefault(e => e.EmpCode == empCode && e.DeleteFlag == 0);
 
             if (employee == null)
             {
@@ -639,7 +638,7 @@ namespace RahalWeb.Controllers
 
             return Json(new
             {
-               employeeId = employee.Id
+                employeeId = employee.Id
             });
         }
     }
