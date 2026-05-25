@@ -524,7 +524,7 @@ namespace RahalWeb.Controllers
                         else
                         {
                             if (tempCreditDate <= contract.CreditEndDate)
-                            {
+                            {        
                                 var newContractDetails = new ContractDetail
                                 {
                                     ContractId = contractId,
