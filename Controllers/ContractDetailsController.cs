@@ -31,11 +31,9 @@ namespace RahalWeb.Controllers
         public async Task<IActionResult> Index(int? CarCodeString, int? EmpCodeString, string? EmpNameSearch, int? companyId, int? pageNumber, string? ContractNoString)
         {
             TempData.Keep();
-            
-            TempData["UserCompanyData"]  = HttpContext.Session.GetString("UserCompanyData");
 
-            //// Get the user's company data from TempData
-            //// Get the user's company data from TempData
+            TempData["UserCompanyData"] = HttpContext.Session.GetString("UserCompanyData");
+
             var userCompanyData = TempData["UserCompanyData"]?.ToString();
             var companyIds = userCompanyData.Split(',').Select(int.Parse).ToList();
             var companyIdsString = string.Join(",", companyIds);
@@ -56,104 +54,25 @@ namespace RahalWeb.Controllers
                 ViewBag.Companies = new SelectList(Enumerable.Empty<SelectListItem>());
             }
 
+            // ─────────────────────────────────────────────────────────────────
+            // الحل: بدل ما نعمل correlated subquery لكل صف (N × 3 queries)
+            // نجيب البيانات الأساسية أولاً ثم نحسب lookup tables بـ query واحدة لكل منها
+            // ─────────────────────────────────────────────────────────────────
 
-         //   Base query with includes
-            var baseQuery = _context.ContractDetails
-                     .FromSqlRaw($"select * from ContractDetails where ContractId In (Select Id from Contract where DeleteFlag = 0 and status = 0 and  EmployeeId In ( Select Id From EmployeeInfo where CompanyId  IN ({companyIdsString})))")
-                     .Include(c => c.Bill)
-                     .Include(c => c.Contract)
-                         .ThenInclude(c => c!.Employee)
-                     .Include(c => c.Contract)
-                         .ThenInclude(c => c!.Car)
-                     .Where(a => a.DeleteFlag == 0
-                         && (a.Status != 3 && a.Status != 4)
-                         && a.Contract!.DeleteFlag == 0
-                         && a.Contract!.Status == 0);
-
-
-            //var query = baseQuery
-            //    .Where(cd => cd.DailyCreditDate > _context.ContractDetails
-            //            .Where(last => last.ContractId == cd.ContractId && last.Status == 3)
-            //            .OrderByDescending(last => last.Id)
-            //            .Select(last => last.DailyCreditDate)
-            //            .FirstOrDefault());
-
-            var query = baseQuery
-                .Where(cd =>
-                    // إذا كان فيه Status = 3
-                    _context.ContractDetails
-                        .Where(last => last.ContractId == cd.ContractId && last.Status == 3)
-                        .OrderByDescending(last => last.Id)
-                        .Select(last => last.DailyCreditDate)
-                        .FirstOrDefault() != null
-                    ?
-                        // نجيب السجلات اللي بعد آخر Status = 3
-                        cd.DailyCreditDate > _context.ContractDetails
-                            .Where(last => last.ContractId == cd.ContractId && last.Status == 3)
-                            .OrderByDescending(last => last.Id)
-                            .Select(last => last.DailyCreditDate)
-                            .FirstOrDefault()
-                    :
-                        // إذا مكنش فيه Status = 3، نجيب أول سجل فقط
-                        cd.Id == _context.ContractDetails
-                            .Where(first => first.ContractId == cd.ContractId)
-                            .OrderBy(first => first.Id)
-                            .Select(first => first.Id)
-                            .FirstOrDefault()
-                );
-
-
-            // Apply filters
-            if (!string.IsNullOrEmpty(ContractNoString))
-            {
-                query = query.Where(e => e.Contract!.ContractNo!.Contains(ContractNoString));
-            }
-
-            if (CarCodeString.HasValue)
-            {
-                query = query.Where(e => e.Contract!.Car!.CarCode == CarCodeString);
-            }
-
-            if (EmpCodeString.HasValue)
-            {
-                query = query.Where(e => e.Contract!.Employee!.EmpCode == EmpCodeString);
-            }
-
-            if (!string.IsNullOrEmpty(EmpNameSearch))
-            {
-                query = query.Where(e => e.Contract!.Employee!.FullNameAr!.Contains(EmpNameSearch));
-            }
-
-            if (companyId.HasValue)
-            {
-                query = query.Where(e => e.Contract!.Employee!.CompanyId == companyId.Value);
-            }
-
-            // Get distinct employees by grouping
-            var distinctEmployees = query
-                .GroupBy(c => c.Contract!.Employee!.Id)
-                .Select(g => g.First());
-
-            //var debitByEmployee = _context.DebitInfos
-            //    .GroupBy(e => e.EmpId)
-            //    .Select(g => new
-            //    {
-            //        EmployeeId = g.Key,
-            //        TotalDebitRemaining = g.Sum(x => x.DebitRemaining)
-            //    });
-
-            //var result = distinctEmployees
-            //    .GroupJoin(debitByEmployee,
-            //        employee => employee!.Contract!.Employee!.Id,
-            //        debit => debit.EmployeeId,
-            //        (employee, debitGroup) => new
-            //        {
-            //            Employee = employee.Contract!.Employee,
-            //            Contract = employee.Contract,
-            //            TotalDebitRemaining = debitGroup.Any() ? debitGroup.First().TotalDebitRemaining : 0
-            //        })
-            //    .ToList();
-
+            // Step 1: جلب البيانات الأساسية بدون الـ correlated subqueries
+            var baseList = await _context.ContractDetails
+                .FromSqlRaw($"select * from ContractDetails where ContractId In (Select Id from Contract where DeleteFlag = 0 and status = 0 and EmployeeId In (Select Id From EmployeeInfo where CompanyId IN ({companyIdsString})))")
+                .AsNoTracking()
+                .Include(c => c.Bill)
+                .Include(c => c.Contract)
+                    .ThenInclude(c => c!.Employee)
+                .Include(c => c.Contract)
+                    .ThenInclude(c => c!.Car)
+                .Where(a => a.DeleteFlag == 0
+                    && (a.Status != 3 && a.Status != 4)
+                    && a.Contract!.DeleteFlag == 0
+                    && a.Contract!.Status == 0)
+                .ToListAsync();
 
             // Store current search values for the view
             ViewData["ContractNoFilter"] = ContractNoString;
@@ -162,9 +81,78 @@ namespace RahalWeb.Controllers
             ViewData["EmpNameFilter"] = EmpNameSearch;
             ViewData["CompanyFilter"] = companyId;
 
-            // Pagination
-            //int pageSize = 50;
-           // return View(await PaginatedList<ContractDetail>.CreateAsync(distinctQuery.AsNoTracking(), pageNumber ?? 1, pageSize));
+            if (!baseList.Any())
+                return View(new List<ContractDetail>());
+
+            // Step 2: الـ Contract IDs الموجودة في النتيجة
+            var contractIdList = baseList
+                .Where(d => d.ContractId.HasValue)
+                .Select(d => d.ContractId!.Value)
+                .Distinct()
+                .ToList();
+
+            var contractIdListNullable = contractIdList.Cast<int?>().ToList();
+
+            // Step 3: آخر تاريخ مدفوع (Status=3) لكل عقد — query واحدة بدل N queries
+            var lastPaidDateByContract = await _context.ContractDetails
+                .Where(cd => contractIdListNullable.Contains(cd.ContractId) && cd.Status == 3)
+                .GroupBy(cd => cd.ContractId)
+                .Select(g => new
+                {
+                    ContractId = g.Key,
+                    LastPaidDate = g.OrderByDescending(x => x.Id).Select(x => x.DailyCreditDate).FirstOrDefault()
+                })
+                .ToDictionaryAsync(x => x.ContractId!.Value, x => x.LastPaidDate);
+
+            // Step 4: أول ID لكل عقد — query واحدة بدل N queries
+            var firstIdByContract = await _context.ContractDetails
+                .Where(cd => contractIdListNullable.Contains(cd.ContractId))
+                .GroupBy(cd => cd.ContractId)
+                .Select(g => new
+                {
+                    ContractId = g.Key,
+                    FirstId = g.OrderBy(x => x.Id).Select(x => x.Id).FirstOrDefault()
+                })
+                .ToDictionaryAsync(x => x.ContractId!.Value, x => x.FirstId);
+
+            // Step 5: تطبيق الفلتر في الـ memory — O(N) بدل O(N²)
+            var query = baseList.Where(cd =>
+            {
+                if (!cd.ContractId.HasValue) return false;
+
+                if (lastPaidDateByContract.TryGetValue(cd.ContractId.Value, out var lastPaidDate) && lastPaidDate != null)
+                    // يجيب السجلات بعد آخر تاريخ مدفوع
+                    return cd.DailyCreditDate > lastPaidDate;
+                else
+                {
+                    // لو مفيش مدفوع، يجيب أول سجل فقط
+                    firstIdByContract.TryGetValue(cd.ContractId.Value, out var firstId);
+                    return cd.Id == firstId;
+                }
+            });
+
+            // Step 6: تطبيق فلاتر البحث
+            if (!string.IsNullOrEmpty(ContractNoString))
+                query = query.Where(e => e.Contract!.ContractNo!.Contains(ContractNoString));
+
+            if (CarCodeString.HasValue)
+                query = query.Where(e => e.Contract!.Car!.CarCode == CarCodeString);
+
+            if (EmpCodeString.HasValue)
+                query = query.Where(e => e.Contract!.Employee!.EmpCode == EmpCodeString);
+
+            if (!string.IsNullOrEmpty(EmpNameSearch))
+                query = query.Where(e => e.Contract!.Employee!.FullNameAr!.Contains(EmpNameSearch));
+
+            if (companyId.HasValue)
+                query = query.Where(e => e.Contract!.Employee!.CompanyId == companyId.Value);
+
+            // Step 7: موظف واحد لكل عقد (distinct by employee)
+            var distinctEmployees = query
+                .GroupBy(c => c.Contract!.Employee!.Id)
+                .Select(g => g.First())
+                .ToList();
+
             return View(distinctEmployees);
         }
 
