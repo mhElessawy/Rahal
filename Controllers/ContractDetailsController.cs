@@ -31,11 +31,9 @@ namespace RahalWeb.Controllers
         public async Task<IActionResult> Index(int? CarCodeString, int? EmpCodeString, string? EmpNameSearch, int? companyId, int? pageNumber, string? ContractNoString)
         {
             TempData.Keep();
-            
+
             TempData["UserCompanyData"]  = HttpContext.Session.GetString("UserCompanyData");
 
-            //// Get the user's company data from TempData
-            //// Get the user's company data from TempData
             var userCompanyData = TempData["UserCompanyData"]?.ToString();
             var companyIds = userCompanyData.Split(',').Select(int.Parse).ToList();
             var companyIdsString = string.Join(",", companyIds);
@@ -56,8 +54,24 @@ namespace RahalWeb.Controllers
                 ViewBag.Companies = new SelectList(Enumerable.Empty<SelectListItem>());
             }
 
+            // Store current search values for the view
+            ViewData["ContractNoFilter"] = ContractNoString;
+            ViewData["CarCodeFilter"] = CarCodeString;
+            ViewData["EmpCodeFilter"] = EmpCodeString;
+            ViewData["EmpNameFilter"] = EmpNameSearch;
+            ViewData["CompanyFilter"] = companyId;
 
-         //   Base query with includes
+            // لو مفيش أي فلتر → ارجع قائمة فاضية فوراً بدون ما تسأل الـ database
+            bool hasFilter = !string.IsNullOrEmpty(ContractNoString)
+                          || CarCodeString.HasValue
+                          || EmpCodeString.HasValue
+                          || !string.IsNullOrEmpty(EmpNameSearch)
+                          || companyId.HasValue;
+
+            if (!hasFilter)
+                return View(new List<ContractDetail>());
+
+            // لو فيه فلتر → اشتغل الـ query بس على البيانات المفلترة
             var baseQuery = _context.ContractDetails
                      .FromSqlRaw($"select * from ContractDetails where ContractId In (Select Id from Contract where DeleteFlag = 0 and status = 0 and  EmployeeId In ( Select Id From EmployeeInfo where CompanyId  IN ({companyIdsString})))")
                      .Include(c => c.Bill)
@@ -70,31 +84,20 @@ namespace RahalWeb.Controllers
                          && a.Contract!.DeleteFlag == 0
                          && a.Contract!.Status == 0);
 
-
-            //var query = baseQuery
-            //    .Where(cd => cd.DailyCreditDate > _context.ContractDetails
-            //            .Where(last => last.ContractId == cd.ContractId && last.Status == 3)
-            //            .OrderByDescending(last => last.Id)
-            //            .Select(last => last.DailyCreditDate)
-            //            .FirstOrDefault());
-
             var query = baseQuery
                 .Where(cd =>
-                    // إذا كان فيه Status = 3
                     _context.ContractDetails
                         .Where(last => last.ContractId == cd.ContractId && last.Status == 3)
                         .OrderByDescending(last => last.Id)
                         .Select(last => last.DailyCreditDate)
                         .FirstOrDefault() != null
                     ?
-                        // نجيب السجلات اللي بعد آخر Status = 3
                         cd.DailyCreditDate > _context.ContractDetails
                             .Where(last => last.ContractId == cd.ContractId && last.Status == 3)
                             .OrderByDescending(last => last.Id)
                             .Select(last => last.DailyCreditDate)
                             .FirstOrDefault()
                     :
-                        // إذا مكنش فيه Status = 3، نجيب أول سجل فقط
                         cd.Id == _context.ContractDetails
                             .Where(first => first.ContractId == cd.ContractId)
                             .OrderBy(first => first.Id)
@@ -102,69 +105,27 @@ namespace RahalWeb.Controllers
                             .FirstOrDefault()
                 );
 
-
             // Apply filters
             if (!string.IsNullOrEmpty(ContractNoString))
-            {
                 query = query.Where(e => e.Contract!.ContractNo!.Contains(ContractNoString));
-            }
 
             if (CarCodeString.HasValue)
-            {
                 query = query.Where(e => e.Contract!.Car!.CarCode == CarCodeString);
-            }
 
             if (EmpCodeString.HasValue)
-            {
                 query = query.Where(e => e.Contract!.Employee!.EmpCode == EmpCodeString);
-            }
 
             if (!string.IsNullOrEmpty(EmpNameSearch))
-            {
                 query = query.Where(e => e.Contract!.Employee!.FullNameAr!.Contains(EmpNameSearch));
-            }
 
             if (companyId.HasValue)
-            {
                 query = query.Where(e => e.Contract!.Employee!.CompanyId == companyId.Value);
-            }
 
             // Get distinct employees by grouping
             var distinctEmployees = query
                 .GroupBy(c => c.Contract!.Employee!.Id)
                 .Select(g => g.First());
 
-            //var debitByEmployee = _context.DebitInfos
-            //    .GroupBy(e => e.EmpId)
-            //    .Select(g => new
-            //    {
-            //        EmployeeId = g.Key,
-            //        TotalDebitRemaining = g.Sum(x => x.DebitRemaining)
-            //    });
-
-            //var result = distinctEmployees
-            //    .GroupJoin(debitByEmployee,
-            //        employee => employee!.Contract!.Employee!.Id,
-            //        debit => debit.EmployeeId,
-            //        (employee, debitGroup) => new
-            //        {
-            //            Employee = employee.Contract!.Employee,
-            //            Contract = employee.Contract,
-            //            TotalDebitRemaining = debitGroup.Any() ? debitGroup.First().TotalDebitRemaining : 0
-            //        })
-            //    .ToList();
-
-
-            // Store current search values for the view
-            ViewData["ContractNoFilter"] = ContractNoString;
-            ViewData["CarCodeFilter"] = CarCodeString;
-            ViewData["EmpCodeFilter"] = EmpCodeString;
-            ViewData["EmpNameFilter"] = EmpNameSearch;
-            ViewData["CompanyFilter"] = companyId;
-
-            // Pagination
-            //int pageSize = 50;
-           // return View(await PaginatedList<ContractDetail>.CreateAsync(distinctQuery.AsNoTracking(), pageNumber ?? 1, pageSize));
             return View(distinctEmployees);
         }
 
