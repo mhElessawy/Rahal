@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -13,6 +14,7 @@ using System.Configuration;
 using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace RahalWeb.Controllers
@@ -31,7 +33,6 @@ namespace RahalWeb.Controllers
         public async Task<IActionResult> Index(int? CarCodeString, int? EmpCodeString, string? EmpNameSearch, int? companyId, int? pageNumber, string? ContractNoString)
         {
             TempData.Keep();
-
             TempData["UserCompanyData"] = HttpContext.Session.GetString("UserCompanyData");
 
             var userCompanyData = TempData["UserCompanyData"]?.ToString();
@@ -41,119 +42,136 @@ namespace RahalWeb.Controllers
             if (companyIds.Any())
             {
                 ViewBag.Companies = new SelectList(
-                            await _context.CompanyInfos
-                                .FromSqlRaw($"SELECT * FROM CompanyInfo WHERE DeleteFlag = 0 AND Id IN ({companyIdsString})")
-                                .OrderBy(c => c.CompNameAr)
-                                .ToListAsync(),
-                            "Id",
-                            "CompNameAr",
-                            companyId);
+                    await _context.CompanyInfos
+                        .FromSqlRaw($"SELECT * FROM CompanyInfo WHERE DeleteFlag = 0 AND Id IN ({companyIdsString})")
+                        .OrderBy(c => c.CompNameAr)
+                        .ToListAsync(),
+                    "Id", "CompNameAr", companyId);
             }
             else
             {
                 ViewBag.Companies = new SelectList(Enumerable.Empty<SelectListItem>());
             }
 
-            // ─────────────────────────────────────────────────────────────────
-            // الحل: بدل ما نعمل correlated subquery لكل صف (N × 3 queries)
-            // نجيب البيانات الأساسية أولاً ثم نحسب lookup tables بـ query واحدة لكل منها
-            // ─────────────────────────────────────────────────────────────────
-
-            // Step 1: جلب البيانات الأساسية بدون الـ correlated subqueries
-            var baseList = await _context.ContractDetails
-                .FromSqlRaw($"select * from ContractDetails where ContractId In (Select Id from Contract where DeleteFlag = 0 and status = 0 and EmployeeId In (Select Id From EmployeeInfo where CompanyId IN ({companyIdsString})))")
-                .AsNoTracking()
-                .Include(c => c.Bill)
-                .Include(c => c.Contract)
-                    .ThenInclude(c => c!.Employee)
-                .Include(c => c.Contract)
-                    .ThenInclude(c => c!.Car)
-                .Where(a => a.DeleteFlag == 0
-                    && (a.Status != 3 && a.Status != 4)
-                    && a.Contract!.DeleteFlag == 0
-                    && a.Contract!.Status == 0)
-                .ToListAsync();
-
-            // Store current search values for the view
             ViewData["ContractNoFilter"] = ContractNoString;
-            ViewData["CarCodeFilter"] = CarCodeString;
-            ViewData["EmpCodeFilter"] = EmpCodeString;
-            ViewData["EmpNameFilter"] = EmpNameSearch;
-            ViewData["CompanyFilter"] = companyId;
+            ViewData["CarCodeFilter"]    = CarCodeString;
+            ViewData["EmpCodeFilter"]    = EmpCodeString;
+            ViewData["EmpNameFilter"]    = EmpNameSearch;
+            ViewData["CompanyFilter"]    = companyId;
 
-            if (!baseList.Any())
+            // ─────────────────────────────────────────────────────────────────
+            // الحل النهائي: CTE يشتغل كله في SQL Server
+            // يجيب ID واحد فقط لكل موظف (القسط المعلق التالي)
+            // بدلاً من تحميل آلاف الصفوف ثم فلترتها في الـ memory
+            // ─────────────────────────────────────────────────────────────────
+
+            var sql = new StringBuilder();
+            var sqlParams = new List<SqlParameter>();
+
+            sql.Append($@"
+WITH LastPaidCTE AS (
+    -- آخر سجل مدفوع (Status=3) لكل عقد — بالترتيب حسب Id تنازلياً
+    SELECT ContractId,
+           DailyCreditDate AS LastPaidDate,
+           ROW_NUMBER() OVER (PARTITION BY ContractId ORDER BY Id DESC) AS rn
+    FROM   ContractDetails
+    WHERE  Status = 3
+),
+LastPaidPerContract AS (
+    SELECT ContractId, LastPaidDate
+    FROM   LastPaidCTE
+    WHERE  rn = 1
+),
+FirstPerContract AS (
+    -- أول سجل (أصغر Id) لكل عقد — للعقود التي لم تُدفع بعد
+    SELECT ContractId, MIN(Id) AS FirstId
+    FROM   ContractDetails
+    GROUP BY ContractId
+),
+EligibleDetails AS (
+    -- السجلات المؤهلة: القسط التالي المعلق لكل موظف
+    SELECT cd.Id,
+           c.EmployeeId,
+           ROW_NUMBER() OVER (
+               PARTITION BY c.EmployeeId
+               ORDER BY cd.DailyCreditDate ASC, cd.Id ASC
+           ) AS EmployeeRn
+    FROM   ContractDetails  cd
+    INNER JOIN [Contract]   c   ON  c.Id        = cd.ContractId
+                                AND c.DeleteFlag = 0
+                                AND c.Status     = 0
+    INNER JOIN EmployeeInfo e   ON  e.Id         = c.EmployeeId
+                                AND e.CompanyId IN ({companyIdsString})
+    LEFT  JOIN CarInfo      car ON  car.Id       = c.CarId
+    LEFT  JOIN LastPaidPerContract lp ON lp.ContractId = cd.ContractId
+    LEFT  JOIN FirstPerContract    fp ON fp.ContractId = cd.ContractId
+    WHERE  cd.DeleteFlag = 0
+      AND  cd.Status NOT IN (3, 4)
+      AND  c.EmployeeId IS NOT NULL
+      AND (
+             (lp.LastPaidDate IS NOT NULL AND cd.DailyCreditDate > lp.LastPaidDate)
+          OR (lp.LastPaidDate IS     NULL AND cd.Id = fp.FirstId)
+          )");
+
+            // الفلاتر الاختيارية — مُدمجة في الـ CTE لتشتغل في SQL Server
+            if (!string.IsNullOrEmpty(ContractNoString))
+            {
+                sql.Append(" AND c.ContractNo LIKE @contractNo");
+                sqlParams.Add(new SqlParameter("@contractNo", $"%{ContractNoString}%"));
+            }
+            if (CarCodeString.HasValue)
+            {
+                sql.Append(" AND car.CarCode = @carCode");
+                sqlParams.Add(new SqlParameter("@carCode", CarCodeString.Value));
+            }
+            if (EmpCodeString.HasValue)
+            {
+                sql.Append(" AND e.EmpCode = @empCode");
+                sqlParams.Add(new SqlParameter("@empCode", EmpCodeString.Value));
+            }
+            if (!string.IsNullOrEmpty(EmpNameSearch))
+            {
+                sql.Append(" AND e.FullNameAr LIKE @empName");
+                sqlParams.Add(new SqlParameter("@empName", $"%{EmpNameSearch}%"));
+            }
+            if (companyId.HasValue)
+            {
+                sql.Append(" AND e.CompanyId = @companyId");
+                sqlParams.Add(new SqlParameter("@companyId", companyId.Value));
+            }
+
+            sql.Append(@"
+)
+SELECT Id FROM EligibleDetails WHERE EmployeeRn = 1;");
+
+            // تنفيذ الـ CTE وجلب الـ IDs فقط (بيانات صغيرة جداً)
+            var eligibleIds = new List<int>();
+            var connStr = _context.Database.GetConnectionString()!;
+            await using var conn = new SqlConnection(connStr);
+            await conn.OpenAsync();
+            await using (var cmd = new SqlCommand(sql.ToString(), conn))
+            {
+                cmd.CommandTimeout = 120; // دقيقتان كحد أقصى
+                if (sqlParams.Count > 0)
+                    cmd.Parameters.AddRange(sqlParams.ToArray());
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                    eligibleIds.Add(reader.GetInt32(0));
+            }
+
+            if (!eligibleIds.Any())
                 return View(new List<ContractDetail>());
 
-            // Step 2: الـ Contract IDs الموجودة في النتيجة
-            var contractIdList = baseList
-                .Where(d => d.ContractId.HasValue)
-                .Select(d => d.ContractId!.Value)
-                .Distinct()
-                .ToList();
+            // جلب السجلات الكاملة مع Includes للـ IDs المختارة فقط (عدد = عدد الموظفين)
+            var result = await _context.ContractDetails
+                .AsNoTracking()
+                .Include(c => c.Bill)
+                .Include(c => c.Contract).ThenInclude(c => c!.Employee)
+                .Include(c => c.Contract).ThenInclude(c => c!.Car)
+                .Where(cd => eligibleIds.Contains(cd.Id))
+                .ToListAsync();
 
-            var contractIdListNullable = contractIdList.Cast<int?>().ToList();
-
-            // Step 3: آخر تاريخ مدفوع (Status=3) لكل عقد — query واحدة بدل N queries
-            var lastPaidDateByContract = await _context.ContractDetails
-                .Where(cd => contractIdListNullable.Contains(cd.ContractId) && cd.Status == 3)
-                .GroupBy(cd => cd.ContractId)
-                .Select(g => new
-                {
-                    ContractId = g.Key,
-                    LastPaidDate = g.OrderByDescending(x => x.Id).Select(x => x.DailyCreditDate).FirstOrDefault()
-                })
-                .ToDictionaryAsync(x => x.ContractId!.Value, x => x.LastPaidDate);
-
-            // Step 4: أول ID لكل عقد — query واحدة بدل N queries
-            var firstIdByContract = await _context.ContractDetails
-                .Where(cd => contractIdListNullable.Contains(cd.ContractId))
-                .GroupBy(cd => cd.ContractId)
-                .Select(g => new
-                {
-                    ContractId = g.Key,
-                    FirstId = g.OrderBy(x => x.Id).Select(x => x.Id).FirstOrDefault()
-                })
-                .ToDictionaryAsync(x => x.ContractId!.Value, x => x.FirstId);
-
-            // Step 5: تطبيق الفلتر في الـ memory — O(N) بدل O(N²)
-            var query = baseList.Where(cd =>
-            {
-                if (!cd.ContractId.HasValue) return false;
-
-                if (lastPaidDateByContract.TryGetValue(cd.ContractId.Value, out var lastPaidDate) && lastPaidDate != null)
-                    // يجيب السجلات بعد آخر تاريخ مدفوع
-                    return cd.DailyCreditDate > lastPaidDate;
-                else
-                {
-                    // لو مفيش مدفوع، يجيب أول سجل فقط
-                    firstIdByContract.TryGetValue(cd.ContractId.Value, out var firstId);
-                    return cd.Id == firstId;
-                }
-            });
-
-            // Step 6: تطبيق فلاتر البحث
-            if (!string.IsNullOrEmpty(ContractNoString))
-                query = query.Where(e => e.Contract!.ContractNo!.Contains(ContractNoString));
-
-            if (CarCodeString.HasValue)
-                query = query.Where(e => e.Contract!.Car!.CarCode == CarCodeString);
-
-            if (EmpCodeString.HasValue)
-                query = query.Where(e => e.Contract!.Employee!.EmpCode == EmpCodeString);
-
-            if (!string.IsNullOrEmpty(EmpNameSearch))
-                query = query.Where(e => e.Contract!.Employee!.FullNameAr!.Contains(EmpNameSearch));
-
-            if (companyId.HasValue)
-                query = query.Where(e => e.Contract!.Employee!.CompanyId == companyId.Value);
-
-            // Step 7: موظف واحد لكل عقد (distinct by employee)
-            var distinctEmployees = query
-                .GroupBy(c => c.Contract!.Employee!.Id)
-                .Select(g => g.First())
-                .ToList();
-
-            return View(distinctEmployees);
+            return View(result);
         }
 
         // GET: ContractDetails/Details/5
