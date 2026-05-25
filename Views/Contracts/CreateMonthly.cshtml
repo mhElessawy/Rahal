@@ -41,7 +41,7 @@
                 </div>
                 <div class="col-md-3">
                     <label asp-for="ContractDate" class="form-label">تاريخ العقد</label>
-                    <input asp-for="ContractDate" value="@DateTime.Now.ToString("dd-MM-yyyy")" class="form-control" readonly />
+                    <input asp-for="ContractDate" value="@DateTime.Now.ToString("MM-dd-yyyy")" class="form-control" readonly />
                     <span asp-validation-for="ContractDate" class="text-danger small"></span>
                 </div>
                 <div class="col-md-12"> </div>

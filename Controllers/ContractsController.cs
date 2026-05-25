@@ -140,7 +140,7 @@ namespace RahalWeb.Controllers
 
             return Json(branches);
         }
-    
+
         public JsonResult CompanyCar(int Id)
         {
 
@@ -248,7 +248,7 @@ namespace RahalWeb.Controllers
 
             ViewBag.MaxContractNo = maxContractNo + 1;
 
-            
+
             ViewData["CarId"] = new SelectList(_context.CarInfos, "Id", "CarNo");
             ViewData["EmployeeId"] = new SelectList(Enumerable.Empty<SelectListItem>());
 
@@ -395,7 +395,7 @@ namespace RahalWeb.Controllers
             //int pageSize = 50; // Set your page size
             return View(query);
 
-//            return View(await PaginatedList<Contract>.CreateAsync(query.AsNoTracking(), pageNumber ?? 1, pageSize));
+            //            return View(await PaginatedList<Contract>.CreateAsync(query.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         [HttpGet]
@@ -413,7 +413,7 @@ namespace RahalWeb.Controllers
             var companyIds = userCompanyData.Split(',').Select(int.Parse).ToList();
             var companyIdsString = string.Join(",", companyIds);
 
-           
+
 
             ViewData["CarId"] = new SelectList(_context.CarInfos, "Id", "CarNo");
             ViewData["EmployeeId"] = new SelectList(Enumerable.Empty<SelectListItem>());
@@ -422,7 +422,7 @@ namespace RahalWeb.Controllers
             ViewData["UserId"] = new SelectList(_context.PasswordData, "Id", "UserFullName");
             ViewData["CompanyId"] = new SelectList(_context.CompanyInfos
                                     .FromSqlRaw($"SELECT * FROM CompanyInfo WHERE DeleteFlag = 0 AND Id IN ({companyIdsString})")
-                                    .Where(c=>c.DeleteFlag == 0), "Id", "CompNameAr");
+                                    .Where(c => c.DeleteFlag == 0), "Id", "CompNameAr");
             return View();
         }
 
@@ -437,18 +437,24 @@ namespace RahalWeb.Controllers
             var companyIds = userCompanyData.Split(',').Select(int.Parse).ToList();
             var companyIdsString = string.Join(",", companyIds);
 
-            // check if the credit start date > start date make it error and not save the contract 
-            if (contract.CreditStartDate < contract.StartDate)
+            // check if the credit start date > start date make it error and not save the contract
+            if (contract.CreditStartDate < contract.StartDate && contract.CreditMonthPay != 0)
             {
                 ModelState.AddModelError("DebitQty", "بداية القسط أكبر من بداية العقد");
-                return View();
+                ViewData["CarId"] = new SelectList(_context.CarInfos, "Id", "CarNo", contract.CarId);
+                ViewData["EmployeeId"] = new SelectList(Enumerable.Empty<SelectListItem>());
+                ViewData["UserId"] = new SelectList(_context.PasswordData, "Id", "UserFullName", contract.UserId);
+                ViewData["CompanyId"] = new SelectList(_context.CompanyInfos
+                    .FromSqlRaw($"SELECT * FROM CompanyInfo WHERE DeleteFlag = 0 AND Id IN ({companyIdsString})")
+                    .Where(c => c.DeleteFlag == 0), "Id", "CompNameAr");
+                return View(contract);
             }
 
             if (ModelState.IsValid)
             {
                 maxContractNo = _context.Contracts.Max(a => Convert.ToInt32(a.ContractNo));
                 contract.ContractNo = Convert.ToString(maxContractNo + 1);
-                contract.UserId = HttpContext.Session.GetInt32("UserId"); 
+                contract.UserId = HttpContext.Session.GetInt32("UserId");
                 contract.ContractType = 1;
                 contract.DeleteFlag = 0;
                 contract.Status = 0;
@@ -492,7 +498,7 @@ namespace RahalWeb.Controllers
                                 _context.ContractDetails.Add(newContractDetails);
                                 await _context.SaveChangesAsync(); // Use SaveChanges() if not async
 
-                                tempDate  = DateOnly.FromDateTime(new DateTime(tempDate.Year, tempDate.Month, 1)
+                                tempDate = DateOnly.FromDateTime(new DateTime(tempDate.Year, tempDate.Month, 1)
                                                                     .AddMonths(2)
                                                                     .AddDays(-1));
                                 tempCreditDate = tempCreditDate.AddMonths(1);
@@ -560,7 +566,7 @@ namespace RahalWeb.Controllers
                             };
                             _context.Vacations.Add(newVacation);
                             await _context.SaveChangesAsync(); // Use SaveChanges() if not async 
-                            tempDate =  DateOnly.FromDateTime(new DateTime(tempDate.Year, tempDate.Month, 1)
+                            tempDate = DateOnly.FromDateTime(new DateTime(tempDate.Year, tempDate.Month, 1)
                                                     .AddMonths(2)
                                                     .AddDays(-1));
                             countMonth = 0;
@@ -571,7 +577,7 @@ namespace RahalWeb.Controllers
                 else   // without vacation
                 {
                     DateOnly tempDate = new DateOnly(contract!.StartDate!.Value.Year,
-                                                    contract.StartDate.Value.Month,1)
+                                                    contract.StartDate.Value.Month, 1)
                                                    .AddMonths(1)
                                                    .AddDays(-1);
                     DateOnly tempCreditDate = new DateOnly(1900, 1, 1);
@@ -583,7 +589,7 @@ namespace RahalWeb.Controllers
                     int countMonth = 1;
                     while (tempDate < contract.EndDate)
                     {
-                        if (tempDate.Month == tempCreditDate.Month && tempCreditDate <= contract.CreditEndDate)
+                        if (tempDate.Month == tempCreditDate.Month && tempDate.Year == tempCreditDate.Year && tempCreditDate <= contract.CreditEndDate)
                         {
                             var newContractDetails = new ContractDetail
                             {
@@ -618,7 +624,7 @@ namespace RahalWeb.Controllers
                             };
                             _context.ContractDetails.Add(newContractDetails);
                             await _context.SaveChangesAsync(); // Use SaveChanges() if not async 
-                            tempDate =  DateOnly.FromDateTime(new DateTime(tempDate.Year, tempDate.Month, 1)
+                            tempDate = DateOnly.FromDateTime(new DateTime(tempDate.Year, tempDate.Month, 1)
                                                                     .AddMonths(2)
                                                                     .AddDays(-1));
                         }
@@ -629,7 +635,7 @@ namespace RahalWeb.Controllers
                 return RedirectToAction(nameof(IndexMonthly));
             }
             ViewData["CarId"] = new SelectList(_context.CarInfos, "Id", "CarNo", contract.CarId);
-            //ViewData["EmployeeId"] = new SelectList(_context.EmployeeInfos, "Id", "Id", contract.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(Enumerable.Empty<SelectListItem>());
             ViewData["UserId"] = new SelectList(_context.PasswordData, "Id", "UserFullName", contract.UserId);
             ViewData["CompanyId"] = new SelectList(_context.CompanyInfos
                 .FromSqlRaw($"SELECT * FROM CompanyInfo WHERE DeleteFlag = 0 AND Id IN ({companyIdsString})")
@@ -662,7 +668,7 @@ namespace RahalWeb.Controllers
             if (contract == null)
             {
                 return NotFound();
-            }   
+            }
 
             return View(contract);
         }
@@ -757,7 +763,7 @@ namespace RahalWeb.Controllers
                 return RedirectToAction(nameof(IndexMonthly));
             }
 
-          
+
             return View();
         }
 
@@ -820,7 +826,7 @@ namespace RahalWeb.Controllers
             var userCompanyData = TempData["UserCompanyData"]?.ToString();
             var companyIds = userCompanyData.Split(',').Select(int.Parse).ToList();
             var companyIdsString = string.Join(",", companyIds);
-             
+
             ViewBag.Companies = new SelectList(
               await _context.CompanyInfos
                   .FromSqlRaw($"SELECT * FROM CompanyInfo WHERE DeleteFlag = 0 AND Id IN ({companyIdsString})")
@@ -916,14 +922,14 @@ namespace RahalWeb.Controllers
                                   .Where(cd => cd.Contract!.CarId == car!.Id && cd.Status == 3)
                                   .Sum(cd => (decimal?)cd.CarCredit) ?? 0);
 
-            
-            if(car.NoOfCredit != 0)
+
+            if (car.NoOfCredit != 0)
             {
                 decimal RemainingCredit = (car.NoOfCredit * car.CarCredit) - PayedCredit;
- 
+
                 car.NoOfCredit = (int)(RemainingCredit / car.CarCredit);
                 car.CarCredit = RemainingCredit;
-               
+
             }
             else
             {
@@ -932,13 +938,13 @@ namespace RahalWeb.Controllers
             }
 
 
-                return Json(new
-                {
-                    companyId = car.CompanyId,
-                    carId = car.Id,
-                    carCredit = car.CarCredit, // Add this line
-                    noOfCredit = car.NoOfCredit  // Add this line
-                });
+            return Json(new
+            {
+                companyId = car.CompanyId,
+                carId = car.Id,
+                carCredit = car.CarCredit, // Add this line
+                noOfCredit = car.NoOfCredit  // Add this line
+            });
         }
 
         [HttpGet]
@@ -950,7 +956,7 @@ namespace RahalWeb.Controllers
             {
                 return NotFound();
             }
-            
+
             TempData["UserCompanyData"] = HttpContext.Session.GetString("UserCompanyData");
 
             var userCompanyData = TempData["UserCompanyData"]?.ToString();
@@ -996,7 +1002,7 @@ namespace RahalWeb.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ChangeMonthlyRent(int id, Contract contract,DateOnly StartDateRent)
+        public async Task<IActionResult> ChangeMonthlyRent(int id, Contract contract, DateOnly StartDateRent)
         {
 
             if (id != contract.Id)
@@ -1013,7 +1019,7 @@ namespace RahalWeb.Controllers
 
 
                     var contractDetailsToUpdate = _context.ContractDetails
-                             .Where(cd => cd.ContractId == contract.Id && cd.DailyCreditDate > StartDateRent  && cd.Status==0)
+                             .Where(cd => cd.ContractId == contract.Id && cd.DailyCreditDate > StartDateRent && cd.Status == 0)
                              .ToList();
 
                     foreach (var detail in contractDetailsToUpdate)
@@ -1241,7 +1247,7 @@ namespace RahalWeb.Controllers
             ViewData["EmployeeId"] = new SelectList(_context.EmployeeInfos, "Id", "Id", contract.EmployeeId);
             ViewData["UserId"] = new SelectList(_context.PasswordData, "Id", "Id", contract.UserId);
             return View(contract);
-        
+
         }
 
         // POST: Contracts/Edit/5
@@ -1330,7 +1336,7 @@ namespace RahalWeb.Controllers
             return View();
         }
         [HttpGet]
-       public async Task<IActionResult> AddCar(int? id)
+        public async Task<IActionResult> AddCar(int? id)
         {
             if (id == null)
             {
@@ -1375,8 +1381,8 @@ namespace RahalWeb.Controllers
             ViewBag.MaxContractNo = maxContractNo + 1;
 
             var availableCars = _context.CarInfos
-                                .Where(car =>car.DeleteFlag == 0 &&
-                                !_context.Contracts.Any(contract => contract.CarId == car.Id  && contract.DeleteFlag == 0 && contract.Status==0 ))
+                                .Where(car => car.DeleteFlag == 0 &&
+                                !_context.Contracts.Any(contract => contract.CarId == car.Id && contract.DeleteFlag == 0 && contract.Status == 0))
                                 .ToList();
 
             ViewData["CarId"] = new SelectList(availableCars, "Id", "CarNo");
@@ -1391,7 +1397,7 @@ namespace RahalWeb.Controllers
 
         }
         [HttpPost]
-        public async Task<IActionResult> AddCar(int id, Contract contract , DateOnly StartDateRent,DateOnly StartDateCarCredit , string CarCreditDisplay  ,  int NoOfCreditDisplay)
+        public async Task<IActionResult> AddCar(int id, Contract contract, DateOnly StartDateRent, DateOnly StartDateCarCredit, string CarCreditDisplay, int NoOfCreditDisplay)
         {
 
 
@@ -1447,19 +1453,19 @@ namespace RahalWeb.Controllers
                         CarId = contract.CarId,
                         ContractDate = contract.ContractDate,
                         StartDate = contract.StartDate,
-                        EndDate= contract.EndDate,
+                        EndDate = contract.EndDate,
                         NoOfDays = contract.NoOfDays,
                         DeleteFlag = 0,
                         TotalCost = contract.TotalCost,
-                        ContractEndDate = contract.ContractEndDate ,
+                        ContractEndDate = contract.ContractEndDate,
                         ContractEndReson = contract.ContractEndReson,
-                        ContractType= contract.ContractType,
-                        UserId = HttpContext.Session.GetInt32("UserId") ,
+                        ContractType = contract.ContractType,
+                        UserId = HttpContext.Session.GetInt32("UserId"),
                         CreditStartDate = contract.CreditStartDate,
                         CreditEndDate = contract.CreditEndDate,
                         CreditNoOfMonth = NoOfCreditDisplay,
                         CreditMonthPay = NoOfCreditDisplay == 0 ? 0 : carCredit / NoOfCreditDisplay,
-                        CreditTotalCost = carCredit ,  // contract.CreditTotalCost
+                        CreditTotalCost = carCredit,  // contract.CreditTotalCost
                         HaveVacation = contract.HaveVacation,
                     };
 
@@ -1472,15 +1478,15 @@ namespace RahalWeb.Controllers
                     _context.Update(contract);
 
                     var contractDetailsToUpdate = _context.ContractDetails
-                             .Where(cd => cd.ContractId == contract.Id  && cd.Status != 3 && cd.DailyCreditDate >= StartDateRent)
+                             .Where(cd => cd.ContractId == contract.Id && cd.Status != 3 && cd.DailyCreditDate >= StartDateRent)
                              .ToList();
 
-                    int TempNoOfCredit = NoOfCreditDisplay; 
+                    int TempNoOfCredit = NoOfCreditDisplay;
 
                     foreach (var detail in contractDetailsToUpdate)
                     {
                         detail.ContractId = maxContractNoNew;
-                        if ( detail.DailyCreditDate >= StartDateCarCredit && TempNoOfCredit >0)
+                        if (detail.DailyCreditDate >= StartDateCarCredit && TempNoOfCredit > 0)
                         {
                             detail.CarCredit = carCredit / NoOfCreditDisplay;
                             TempNoOfCredit--;
