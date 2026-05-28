@@ -31,11 +31,9 @@ namespace RahalWeb.Controllers
         public async Task<IActionResult> Index(int? CarCodeString, int? EmpCodeString, string? EmpNameSearch, int? companyId, int? pageNumber, string? ContractNoString)
         {
             TempData.Keep();
-            
-            TempData["UserCompanyData"]  = HttpContext.Session.GetString("UserCompanyData");
 
-            //// Get the user's company data from TempData
-            //// Get the user's company data from TempData
+            TempData["UserCompanyData"] = HttpContext.Session.GetString("UserCompanyData");
+
             var userCompanyData = TempData["UserCompanyData"]?.ToString();
             var companyIds = userCompanyData.Split(',').Select(int.Parse).ToList();
             var companyIdsString = string.Join(",", companyIds);
@@ -56,8 +54,24 @@ namespace RahalWeb.Controllers
                 ViewBag.Companies = new SelectList(Enumerable.Empty<SelectListItem>());
             }
 
+            // Store current search values for the view
+            ViewData["ContractNoFilter"] = ContractNoString;
+            ViewData["CarCodeFilter"] = CarCodeString;
+            ViewData["EmpCodeFilter"] = EmpCodeString;
+            ViewData["EmpNameFilter"] = EmpNameSearch;
+            ViewData["CompanyFilter"] = companyId;
 
-         //   Base query with includes
+            // لو مفيش أي فلتر → ارجع قائمة فاضية فوراً بدون ما تسأل الـ database
+            bool hasFilter = !string.IsNullOrEmpty(ContractNoString)
+                          || CarCodeString.HasValue
+                          || EmpCodeString.HasValue
+                          || !string.IsNullOrEmpty(EmpNameSearch)
+                          || companyId.HasValue;
+
+            if (!hasFilter)
+                return View(new List<ContractDetail>());
+
+            // لو فيه فلتر → اشتغل الـ query بس على البيانات المفلترة
             var baseQuery = _context.ContractDetails
                      .FromSqlRaw($"select * from ContractDetails where ContractId In (Select Id from Contract where DeleteFlag = 0 and status = 0 and  EmployeeId In ( Select Id From EmployeeInfo where CompanyId  IN ({companyIdsString})))")
                      .Include(c => c.Bill)
@@ -70,31 +84,20 @@ namespace RahalWeb.Controllers
                          && a.Contract!.DeleteFlag == 0
                          && a.Contract!.Status == 0);
 
-
-            //var query = baseQuery
-            //    .Where(cd => cd.DailyCreditDate > _context.ContractDetails
-            //            .Where(last => last.ContractId == cd.ContractId && last.Status == 3)
-            //            .OrderByDescending(last => last.Id)
-            //            .Select(last => last.DailyCreditDate)
-            //            .FirstOrDefault());
-
             var query = baseQuery
                 .Where(cd =>
-                    // إذا كان فيه Status = 3
                     _context.ContractDetails
                         .Where(last => last.ContractId == cd.ContractId && last.Status == 3)
                         .OrderByDescending(last => last.Id)
                         .Select(last => last.DailyCreditDate)
                         .FirstOrDefault() != null
                     ?
-                        // نجيب السجلات اللي بعد آخر Status = 3
                         cd.DailyCreditDate > _context.ContractDetails
                             .Where(last => last.ContractId == cd.ContractId && last.Status == 3)
                             .OrderByDescending(last => last.Id)
                             .Select(last => last.DailyCreditDate)
                             .FirstOrDefault()
                     :
-                        // إذا مكنش فيه Status = 3، نجيب أول سجل فقط
                         cd.Id == _context.ContractDetails
                             .Where(first => first.ContractId == cd.ContractId)
                             .OrderBy(first => first.Id)
@@ -102,69 +105,27 @@ namespace RahalWeb.Controllers
                             .FirstOrDefault()
                 );
 
-
             // Apply filters
             if (!string.IsNullOrEmpty(ContractNoString))
-            {
                 query = query.Where(e => e.Contract!.ContractNo!.Contains(ContractNoString));
-            }
 
             if (CarCodeString.HasValue)
-            {
                 query = query.Where(e => e.Contract!.Car!.CarCode == CarCodeString);
-            }
 
             if (EmpCodeString.HasValue)
-            {
                 query = query.Where(e => e.Contract!.Employee!.EmpCode == EmpCodeString);
-            }
 
             if (!string.IsNullOrEmpty(EmpNameSearch))
-            {
                 query = query.Where(e => e.Contract!.Employee!.FullNameAr!.Contains(EmpNameSearch));
-            }
 
             if (companyId.HasValue)
-            {
                 query = query.Where(e => e.Contract!.Employee!.CompanyId == companyId.Value);
-            }
 
             // Get distinct employees by grouping
             var distinctEmployees = query
                 .GroupBy(c => c.Contract!.Employee!.Id)
                 .Select(g => g.First());
 
-            //var debitByEmployee = _context.DebitInfos
-            //    .GroupBy(e => e.EmpId)
-            //    .Select(g => new
-            //    {
-            //        EmployeeId = g.Key,
-            //        TotalDebitRemaining = g.Sum(x => x.DebitRemaining)
-            //    });
-
-            //var result = distinctEmployees
-            //    .GroupJoin(debitByEmployee,
-            //        employee => employee!.Contract!.Employee!.Id,
-            //        debit => debit.EmployeeId,
-            //        (employee, debitGroup) => new
-            //        {
-            //            Employee = employee.Contract!.Employee,
-            //            Contract = employee.Contract,
-            //            TotalDebitRemaining = debitGroup.Any() ? debitGroup.First().TotalDebitRemaining : 0
-            //        })
-            //    .ToList();
-
-
-            // Store current search values for the view
-            ViewData["ContractNoFilter"] = ContractNoString;
-            ViewData["CarCodeFilter"] = CarCodeString;
-            ViewData["EmpCodeFilter"] = EmpCodeString;
-            ViewData["EmpNameFilter"] = EmpNameSearch;
-            ViewData["CompanyFilter"] = companyId;
-
-            // Pagination
-            //int pageSize = 50;
-           // return View(await PaginatedList<ContractDetail>.CreateAsync(distinctQuery.AsNoTracking(), pageNumber ?? 1, pageSize));
             return View(distinctEmployees);
         }
 
@@ -201,7 +162,7 @@ namespace RahalWeb.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create( ContractDetail contractDetail)
+        public async Task<IActionResult> Create(ContractDetail contractDetail)
         {
             if (ModelState.IsValid)
             {
@@ -237,7 +198,7 @@ namespace RahalWeb.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id,  ContractDetail contractDetail)
+        public async Task<IActionResult> Edit(int id, ContractDetail contractDetail)
         {
             if (id != contractDetail.Id)
             {
@@ -320,20 +281,20 @@ namespace RahalWeb.Controllers
             var contractDetail = await _context.ContractDetails
                 .Include(c => c.Bill)
                 .Include(c => c.Contract)
-                .Include(c=>c.Contract!.Employee)
-                .Include(c=>c.Contract!.Car)
+                .Include(c => c.Contract!.Employee)
+                .Include(c => c.Contract!.Car)
                 .FirstOrDefaultAsync(m => m.Id == id);
-          //  .Where(a => a.DailyCredit != 0 || a.CarCredit != 0)
+            //  .Where(a => a.DailyCredit != 0 || a.CarCredit != 0)
             if (contractDetail == null)
             {
                 return NotFound();
             }
-            double debitPayLateDay =   _context.DeffInformation
+            double debitPayLateDay = _context.DeffInformation
                                     .FirstOrDefault()?
                                     .DebitPayLateDay ?? 0;
             DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now);
             DateOnly? creditDate = (DateOnly?)contractDetail.DailyCreditDate;
-             
+
 
 
             int daysDifference = currentDate.DayNumber - creditDate!.Value.DayNumber;
@@ -350,9 +311,9 @@ namespace RahalWeb.Controllers
             return View(contractDetail);
         }
         [HttpPost]
-        public async Task<IActionResult> Pay(int? id,ContractDetail contractDetails,double latePay, int NoOfMonth ,int latePayId)
+        public async Task<IActionResult> Pay(int? id, ContractDetail contractDetails, double latePay, int NoOfMonth, int latePayId)
         {
-              if (id == null)
+            if (id == null)
             {
                 return NotFound();
             }
@@ -361,7 +322,7 @@ namespace RahalWeb.Controllers
                 try
                 {
 
-                   
+
                     var existingDetail = await _context.ContractDetails
                         .Include(c => c.Contract)
                         .Where(c => c.Contract!.Id == contractDetails.ContractId && (c.Status == 0 || c.Status == 2))
@@ -397,17 +358,17 @@ namespace RahalWeb.Controllers
                     int EmpId = 0;
                     for (int i = 0; i < existingDetail.Count; i++)
                     {
-                        if ( i == 0 )
+                        if (i == 0)
                         {
-                          //  fromdate = (DateOnly)existingDetail[i].DailyCreditDate!.Value.AddMonths(-1).AddDays(1);
+                            //  fromdate = (DateOnly)existingDetail[i].DailyCreditDate!.Value.AddMonths(-1).AddDays(1);
                             fromdate = new DateOnly(existingDetail[i].DailyCreditDate!.Value.Year,
                                                        existingDetail[i].DailyCreditDate!.Value.Month,
                                                        1);
                             EmpId = (int)existingDetail[i].Contract!.EmployeeId!;
                         }
-                        if( i == existingDetail.Count -1 )
+                        if (i == existingDetail.Count - 1)
                         {
-                             toDate = (DateOnly)existingDetail[i].DailyCreditDate!;
+                            toDate = (DateOnly)existingDetail[i].DailyCreditDate!;
                         }
                         totalDailyCreditAndCarCredit += (decimal?)(existingDetail[i].DailyCredit + (decimal?)existingDetail[i].CarCredit);
                     }
@@ -421,7 +382,7 @@ namespace RahalWeb.Controllers
 
                     ViewBag.MaxmaxBillNo = maxBillNo + 1;
                     string billhent = contractDetails.CarCredit > 0 ? "إيجار + قسط" : "إيجار";
-                    var bill = new Bill 
+                    var bill = new Bill
                     {
                         BillNo = ViewBag.MaxmaxBillNo,
                         ContractId = contractDetails.ContractId,
@@ -433,7 +394,7 @@ namespace RahalWeb.Controllers
                         FromDate = fromdate,
                         ToDate = toDate,
                         NoOfDays = toDate.DayNumber - fromdate.DayNumber,
-                        EmployeeId = EmpId ,
+                        EmployeeId = EmpId,
                         DeleteFlag = 0,
                         BillHent = billhent,
                         BankIntNo = 568,
@@ -446,12 +407,12 @@ namespace RahalWeb.Controllers
 
                     for (int i = 0; i < existingDetail.Count; i++)
                     {
-                        if(existingDetail[i].Status == 0)
+                        if (existingDetail[i].Status == 0)
                         {
                             existingDetail[i].Status = 3;
                         }
-                        
-                            
+
+
                         existingDetail[i].BillId = billId;
                         existingDetail[i].PayedDate = DateOnly.FromDateTime(DateTime.Now);
                         _context.Update(existingDetail[i]);
@@ -459,7 +420,7 @@ namespace RahalWeb.Controllers
 
                     await _context.SaveChangesAsync();
                     // save debitlate and pay it 
-                    if (latePay != 0 )
+                    if (latePay != 0)
                     {
                         int maxDebitNo = await _context.DebitInfos.MaxAsync(b => (int)b.DebitNo!);
 
@@ -473,8 +434,8 @@ namespace RahalWeb.Controllers
                             DebitTypeId = latePayId,
                             DebitDate = DateOnly.FromDateTime(DateTime.Now),
                             DebitDescrp = DebitDescription,
-                            DeleteFlag = 0 ,
-                            ViolationId = 0 ,
+                            DeleteFlag = 0,
+                            ViolationId = 0,
                             DeleteReson = "",
                             DebitPayed = (decimal?)latePay,
                             DebitQty = (decimal?)latePay,
@@ -506,7 +467,7 @@ namespace RahalWeb.Controllers
                         await _context.SaveChangesAsync();
 
                     }
-                    return RedirectToAction("PayPrint", "ContractDetails", new { Id = billId  });
+                    return RedirectToAction("PayPrint", "ContractDetails", new { Id = billId });
 
                     // return RedirectToAction(nameof(Index));
                 }
@@ -552,7 +513,7 @@ namespace RahalWeb.Controllers
                 .Select(d => d.DebitPayed)
                 .FirstOrDefault();
             ViewBag.LatePay = latePay ?? 0;
-            ViewBag.NoOfCredit= _context.ContractDetails.Count(a => a.CarCredit != 0 && a.Status != 3 && a.ContractId== printBill.ContractId );
+            ViewBag.NoOfCredit = _context.ContractDetails.Count(a => a.CarCredit != 0 && a.Status != 3 && a.ContractId == printBill.ContractId);
             return View(printBill);
         }
         [HttpGet]
@@ -636,7 +597,7 @@ namespace RahalWeb.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
-        public async Task<IActionResult> IndexReportAudit(int? selectMonth, int? selectYear, int? KindOfPay, int[ ] companyId)
+        public async Task<IActionResult> IndexReportAudit(int? selectMonth, int? selectYear, int? KindOfPay, int[] companyId)
         {
             TempData.Keep();
 
@@ -736,14 +697,14 @@ namespace RahalWeb.Controllers
                     a.DailyCreditDate!.Value.Month == selectMonth &&
                     a.DailyCreditDate!.Value.Year == selectYear);
 
-                if(companyId == null  ||  companyId.Length ==0 )
+                if (companyId == null || companyId.Length == 0)
                 {
 
                 }
                 else
                 {
 
-                    query = query.Where(e => e.Contract!.Employee!.CompanyId == companyId[0] );   //== companyId.Value
+                    query = query.Where(e => e.Contract!.Employee!.CompanyId == companyId[0]);   //== companyId.Value
                 }
 
 

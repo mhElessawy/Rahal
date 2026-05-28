@@ -1,4 +1,4 @@
-﻿@using RahalWeb.Data
+﻿﻿@using RahalWeb.Data
 @model IEnumerable<RahalWeb.Models.ContractDetail>
 @using RahalWeb.Models.MyModel
 @inject IHttpContextAccessor HttpContextAccessor
@@ -361,73 +361,50 @@
         </div>
     </form>
 </div>
-<table class="bordered-table" dir="rtl">
-    <thead>
-        <tr>
-            <th>
-               رقم العقد
-            </th>
-            <th>
-                التاريخ
-            </th>
-            <th>
-               رقم الموظف
-            </th>
-            <th>
-               اسم الموظف
-            </th>
-            <th>
-                رقم السيارة
-            </th>
-            <th>
-               مبلغ الإيجار
-            </th>
-            <th>
-               مبلغ القسط
-            </th>
-            <th>
-                الإجمالي
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Contract!.ContractNo)
-            </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DailyCreditDate)
-                </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Contract!.Employee!.EmpCode)
-            </td>
-            <td>
-                    @Html.DisplayFor(modelItem => item.Contract!.Employee!.FullNameAr)
-            </td>
-            <td>
-                    @Html.DisplayFor(modelItem => item.Contract!.Car!.CarCode)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DailyCredit)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CarCredit)
-            </td>
-            <td>
-                     @(item.DailyCredit + item.CarCredit)
-            </td>
-
-                <td class="action-links">
-                   
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn-details"><i class="fas fa-info-circle"></i> تفاصيل</a>
-                    @if (user!.PaySave == true)
-                    {
-                        <a asp-action="Pay" asp-route-id="@item.Id" class="btn btn-success"><i class="fas fa-money"></i> دفع</a>
-                    }
-                </td>
-        </tr>
+@if (!Model.Any())
+{
+    <div style="text-align:center; padding:40px; color:#6c757d;" dir="rtl">
+        <i class="fas fa-search" style="font-size:3rem; margin-bottom:15px; display:block;"></i>
+        <h5>ابحث عن موظف باستخدام الفلاتر أعلاه</h5>
+    </div>
 }
-    </tbody>
-</table>
+else
+{
+    <table class="bordered-table" dir="rtl">
+        <thead>
+            <tr>
+                <th>رقم العقد</th>
+                <th>التاريخ</th>
+                <th>رقم الموظف</th>
+                <th>اسم الموظف</th>
+                <th>رقم السيارة</th>
+                <th>مبلغ الإيجار</th>
+                <th>مبلغ القسط</th>
+                <th>الإجمالي</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Contract!.ContractNo)</td>
+                    <td>@Html.DisplayFor(modelItem => item.DailyCreditDate)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Contract!.Employee!.EmpCode)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Contract!.Employee!.FullNameAr)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Contract!.Car!.CarCode)</td>
+                    <td>@Html.DisplayFor(modelItem => item.DailyCredit)</td>
+                    <td>@Html.DisplayFor(modelItem => item.CarCredit)</td>
+                    <td>@(item.DailyCredit + item.CarCredit)</td>
+                    <td class="action-links">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn-details"><i class="fas fa-info-circle"></i> تفاصيل</a>
+                        @if (user!.PaySave == true)
+                        {
+                            <a asp-action="Pay" asp-route-id="@item.Id" class="btn btn-success"><i class="fas fa-money"></i> دفع</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
