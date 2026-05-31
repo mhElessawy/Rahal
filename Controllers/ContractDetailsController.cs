@@ -739,6 +739,72 @@ namespace RahalWeb.Controllers
 
         }
         [HttpGet]
+        public async Task<IActionResult> IndexStopped(int? selectMonth, int? selectYear, int? companyId, int? EmpCodeString, string? EmpNameSearch)
+        {
+            TempData.Keep();
+            TempData["UserCompanyData"] = HttpContext.Session.GetString("UserCompanyData");
+            var userCompanyData = TempData["UserCompanyData"]?.ToString();
+            var companyIds = userCompanyData!.Split(',').Select(int.Parse).ToList();
+            var companyIdsString = string.Join(",", companyIds);
+
+            if (companyIds.Any())
+            {
+                ViewBag.Companies = new SelectList(
+                    await _context.CompanyInfos
+                        .FromSqlRaw($"SELECT * FROM CompanyInfo WHERE DeleteFlag = 0 AND Id IN ({companyIdsString})")
+                        .OrderBy(c => c.CompNameAr)
+                        .ToListAsync(),
+                    "Id", "CompNameAr", companyId);
+            }
+            else
+            {
+                ViewBag.Companies = new SelectList(Enumerable.Empty<SelectListItem>());
+            }
+
+            int currentYear = DateTime.Now.Year;
+            ViewBag.SelectMonth = new SelectList(
+                Enumerable.Range(1, 12).Select(x => new { Value = x, Text = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x) }),
+                "Value", "Text", selectMonth);
+
+            ViewBag.SelectYear = new SelectList(
+                Enumerable.Range(currentYear - 3, 5).OrderByDescending(y => y)
+                    .Select(y => new { Value = y, Text = y.ToString() }),
+                "Value", "Text", selectYear);
+
+            ViewData["EmpCodeFilter"] = EmpCodeString;
+            ViewData["EmpNameFilter"] = EmpNameSearch;
+            ViewData["CompanyFilter"] = companyId;
+            ViewData["SelectMonth"] = selectMonth;
+            ViewData["SelectYear"] = selectYear;
+
+            var query = _context.ContractDetails
+                .FromSqlRaw($"SELECT * FROM ContractDetails WHERE ContractId IN (SELECT Id FROM Contract WHERE DeleteFlag = 0 AND EmployeeId IN (SELECT Id FROM EmployeeInfo WHERE CompanyId IN ({companyIdsString})))")
+                .Include(c => c.Contract)
+                    .ThenInclude(c => c!.Employee)
+                .Include(c => c.Contract)
+                    .ThenInclude(c => c!.Car)
+                .Where(a => a.Status == 4 && a.DeleteFlag == 0);
+
+            if (selectMonth.HasValue)
+                query = query.Where(a => a.DailyCreditDate!.Value.Month == selectMonth);
+
+            if (selectYear.HasValue)
+                query = query.Where(a => a.DailyCreditDate!.Value.Year == selectYear);
+
+            if (companyId.HasValue)
+                query = query.Where(a => a.Contract!.Employee!.CompanyId == companyId);
+
+            if (EmpCodeString.HasValue)
+                query = query.Where(a => a.Contract!.Employee!.EmpCode == EmpCodeString);
+
+            if (!string.IsNullOrEmpty(EmpNameSearch))
+                query = query.Where(a => a.Contract!.Employee!.FullNameAr!.Contains(EmpNameSearch));
+
+            var result = await query.OrderByDescending(a => a.DailyCreditDate).ToListAsync();
+            return View(result);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Pause(int? id)
         {
             if (id == null) return NotFound();
