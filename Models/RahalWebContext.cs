@@ -225,6 +225,7 @@ public partial class RahalWebContext : DbContext
             entity.Property(e => e.DailyCredit).HasColumnType("decimal(18, 3)");
             entity.Property(e => e.DeleteFlag).HasDefaultValue(0);
             entity.Property(e => e.Status).HasDefaultValue(0);
+            entity.Property(e => e.StopReason).HasMaxLength(1000);
 
             entity.HasOne(d => d.Bill).WithMany(p => p.ContractDetails)
                 .HasForeignKey(d => d.BillId)

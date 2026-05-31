@@ -23,6 +23,8 @@ public partial class ContractDetail
 
     public int? DeleteFlag { get; set; }
 
+    public string? StopReason { get; set; }
+
     public virtual Bill? Bill { get; set; }
 
     public virtual Contract? Contract { get; set; }
