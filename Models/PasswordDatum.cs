@@ -63,6 +63,8 @@ public partial class PasswordDatum
 
     public bool ContractArchive { get; set; } = false;
 
+    public bool ContractSuspend { get; set; } = false;
+
     public bool PayView { get; set; } = false;
 
     public bool PaySave { get; set; } = false;

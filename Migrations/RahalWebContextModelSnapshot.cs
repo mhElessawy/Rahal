@@ -1380,6 +1380,9 @@ namespace RahalWeb.Migrations
                 b.Property<bool>("ContractArchive")
                     .HasColumnType("bit");
 
+                b.Property<bool>("ContractSuspend")
+                    .HasColumnType("bit");
+
                 b.Property<bool>("ContractChangeCar")
                     .HasColumnType("bit");
 
