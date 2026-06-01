@@ -63,6 +63,8 @@ public partial class PasswordDatum
 
     public bool ContractArchive { get; set; } = false;
 
+    public bool ContractSuspend { get; set; } = false;
+
     public bool PayView { get; set; } = false;
 
     public bool PaySave { get; set; } = false;
@@ -81,17 +83,17 @@ public partial class PasswordDatum
     public bool VacationView { get; set; } = false;
 
     public bool DebitLatePay { get; set; } = false;
-   
+
     public bool ContractChangeRent { get; set; } = false;
     public bool RecievedMoney { get; set; } = false;
-   
+
     public bool PurshaseView { get; set; } = false;
     public bool PurshaseSave { get; set; } = false;
 
     public bool PurshaseDelete { get; set; } = false;
     public bool PurshaseShowAll { get; set; } = false;
 
-    public  bool PurshaseUpdate {get;set;} = false;
+    public bool PurshaseUpdate { get; set; } = false;
 
     public bool EmpTakeMoney { get; set; } = false;
 
@@ -103,16 +105,14 @@ public partial class PasswordDatum
 
     public bool ViolationDelete { get; set; } = false;
 
-    public bool CompDebitView { get; set; } = false;    
-    public bool CompDebitSave { get; set; } = false;    
+    public bool CompDebitView { get; set; } = false;
+    public bool CompDebitSave { get; set; } = false;
     public bool CompDebitDelete { get; set; } = false;
     public bool CompDebitUpdate { get; set; } = false;
 
     public bool DeffEmpTreatment { get; set; } = false;
 
     public bool EmpTreatment { get; set; } = false;
-
-
 
     public string? CompanyData { get; set; }
     public virtual ICollection<Bill> Bills { get; set; } = new List<Bill>();

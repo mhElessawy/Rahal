@@ -1,9 +1,12 @@
-﻿@model   IEnumerable<RahalWeb.Models.ContractDetail>
-
+﻿@using RahalWeb.Models.MyModel
+@model   IEnumerable<RahalWeb.Models.ContractDetail>
+@inject IHttpContextAccessor HttpContextAccessor
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var user = HttpContextAccessor.HttpContext!.Session.GetObjectFromJson<PasswordDatum>("CurrentUser");
+
 }
 
 <style>
@@ -419,7 +422,10 @@
 
                     <a asp-action="Details" asp-route-id="@item.Id" class="btn-details"><i class="fas fa-info-circle"></i> تفاصيل</a>
                     <a asp-action="Pay" asp-route-id="@item.Id" class="btn btn-success"><i class="fas fa-money"></i> دفع</a>
-                    <a asp-action="Pause" asp-route-id="@item.Id" class="btn-pause"><i class="fas fa-pause-circle"></i> توقف</a>
+                     @if (user!.ContractSuspend == true)
+                     {
+                        <a asp-action="Pause" asp-route-id="@item.Id" class="btn-pause"><i class="fas fa-pause-circle"></i> توقف</a>
+                    }
 
                 </td>
             </tr>
