@@ -739,6 +739,155 @@ namespace RahalWeb.Controllers
 
         }
         [HttpGet]
+        public async Task<IActionResult> IndexStopped(int? selectMonth, int? selectYear, int? companyId, int? EmpCodeString, string? EmpNameSearch)
+        {
+            TempData.Keep();
+            TempData["UserCompanyData"] = HttpContext.Session.GetString("UserCompanyData");
+            var userCompanyData = TempData["UserCompanyData"]?.ToString();
+            var companyIds = userCompanyData!.Split(',').Select(int.Parse).ToList();
+            var companyIdsString = string.Join(",", companyIds);
+
+            if (companyIds.Any())
+            {
+                ViewBag.Companies = new SelectList(
+                    await _context.CompanyInfos
+                        .FromSqlRaw($"SELECT * FROM CompanyInfo WHERE DeleteFlag = 0 AND Id IN ({companyIdsString})")
+                        .OrderBy(c => c.CompNameAr)
+                        .ToListAsync(),
+                    "Id", "CompNameAr", companyId);
+            }
+            else
+            {
+                ViewBag.Companies = new SelectList(Enumerable.Empty<SelectListItem>());
+            }
+
+            int currentYear = DateTime.Now.Year;
+            ViewBag.SelectMonth = new SelectList(
+                Enumerable.Range(1, 12).Select(x => new { Value = x, Text = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x) }),
+                "Value", "Text", selectMonth);
+
+            ViewBag.SelectYear = new SelectList(
+                Enumerable.Range(currentYear - 3, 5).OrderByDescending(y => y)
+                    .Select(y => new { Value = y, Text = y.ToString() }),
+                "Value", "Text", selectYear);
+
+            ViewData["EmpCodeFilter"] = EmpCodeString;
+            ViewData["EmpNameFilter"] = EmpNameSearch;
+            ViewData["CompanyFilter"] = companyId;
+            ViewData["SelectMonth"] = selectMonth;
+            ViewData["SelectYear"] = selectYear;
+
+            var query = _context.ContractDetails
+                .FromSqlRaw($"SELECT * FROM ContractDetails WHERE ContractId IN (SELECT Id FROM Contract WHERE DeleteFlag = 0 AND EmployeeId IN (SELECT Id FROM EmployeeInfo WHERE CompanyId IN ({companyIdsString})))")
+                .Include(c => c.Contract)
+                    .ThenInclude(c => c!.Employee)
+                .Include(c => c.Contract)
+                    .ThenInclude(c => c!.Car)
+                .Where(a => a.Status == 4 && a.DeleteFlag == 0);
+
+            if (selectMonth.HasValue)
+                query = query.Where(a => a.DailyCreditDate!.Value.Month == selectMonth);
+
+            if (selectYear.HasValue)
+                query = query.Where(a => a.DailyCreditDate!.Value.Year == selectYear);
+
+            if (companyId.HasValue)
+                query = query.Where(a => a.Contract!.Employee!.CompanyId == companyId);
+
+            if (EmpCodeString.HasValue)
+                query = query.Where(a => a.Contract!.Employee!.EmpCode == EmpCodeString);
+
+            if (!string.IsNullOrEmpty(EmpNameSearch))
+                query = query.Where(a => a.Contract!.Employee!.FullNameAr!.Contains(EmpNameSearch));
+
+            var result = await query.OrderByDescending(a => a.DailyCreditDate).ToListAsync();
+            return View(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Pause(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var contractDetail = await _context.ContractDetails
+                .Include(c => c.Contract)
+                .Include(c => c.Contract!.Employee)
+                .Include(c => c.Contract!.Car)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (contractDetail == null) return NotFound();
+
+            return View(contractDetail);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Pause(int id, string stopReason)
+        {
+            var contractDetail = await _context.ContractDetails
+                .Include(c => c.Contract)
+                .Include(c => c.Contract!.Employee)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (contractDetail == null) return NotFound();
+
+            int contractId = (int)contractDetail.ContractId!;
+            decimal? stoppedCarCredit = contractDetail.CarCredit;
+            DateOnly? stopDate = contractDetail.DailyCreditDate;
+            int? empId = contractDetail.Contract!.EmployeeId;
+
+            // 1. تحويل Status الشهر الحالي إلى 4
+            contractDetail.Status = 4;
+            contractDetail.StopReason = stopReason;
+            _context.Update(contractDetail);
+
+            // 2. نقل القسط إلى أول شهر مفهوش قسط (CarCredit = 0 أو null)
+            if (stoppedCarCredit > 0)
+            {
+                var firstMonthWithoutInstallment = await _context.ContractDetails
+                    .Where(cd => cd.ContractId == contractId
+                              && cd.Id != id
+                              && cd.Status != 3
+                              && cd.Status != 4
+                              && cd.DeleteFlag == 0
+                              && (cd.CarCredit == 0 || cd.CarCredit == null)
+                              && cd.DailyCreditDate > stopDate)
+                    .OrderBy(cd => cd.DailyCreditDate)
+                    .FirstOrDefaultAsync();
+
+                if (firstMonthWithoutInstallment != null)
+                {
+                    firstMonthWithoutInstallment.CarCredit = stoppedCarCredit;
+                    _context.Update(firstMonthWithoutInstallment);
+                }
+            }
+
+            // 3. تحديث الإجازات بعد 12 شهر من تاريخ التوقف
+            if (empId.HasValue && stopDate.HasValue)
+            {
+                DateOnly vacationThreshold = stopDate.Value.AddMonths(12);
+                var futureVacations = await _context.Vacations
+                    .Where(v => v.EmpId == empId
+                             && v.DeleteFlag == 0
+                             && v.FromDate > vacationThreshold)
+                    .ToListAsync();
+
+                foreach (var vacation in futureVacations)
+                {
+                    if (vacation.FromDate.HasValue)
+                        vacation.FromDate = vacation.FromDate.Value.AddMonths(1);
+                    if (vacation.ToDate.HasValue)
+                        vacation.ToDate = vacation.ToDate.Value.AddMonths(1);
+                    _context.Update(vacation);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("IndexMonthlyDetails", new { id = contractId });
+        }
+
+        [HttpGet]
         public IActionResult IndexMonthlyDetailsPayed(int? id)
         {
             TempData.Keep();

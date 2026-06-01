@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
+﻿﻿@using Microsoft.AspNetCore.Http
 @using RahalWeb.Models.MyModel
 @inject IHttpContextAccessor HttpContextAccessor
 
@@ -90,7 +90,7 @@
                                         </ul>
                                     </li>
                                 }
-  
+
                                 @if (user.PayView == true)
                                 {
                                     <li><a asp-action="Index" asp-controller="ContractDetails"><strong> الإيجار الشهري و المتأخر</strong></a></li>
@@ -115,14 +115,14 @@
                                 {
                                     <li><a asp-action="Index" asp-controller="CompanyDebits"><strong>ديون الشركات </strong></a></li>
                                 }
-                                @if (user.DeffEmpTreatment  == true)
+                                @if (user.DeffEmpTreatment == true)
                                 {
                                     <li><a asp-action="Index" asp-controller="DeffEmpTreatments"><strong>تعريف المعاملات</strong></a></li>
                                 }
-                                 @if (user.DeffEmpTreatment  == true)
-                                 {
-                                   <li><a asp-action="Index" asp-controller="EmpTreatments"><strong>معاملات الموظفين</strong></a></li> 
-                                 }
+                                @if (user.DeffEmpTreatment == true)
+                                {
+                                    <li><a asp-action="Index" asp-controller="EmpTreatments"><strong>معاملات الموظفين</strong></a></li>
+                                }
                                 <li class="dropdown">
                                     <a href="#"><strong><span>الرواتب</span></strong> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
                                     <ul>
@@ -197,6 +197,7 @@
                                 <li><a asp-action="IndexReport" asp-controller="DebitInfoes"><strong>إضافة ديون</strong></a></li>
                                 <li><a asp-action="IndexReport" asp-controller="Purshases"><strong>المصاريف</strong></a></li>
                                 <li><a asp-action="IndexReportAudit" asp-controller="ContractDetails"><strong>متابعة التحصيل</strong></a></li>
+                                <li><a asp-action="IndexStopped" asp-controller="ContractDetails"><strong>الموظفون المتوقفون</strong></a></li>
                                 <li><a asp-action="IndexReportTakeMoney" asp-controller="EmployeeTakeMoneys"><strong>العهد</strong></a></li>
                                 <li><a asp-action="IndexPrint" asp-controller="CompanyDebits"><strong>ديون الشركات مجمع</strong></a></li>
                                 <li><a asp-action="Index" asp-controller="CompanyDebitDetails"><strong>ديون الشركات تفصيلي</strong></a></li>

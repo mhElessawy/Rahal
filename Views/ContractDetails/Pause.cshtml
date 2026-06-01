@@ -1,0 +1,241 @@
+﻿@model RahalWeb.Models.ContractDetail
+
+@{
+    ViewData["Title"] = "توقف";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .pause-container {
+        max-width: 700px;
+        margin: 30px auto;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.12);
+        overflow: hidden;
+    }
+
+    .pause-header {
+        background-color: #e74c3c;
+        color: white;
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .pause-header h4 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .pause-header i {
+            font-size: 1.5rem;
+        }
+
+    .pause-body {
+        padding: 24px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+        .info-item label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-item span {
+            font-size: 1rem;
+            color: #2c3e50;
+            font-weight: 500;
+            padding: 6px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+    .warning-box {
+        background-color: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin-bottom: 20px;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+        .warning-box i {
+            color: #e67e22;
+            font-size: 1.2rem;
+            margin-top: 2px;
+        }
+
+        .warning-box ul {
+            margin: 0;
+            padding-right: 18px;
+            color: #856404;
+        }
+
+            .warning-box ul li {
+                margin-bottom: 4px;
+            }
+
+    .reason-section {
+        margin-bottom: 24px;
+    }
+
+        .reason-section label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .reason-section textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 90px;
+            direction: rtl;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+            .reason-section textarea:focus {
+                outline: none;
+                border-color: #e74c3c;
+                box-shadow: 0 0 0 3px rgba(231,76,60,0.15);
+            }
+
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+    }
+
+    .btn-confirm-stop {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+        .btn-confirm-stop:hover {
+            background-color: #c0392b;
+        }
+
+    .btn-cancel {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: background-color 0.2s;
+    }
+
+        .btn-cancel:hover {
+            background-color: #5a6268;
+            color: white;
+        }
+
+    .divider {
+        border: none;
+        border-top: 1px solid #ecf0f1;
+        margin: 20px 0;
+    }
+</style>
+
+<div class="pause-container" dir="rtl">
+    <div class="pause-header">
+        <i class="fas fa-pause-circle"></i>
+        <h4>توقف الدفع</h4>
+    </div>
+    <div class="pause-body">
+
+        <div class="info-grid">
+            <div class="info-item">
+                <label>رقم العقد</label>
+                <span>@Html.DisplayFor(model => model.Contract!.ContractNo)</span>
+            </div>
+            <div class="info-item">
+                <label>اسم السائق</label>
+                <span>@Html.DisplayFor(model => model.Contract!.Employee!.FullNameAr)</span>
+            </div>
+            <div class="info-item">
+                <label>رقم السائق</label>
+                <span>@Html.DisplayFor(model => model.Contract!.Employee!.EmpCode)</span>
+            </div>
+            <div class="info-item">
+                <label>رقم السيارة</label>
+                <span>@Html.DisplayFor(model => model.Contract!.Car!.CarCode)</span>
+            </div>
+            <div class="info-item">
+                <label>شهر التوقف</label>
+                <span>@(Model.DailyCreditDate?.ToString("yyyy/MM") ?? "N/A")</span>
+            </div>
+            <div class="info-item">
+                <label>مبلغ القسط المتوقف</label>
+                <span>@Html.DisplayFor(model => model.CarCredit)</span>
+            </div>
+        </div>
+
+        <div class="warning-box">
+            <i class="fas fa-exclamation-triangle"></i>
+            <ul>
+                <li>سيتم تحويل حالة هذا الشهر إلى <strong>توقف</strong></li>
+                <li>سيتم نقل القسط إلى أول شهر لا يوجد فيه قسط</li>
+                <li>الإجازات المجدولة بعد 12 شهر من تاريخ التوقف سيتم تأجيلها شهراً واحداً</li>
+            </ul>
+        </div>
+
+        <hr class="divider" />
+
+        <form asp-action="Pause" asp-controller="ContractDetails" method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            @Html.AntiForgeryToken()
+
+            <div class="reason-section">
+                <label for="stopReason">سبب التوقف <span style="color:#e74c3c">*</span></label>
+                <textarea id="stopReason" name="stopReason" placeholder="اكتب سبب توقف الدفع في هذا الشهر..." required></textarea>
+            </div>
+
+            <div class="action-buttons">
+                <a asp-action="IndexMonthlyDetails" asp-route-id="@Model.ContractId" class="btn-cancel">
+                    <i class="fas fa-arrow-right" style="margin-left:6px"></i> إلغاء
+                </a>
+                <button type="submit" class="btn-confirm-stop">
+                    <i class="fas fa-pause" style="margin-left:6px"></i> تأكيد التوقف
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>

@@ -1,4 +1,4 @@
-﻿@model  IEnumerable<RahalWeb.Models.ContractDetail>
+﻿@model   IEnumerable<RahalWeb.Models.ContractDetail>
 
 
 @{
@@ -107,6 +107,24 @@
 
         .btn-info:hover {
             background-color: #138496;
+            transform: translateY(-1px);
+            color: white;
+        }
+
+    .btn-pause {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 0.7rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        background-color: #e74c3c;
+        color: white;
+    }
+
+        .btn-pause:hover {
+            background-color: #c0392b;
             transform: translateY(-1px);
             color: white;
         }
@@ -401,11 +419,10 @@
 
                     <a asp-action="Details" asp-route-id="@item.Id" class="btn-details"><i class="fas fa-info-circle"></i> تفاصيل</a>
                     <a asp-action="Pay" asp-route-id="@item.Id" class="btn btn-success"><i class="fas fa-money"></i> دفع</a>
+                    <a asp-action="Pause" asp-route-id="@item.Id" class="btn-pause"><i class="fas fa-pause-circle"></i> توقف</a>
 
                 </td>
             </tr>
         }
     </tbody>
 </table>
-
-

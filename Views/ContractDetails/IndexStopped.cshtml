@@ -1,0 +1,249 @@
+﻿@model IEnumerable<RahalWeb.Models.ContractDetail>
+
+@{
+    ViewData["Title"] = "الموظفون المتوقفون";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .bordered-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+        font-size: 0.8em;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+        .bordered-table thead tr {
+            background-color: #c0392b;
+            color: #ffffff;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .bordered-table th,
+        .bordered-table td {
+            padding: 7px 8px;
+            border-bottom: 1px solid #dddddd;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .bordered-table tbody tr:nth-of-type(even) {
+            background-color: #f8f9fa;
+        }
+
+        .bordered-table tbody tr:last-of-type {
+            border-bottom: 2px solid #c0392b;
+        }
+
+        .bordered-table tbody tr:hover {
+            background-color: #fdecea;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+        }
+
+    .stop-reason-cell {
+        max-width: 250px;
+        white-space: normal;
+        text-align: right !important;
+        color: #555;
+        font-size: 0.78rem;
+    }
+
+    .badge-stopped {
+        background-color: #e74c3c;
+        color: white;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 0.72rem;
+        font-weight: 600;
+    }
+
+    h1 {
+        color: #c0392b;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e74c3c;
+    }
+
+    .search-container {
+        margin: 20px 0;
+        padding: 15px 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border-right: 4px solid #e74c3c;
+    }
+
+    .form-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+    }
+
+        .form-group label {
+            margin-bottom: 0;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.85rem;
+        }
+
+    .form-control {
+        padding: 5px 10px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+    }
+
+    .btn-primary {
+        background-color: #e74c3c;
+        border-color: #e74c3c;
+        color: white;
+        padding: 6px 16px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+        .btn-primary:hover {
+            background-color: #c0392b;
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        padding: 6px 14px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            color: white;
+        }
+
+    .count-badge {
+        display: inline-block;
+        background-color: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        line-height: 28px;
+        text-align: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-right: 8px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+            color: #e74c3c;
+        }
+</style>
+
+<h1 dir="rtl">
+    <i class="fas fa-pause-circle" style="margin-left:8px"></i>
+    الموظفون المتوقفون
+    @if (Model.Any())
+    {
+        <span class="count-badge">@Model.Count()</span>
+    }
+</h1>
+
+<div class="search-container" dir="rtl">
+    <form asp-action="IndexStopped" method="get">
+        <div class="form-group">
+            <label>رقم الموظف:</label>
+            <input type="number" name="EmpCodeString" value="@ViewData["EmpCodeFilter"]" placeholder="رقم الموظف" style="width:100px" class="form-control" />
+
+            <label>اسم الموظف:</label>
+            <input type="text" name="EmpNameSearch" value="@ViewData["EmpNameFilter"]" placeholder="اسم الموظف" style="width:130px" class="form-control" />
+
+            <label>الشهر:</label>
+            <select name="selectMonth" asp-items="ViewBag.SelectMonth" class="form-control" style="width:110px">
+                <option value="">-- كل الشهور --</option>
+            </select>
+
+            <label>السنة:</label>
+            <select name="selectYear" asp-items="ViewBag.SelectYear" class="form-control" style="width:90px">
+                <option value="">-- كل السنوات --</option>
+            </select>
+
+            <label>الشركة:</label>
+            <select name="companyId" asp-items="ViewBag.Companies" class="form-control" style="width:130px">
+                <option value="">-- جميع الشركات --</option>
+            </select>
+
+            <button type="submit" class="btn-primary"><i class="fas fa-search" style="margin-left:5px"></i> بحث</button>
+            <a asp-action="IndexStopped" class="btn-secondary">إعادة تعيين</a>
+        </div>
+    </form>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state" dir="rtl">
+        <i class="fas fa-pause-circle"></i>
+        <h5>لا توجد بيانات توقف</h5>
+        <p>لم يتم العثور على موظفين متوقفين بالفلاتر المختارة</p>
+    </div>
+}
+else
+{
+    <div style="overflow-x:auto">
+        <table class="bordered-table" dir="rtl">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>رقم العقد</th>
+                    <th>رقم الموظف</th>
+                    <th>اسم الموظف</th>
+                    <th>رقم السيارة</th>
+                    <th>شهر التوقف</th>
+                    <th>سنة التوقف</th>
+                    <th>مبلغ الإيجار</th>
+                    <th>مبلغ القسط</th>
+                    <th>الحالة</th>
+                    <th>سبب التوقف</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int rowNum = 1;
+                }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@rowNum++</td>
+                        <td>@Html.DisplayFor(m => item.Contract!.ContractNo)</td>
+                        <td>@Html.DisplayFor(m => item.Contract!.Employee!.EmpCode)</td>
+                        <td>@Html.DisplayFor(m => item.Contract!.Employee!.FullNameAr)</td>
+                        <td>@Html.DisplayFor(m => item.Contract!.Car!.CarCode)</td>
+                        <td>@(item.DailyCreditDate.HasValue? item.DailyCreditDate.Value.Month.ToString() : "-")</td>
+                        <td>@(item.DailyCreditDate.HasValue? item.DailyCreditDate.Value.Year.ToString() : "-")</td>
+                        <td>@Html.DisplayFor(m => item.DailyCredit)</td>
+                        <td>@Html.DisplayFor(m => item.CarCredit)</td>
+                        <td><span class="badge-stopped"><i class="fas fa-pause" style="margin-left:4px"></i>متوقف</span></td>
+                        <td class="stop-reason-cell">@(string.IsNullOrEmpty(item.StopReason) ? "-" : item.StopReason)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
