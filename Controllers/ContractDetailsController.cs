@@ -844,73 +844,97 @@ namespace RahalWeb.Controllers
             contractDetail.StopReason = stopReason;
             _context.Update(contractDetail);
 
-            // 2. نقل CarCredit للشهر التالي مباشرة (بشهر واحد)
+            // 2. نقل CarCredit لآخر شهر في التقسيط + 1
             if (stoppedCarCredit > 0 && stopDate.HasValue)
             {
-                DateOnly nextMonthDate = stopDate.Value.AddMonths(1);
-                var nextMonthDetail = await _context.ContractDetails
-                    .FirstOrDefaultAsync(cd => cd.ContractId == contractId
-                                            && cd.DailyCreditDate == nextMonthDate
-                                            && cd.DeleteFlag == 0);
+                var lastCarCreditMonth = await _context.ContractDetails
+                    .Where(cd => cd.ContractId == contractId
+                              && cd.Id != id
+                              && cd.DeleteFlag == 0
+                              && cd.CarCredit > 0)
+                    .OrderByDescending(cd => cd.DailyCreditDate)
+                    .FirstOrDefaultAsync();
 
-                if (nextMonthDetail != null)
+                if (lastCarCreditMonth?.DailyCreditDate != null)
                 {
-                    nextMonthDetail.CarCredit = (nextMonthDetail.CarCredit ?? 0) + stoppedCarCredit;
-                    _context.Update(nextMonthDetail);
+                    DateOnly targetDate = lastCarCreditMonth.DailyCreditDate.Value.AddMonths(1);
+                    var targetMonth = await _context.ContractDetails
+                        .FirstOrDefaultAsync(cd => cd.ContractId == contractId
+                                                && cd.DailyCreditDate == targetDate
+                                                && cd.DeleteFlag == 0);
+
+                    if (targetMonth != null)
+                    {
+                        targetMonth.CarCredit = (targetMonth.CarCredit ?? 0) + stoppedCarCredit;
+                        _context.Update(targetMonth);
+                    }
+                    else
+                    {
+                        // لو مفيش شهر بعد آخر تقسيط، يضاف للشهر الأخير نفسه
+                        lastCarCreditMonth.CarCredit = (lastCarCreditMonth.CarCredit ?? 0) + stoppedCarCredit;
+                        _context.Update(lastCarCreditMonth);
+                    }
                 }
             }
 
-            // 3. ترحيل الأجازات (status=2) بعد شهر التوقف في ContractDetails
+            // 3. إعادة حساب الأجازات بعد شهر التوقف
             if (stopDate.HasValue)
             {
+                // تحويل كل أشهر الإجازة (status=2) بعد التوقف لأشهر عادية
                 var vacationMonths = await _context.ContractDetails
                     .Where(cd => cd.ContractId == contractId
                               && cd.Status == 2
                               && cd.DeleteFlag == 0
                               && cd.DailyCreditDate > stopDate)
-                    .OrderBy(cd => cd.DailyCreditDate)
                     .ToListAsync();
 
                 foreach (var vacMonth in vacationMonths)
                 {
-                    DateOnly newVacDate = vacMonth.DailyCreditDate!.Value.AddMonths(1);
-
-                    // الشهر اللي كان إجازة يتحول لشهر عادي بإيجار عادي
                     vacMonth.Status = 0;
                     vacMonth.DailyCredit = regularRent;
                     _context.Update(vacMonth);
+                }
 
-                    // الشهر التالي يتحول لإجازة
-                    var nextRow = await _context.ContractDetails
+                // تعيين مواعيد الإجازات الجديدة: كل 13 شهر من شهر التوقف
+                // (12 شهر عادية + الشهر الثالث عشر إجازة)
+                for (int k = 1; k <= vacationMonths.Count; k++)
+                {
+                    DateOnly newVacDate = stopDate.Value.AddMonths(13 * k);
+                    var newVacRow = await _context.ContractDetails
                         .FirstOrDefaultAsync(cd => cd.ContractId == contractId
                                                 && cd.DailyCreditDate == newVacDate
                                                 && cd.DeleteFlag == 0);
 
-                    if (nextRow != null)
+                    if (newVacRow != null)
                     {
-                        nextRow.Status = 2;
-                        nextRow.DailyCredit = 0;
-                        _context.Update(nextRow);
+                        newVacRow.Status = 2;
+                        newVacRow.DailyCredit = 0;
+                        _context.Update(newVacRow);
                     }
                 }
             }
 
-            // 4. تحديث جدول Vacations - ترحيل كل الأجازات بعد شهر التوقف بشهر واحد
+            // 4. تحديث جدول Vacations - إعادة حساب مواعيد الأجازات
             if (empId.HasValue && stopDate.HasValue)
             {
                 var futureVacations = await _context.Vacations
                     .Where(v => v.EmpId == empId
                              && v.DeleteFlag == 0
                              && v.FromDate > stopDate)
+                    .OrderBy(v => v.FromDate)
                     .ToListAsync();
 
-                foreach (var vacation in futureVacations)
+                for (int i = 0; i < futureVacations.Count; i++)
                 {
-                    if (vacation.FromDate.HasValue)
-                        vacation.FromDate = vacation.FromDate.Value.AddMonths(1);
-                    if (vacation.ToDate.HasValue)
-                        vacation.ToDate = vacation.ToDate.Value.AddMonths(1);
-                    _context.Update(vacation);
+                    var vac = futureVacations[i];
+                    DateOnly newFromDate = stopDate.Value.AddMonths(13 * (i + 1));
+                    int daysDiff = (vac.ToDate.HasValue && vac.FromDate.HasValue)
+                        ? vac.ToDate.Value.DayNumber - vac.FromDate.Value.DayNumber
+                        : 0;
+
+                    vac.FromDate = newFromDate;
+                    vac.ToDate = newFromDate.AddDays(daysDiff);
+                    _context.Update(vac);
                 }
             }
 
