@@ -835,50 +835,106 @@ namespace RahalWeb.Controllers
             decimal? stoppedCarCredit = contractDetail.CarCredit;
             DateOnly? stopDate = contractDetail.DailyCreditDate;
             int? empId = contractDetail.Contract!.EmployeeId;
+            decimal? regularRent = contractDetail.Contract!.DailyCredit;
 
-            // 1. تحويل Status الشهر الحالي إلى 4
+            // 1. الشهر المتوقف: status=4, DailyCredit=0, CarCredit=0
             contractDetail.Status = 4;
+            contractDetail.DailyCredit = 0;
+            contractDetail.CarCredit = 0;
             contractDetail.StopReason = stopReason;
             _context.Update(contractDetail);
 
-            // 2. نقل القسط إلى أول شهر مفهوش قسط (CarCredit = 0 أو null)
-            if (stoppedCarCredit > 0)
+            // 2. نقل CarCredit لآخر شهر في التقسيط + 1
+            if (stoppedCarCredit > 0 && stopDate.HasValue)
             {
-                var firstMonthWithoutInstallment = await _context.ContractDetails
+                var lastCarCreditMonth = await _context.ContractDetails
                     .Where(cd => cd.ContractId == contractId
                               && cd.Id != id
-                              && cd.Status != 3
-                              && cd.Status != 4
                               && cd.DeleteFlag == 0
-                              && (cd.CarCredit == 0 || cd.CarCredit == null)
-                              && cd.DailyCreditDate > stopDate)
-                    .OrderBy(cd => cd.DailyCreditDate)
+                              && cd.CarCredit > 0)
+                    .OrderByDescending(cd => cd.DailyCreditDate)
                     .FirstOrDefaultAsync();
 
-                if (firstMonthWithoutInstallment != null)
+                if (lastCarCreditMonth?.DailyCreditDate != null)
                 {
-                    firstMonthWithoutInstallment.CarCredit = stoppedCarCredit;
-                    _context.Update(firstMonthWithoutInstallment);
+                    DateOnly targetDate = lastCarCreditMonth.DailyCreditDate.Value.AddMonths(1);
+                    var targetMonth = await _context.ContractDetails
+                        .FirstOrDefaultAsync(cd => cd.ContractId == contractId
+                                                && cd.DailyCreditDate == targetDate
+                                                && cd.DeleteFlag == 0);
+
+                    if (targetMonth != null)
+                    {
+                        targetMonth.CarCredit = (targetMonth.CarCredit ?? 0) + stoppedCarCredit;
+                        _context.Update(targetMonth);
+                    }
+                    else
+                    {
+                        // لو مفيش شهر بعد آخر تقسيط، يضاف للشهر الأخير نفسه
+                        lastCarCreditMonth.CarCredit = (lastCarCreditMonth.CarCredit ?? 0) + stoppedCarCredit;
+                        _context.Update(lastCarCreditMonth);
+                    }
                 }
             }
 
-            // 3. تحديث الإجازات بعد 12 شهر من تاريخ التوقف
+            // 3. إعادة حساب الأجازات بعد شهر التوقف
+            if (stopDate.HasValue)
+            {
+                // تحويل كل أشهر الإجازة (status=2) بعد التوقف لأشهر عادية
+                var vacationMonths = await _context.ContractDetails
+                    .Where(cd => cd.ContractId == contractId
+                              && cd.Status == 2
+                              && cd.DeleteFlag == 0
+                              && cd.DailyCreditDate > stopDate)
+                    .ToListAsync();
+
+                foreach (var vacMonth in vacationMonths)
+                {
+                    vacMonth.Status = 0;
+                    vacMonth.DailyCredit = regularRent;
+                    _context.Update(vacMonth);
+                }
+
+                // تعيين مواعيد الإجازات الجديدة: كل 13 شهر من شهر التوقف
+                // (12 شهر عادية + الشهر الثالث عشر إجازة)
+                for (int k = 1; k <= vacationMonths.Count; k++)
+                {
+                    var calcVacDate = stopDate.Value.AddMonths(13 * k);
+                    DateOnly newVacDate = new DateOnly(calcVacDate.Year, calcVacDate.Month, 1);
+                    var newVacRow = await _context.ContractDetails
+                        .FirstOrDefaultAsync(cd => cd.ContractId == contractId
+                                                && cd.DailyCreditDate == newVacDate
+                                                && cd.DeleteFlag == 0);
+
+                    if (newVacRow != null)
+                    {
+                        newVacRow.Status = 2;
+                        newVacRow.DailyCredit = 0;
+                        _context.Update(newVacRow);
+                    }
+                }
+            }
+
+            // 4. تحديث جدول Vacations - إعادة حساب مواعيد الأجازات
             if (empId.HasValue && stopDate.HasValue)
             {
-                DateOnly vacationThreshold = stopDate.Value.AddMonths(12);
                 var futureVacations = await _context.Vacations
                     .Where(v => v.EmpId == empId
                              && v.DeleteFlag == 0
-                             && v.FromDate > vacationThreshold)
+                             && v.FromDate > stopDate)
+                    .OrderBy(v => v.FromDate)
                     .ToListAsync();
 
-                foreach (var vacation in futureVacations)
+                for (int i = 0; i < futureVacations.Count; i++)
                 {
-                    if (vacation.FromDate.HasValue)
-                        vacation.FromDate = vacation.FromDate.Value.AddMonths(1);
-                    if (vacation.ToDate.HasValue)
-                        vacation.ToDate = vacation.ToDate.Value.AddMonths(1);
-                    _context.Update(vacation);
+                    var vac = futureVacations[i];
+                    var calcDate = stopDate.Value.AddMonths(13 * (i + 1));
+                    DateOnly newFromDate = new DateOnly(calcDate.Year, calcDate.Month, 1);
+                    int noOfDays = vac.NoOfDays ?? 30;
+
+                    vac.FromDate = newFromDate;
+                    vac.ToDate = newFromDate.AddDays(noOfDays - 1);
+                    _context.Update(vac);
                 }
             }
 
