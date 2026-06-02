@@ -899,7 +899,8 @@ namespace RahalWeb.Controllers
                 // (12 شهر عادية + الشهر الثالث عشر إجازة)
                 for (int k = 1; k <= vacationMonths.Count; k++)
                 {
-                    DateOnly newVacDate = stopDate.Value.AddMonths(13 * k);
+                    var calcVacDate = stopDate.Value.AddMonths(13 * k);
+                    DateOnly newVacDate = new DateOnly(calcVacDate.Year, calcVacDate.Month, 1);
                     var newVacRow = await _context.ContractDetails
                         .FirstOrDefaultAsync(cd => cd.ContractId == contractId
                                                 && cd.DailyCreditDate == newVacDate
@@ -927,13 +928,12 @@ namespace RahalWeb.Controllers
                 for (int i = 0; i < futureVacations.Count; i++)
                 {
                     var vac = futureVacations[i];
-                    DateOnly newFromDate = stopDate.Value.AddMonths(13 * (i + 1));
-                    int daysDiff = (vac.ToDate.HasValue && vac.FromDate.HasValue)
-                        ? vac.ToDate.Value.DayNumber - vac.FromDate.Value.DayNumber
-                        : 0;
+                    var calcDate = stopDate.Value.AddMonths(13 * (i + 1));
+                    DateOnly newFromDate = new DateOnly(calcDate.Year, calcDate.Month, 1);
+                    int noOfDays = vac.NoOfDays ?? 30;
 
                     vac.FromDate = newFromDate;
-                    vac.ToDate = newFromDate.AddDays(daysDiff);
+                    vac.ToDate = newFromDate.AddDays(noOfDays - 1);
                     _context.Update(vac);
                 }
             }
