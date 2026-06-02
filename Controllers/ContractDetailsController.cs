@@ -835,41 +835,73 @@ namespace RahalWeb.Controllers
             decimal? stoppedCarCredit = contractDetail.CarCredit;
             DateOnly? stopDate = contractDetail.DailyCreditDate;
             int? empId = contractDetail.Contract!.EmployeeId;
+            decimal? regularRent = contractDetail.Contract!.DailyCredit;
 
-            // 1. تحويل Status الشهر الحالي إلى 4
+            // 1. الشهر المتوقف: status=4, DailyCredit=0, CarCredit=0
             contractDetail.Status = 4;
+            contractDetail.DailyCredit = 0;
+            contractDetail.CarCredit = 0;
             contractDetail.StopReason = stopReason;
             _context.Update(contractDetail);
 
-            // 2. نقل القسط إلى أول شهر مفهوش قسط (CarCredit = 0 أو null)
-            if (stoppedCarCredit > 0)
+            // 2. نقل CarCredit للشهر التالي مباشرة (بشهر واحد)
+            if (stoppedCarCredit > 0 && stopDate.HasValue)
             {
-                var firstMonthWithoutInstallment = await _context.ContractDetails
-                    .Where(cd => cd.ContractId == contractId
-                              && cd.Id != id
-                              && cd.Status != 3
-                              && cd.Status != 4
-                              && cd.DeleteFlag == 0
-                              && (cd.CarCredit == 0 || cd.CarCredit == null)
-                              && cd.DailyCreditDate > stopDate)
-                    .OrderBy(cd => cd.DailyCreditDate)
-                    .FirstOrDefaultAsync();
+                DateOnly nextMonthDate = stopDate.Value.AddMonths(1);
+                var nextMonthDetail = await _context.ContractDetails
+                    .FirstOrDefaultAsync(cd => cd.ContractId == contractId
+                                            && cd.DailyCreditDate == nextMonthDate
+                                            && cd.DeleteFlag == 0);
 
-                if (firstMonthWithoutInstallment != null)
+                if (nextMonthDetail != null)
                 {
-                    firstMonthWithoutInstallment.CarCredit = stoppedCarCredit;
-                    _context.Update(firstMonthWithoutInstallment);
+                    nextMonthDetail.CarCredit = (nextMonthDetail.CarCredit ?? 0) + stoppedCarCredit;
+                    _context.Update(nextMonthDetail);
                 }
             }
 
-            // 3. تحديث الإجازات بعد 12 شهر من تاريخ التوقف
+            // 3. ترحيل الأجازات (status=2) بعد شهر التوقف في ContractDetails
+            if (stopDate.HasValue)
+            {
+                var vacationMonths = await _context.ContractDetails
+                    .Where(cd => cd.ContractId == contractId
+                              && cd.Status == 2
+                              && cd.DeleteFlag == 0
+                              && cd.DailyCreditDate > stopDate)
+                    .OrderBy(cd => cd.DailyCreditDate)
+                    .ToListAsync();
+
+                foreach (var vacMonth in vacationMonths)
+                {
+                    DateOnly newVacDate = vacMonth.DailyCreditDate!.Value.AddMonths(1);
+
+                    // الشهر اللي كان إجازة يتحول لشهر عادي بإيجار عادي
+                    vacMonth.Status = 0;
+                    vacMonth.DailyCredit = regularRent;
+                    _context.Update(vacMonth);
+
+                    // الشهر التالي يتحول لإجازة
+                    var nextRow = await _context.ContractDetails
+                        .FirstOrDefaultAsync(cd => cd.ContractId == contractId
+                                                && cd.DailyCreditDate == newVacDate
+                                                && cd.DeleteFlag == 0);
+
+                    if (nextRow != null)
+                    {
+                        nextRow.Status = 2;
+                        nextRow.DailyCredit = 0;
+                        _context.Update(nextRow);
+                    }
+                }
+            }
+
+            // 4. تحديث جدول Vacations - ترحيل كل الأجازات بعد شهر التوقف بشهر واحد
             if (empId.HasValue && stopDate.HasValue)
             {
-                DateOnly vacationThreshold = stopDate.Value.AddMonths(12);
                 var futureVacations = await _context.Vacations
                     .Where(v => v.EmpId == empId
                              && v.DeleteFlag == 0
-                             && v.FromDate > vacationThreshold)
+                             && v.FromDate > stopDate)
                     .ToListAsync();
 
                 foreach (var vacation in futureVacations)
