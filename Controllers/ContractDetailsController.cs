@@ -562,7 +562,7 @@ namespace RahalWeb.Controllers
                 //     .ToListAsync();
 
                 var unpaidDetails = await _context.ContractDetails
-                        .Where(cd => cd.ContractId == contractId && cd.Status != 3 && cd.Status != 4)
+                        .Where(cd => cd.ContractId == contractId && cd.Status == 0)
                         .Where(cd =>
                             // إذا كان فيه Status = 3
                             _context.ContractDetails
