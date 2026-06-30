@@ -121,10 +121,10 @@ namespace RahalWeb.Controllers
             if (companyId.HasValue)
                 query = query.Where(e => e.Contract!.Employee!.CompanyId == companyId.Value);
 
-            // Get distinct employees by grouping
+            // Get distinct employees by grouping - prefer Status=0 (due) over Status=2 (leave)
             var distinctEmployees = query
                 .GroupBy(c => c.Contract!.Employee!.Id)
-                .Select(g => g.First());
+                .Select(g => g.OrderBy(c => c.Status == 2 ? 1 : 0).ThenBy(c => c.DailyCreditDate).First());
 
             return View(distinctEmployees);
         }
