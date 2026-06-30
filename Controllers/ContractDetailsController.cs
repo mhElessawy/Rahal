@@ -323,7 +323,7 @@ namespace RahalWeb.Controllers
                 {
 
 
-                    var existingDetail = await _context.ContractDetails
+                    var candidateDetails = await _context.ContractDetails
                         .Include(c => c.Contract)
                         .Where(c => c.Contract!.Id == contractDetails.ContractId && (c.Status == 0 || c.Status == 2))
                         .Where(c =>
@@ -349,8 +349,25 @@ namespace RahalWeb.Controllers
                                     .FirstOrDefault()
                         )
                         .OrderBy(c => c.Id)
-                        .Take(NoOfMonth)
                         .ToListAsync();
+
+                    // شهور الإجازة (Status = 2) متتحسبش من ضمن عدد الشهور المراد دفعها
+                    var existingDetail = new List<ContractDetail>();
+                    int paidMonthsCount = 0;
+                    foreach (var detail in candidateDetails)
+                    {
+                        if (paidMonthsCount >= NoOfMonth)
+                        {
+                            break;
+                        }
+
+                        existingDetail.Add(detail);
+
+                        if (detail.Status == 0)
+                        {
+                            paidMonthsCount++;
+                        }
+                    }
 
                     DateOnly toDate = default;
                     DateOnly fromdate = default;
