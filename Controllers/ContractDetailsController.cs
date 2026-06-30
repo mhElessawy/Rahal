@@ -121,10 +121,10 @@ namespace RahalWeb.Controllers
             if (companyId.HasValue)
                 query = query.Where(e => e.Contract!.Employee!.CompanyId == companyId.Value);
 
-            // Get distinct employees by grouping
+            // Get distinct employees by grouping - prefer Status=0 (due) over Status=2 (leave)
             var distinctEmployees = query
                 .GroupBy(c => c.Contract!.Employee!.Id)
-                .Select(g => g.First());
+                .Select(g => g.OrderBy(c => c.Status == 2 ? 1 : 0).ThenBy(c => c.DailyCreditDate).First());
 
             return View(distinctEmployees);
         }
@@ -323,7 +323,7 @@ namespace RahalWeb.Controllers
                 {
 
 
-                    var existingDetail = await _context.ContractDetails
+                    var candidateDetails = await _context.ContractDetails
                         .Include(c => c.Contract)
                         .Where(c => c.Contract!.Id == contractDetails.ContractId && (c.Status == 0 || c.Status == 2))
                         .Where(c =>
@@ -349,8 +349,25 @@ namespace RahalWeb.Controllers
                                     .FirstOrDefault()
                         )
                         .OrderBy(c => c.Id)
-                        .Take(NoOfMonth)
                         .ToListAsync();
+
+                    // شهور الإجازة (Status = 2) متتحسبش من ضمن عدد الشهور المراد دفعها
+                    var existingDetail = new List<ContractDetail>();
+                    int paidMonthsCount = 0;
+                    foreach (var detail in candidateDetails)
+                    {
+                        if (paidMonthsCount >= NoOfMonth)
+                        {
+                            break;
+                        }
+
+                        existingDetail.Add(detail);
+
+                        if (detail.Status == 0)
+                        {
+                            paidMonthsCount++;
+                        }
+                    }
 
                     DateOnly toDate = default;
                     DateOnly fromdate = default;
@@ -545,7 +562,7 @@ namespace RahalWeb.Controllers
                 //     .ToListAsync();
 
                 var unpaidDetails = await _context.ContractDetails
-                        .Where(cd => cd.ContractId == contractId && cd.Status != 3 && cd.Status != 4)
+                        .Where(cd => cd.ContractId == contractId && cd.Status == 0)
                         .Where(cd =>
                             // إذا كان فيه Status = 3
                             _context.ContractDetails
