@@ -524,7 +524,7 @@ namespace RahalWeb.Controllers
                         else
                         {
                             if (tempCreditDate <= contract.CreditEndDate)
-                            {        
+                            {
                                 var newContractDetails = new ContractDetail
                                 {
                                     ContractId = contractId,
@@ -554,15 +554,16 @@ namespace RahalWeb.Controllers
                                 _context.ContractDetails.Add(newContractDetails);
                                 await _context.SaveChangesAsync(); // Use SaveChanges() if not async
                             }
+                            DateOnly vacFromDate = new DateOnly(tempDate.Year, tempDate.Month, 1);
                             var newVacation = new Vacation
                             {
-                                EmpId = contract.EmployeeId,                          // Employee ID (nullable int)
-                                FromDate = tempDate, // Start date (nullable DateOnly)
-                                ToDate = tempDate.AddMonths(1).AddDays(-1),  // End date (nullable DateOnly)
-                                NoOfDays = (tempDate.AddMonths(1).DayNumber - tempDate.DayNumber),                       // Number of vacation days (nullable int)
-                                VacationPayed = 0,                  // 1 for paid, 0 for unpaid (nullable int)
-                                DeleteFlag = 0,                     // 0 for active, 1 for deleted (nullable int)
-                                VacationStatus = 0                  // Status (e.g., 1 for approved, 0 for pending) (nullable int)
+                                EmpId = contract.EmployeeId,
+                                FromDate = vacFromDate,   // First day of vacation month
+                                ToDate = tempDate,        // Last day of vacation month
+                                NoOfDays = tempDate.Day,  // Total days in vacation month
+                                VacationPayed = 0,
+                                DeleteFlag = 0,
+                                VacationStatus = 0
                             };
                             _context.Vacations.Add(newVacation);
                             await _context.SaveChangesAsync(); // Use SaveChanges() if not async 

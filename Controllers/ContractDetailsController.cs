@@ -900,10 +900,11 @@ namespace RahalWeb.Controllers
                 for (int k = 1; k <= vacationMonths.Count; k++)
                 {
                     var calcVacDate = stopDate.Value.AddMonths(13 * k);
-                    DateOnly newVacDate = new DateOnly(calcVacDate.Year, calcVacDate.Month, 1);
                     var newVacRow = await _context.ContractDetails
                         .FirstOrDefaultAsync(cd => cd.ContractId == contractId
-                                                && cd.DailyCreditDate == newVacDate
+                                                && cd.DailyCreditDate.HasValue
+                                                && cd.DailyCreditDate.Value.Year == calcVacDate.Year
+                                                && cd.DailyCreditDate.Value.Month == calcVacDate.Month
                                                 && cd.DeleteFlag == 0);
 
                     if (newVacRow != null)
@@ -930,10 +931,11 @@ namespace RahalWeb.Controllers
                     var vac = futureVacations[i];
                     var calcDate = stopDate.Value.AddMonths(13 * (i + 1));
                     DateOnly newFromDate = new DateOnly(calcDate.Year, calcDate.Month, 1);
-                    int noOfDays = vac.NoOfDays ?? 30;
+                    DateOnly newToDate = newFromDate.AddMonths(1).AddDays(-1);
 
                     vac.FromDate = newFromDate;
-                    vac.ToDate = newFromDate.AddDays(noOfDays - 1);
+                    vac.ToDate = newToDate;
+                    vac.NoOfDays = newToDate.Day;
                     _context.Update(vac);
                 }
             }
