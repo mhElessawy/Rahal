@@ -323,51 +323,7 @@ namespace RahalWeb.Controllers
                 {
 
 
-                    var candidateDetails = await _context.ContractDetails
-                        .Include(c => c.Contract)
-                        .Where(c => c.Contract!.Id == contractDetails.ContractId && (c.Status == 0 || c.Status == 2))
-                        .Where(c =>
-                            // إذا كان فيه Status = 3
-                            _context.ContractDetails
-                                .Where(last => last.ContractId == contractDetails.ContractId && last.Status == 3)
-                                .OrderByDescending(last => last.Id)
-                                .Select(last => last.DailyCreditDate)
-                                .FirstOrDefault() != null
-                            ?
-                                // نجيب السجلات اللي بعد آخر Status = 3
-                                c.DailyCreditDate > _context.ContractDetails
-                                    .Where(last => last.ContractId == contractDetails.ContractId && last.Status == 3)
-                                    .OrderByDescending(last => last.Id)
-                                    .Select(last => last.DailyCreditDate)
-                                    .FirstOrDefault()
-                            :
-                                // إذا مكنش فيه Status = 3، نجيب أول سجل فقط
-                                c.DailyCreditDate >= _context.ContractDetails
-                                    .Where(first => first.ContractId == contractDetails.ContractId && (first.Status == 0 || first.Status == 2))
-                                    .OrderBy(first => first.DailyCreditDate)
-                                    .Select(first => first.DailyCreditDate)
-                                    .FirstOrDefault()
-                        )
-                        .OrderBy(c => c.Id)
-                        .ToListAsync();
-
-                    // شهور الإجازة (Status = 2) متتحسبش من ضمن عدد الشهور المراد دفعها
-                    var existingDetail = new List<ContractDetail>();
-                    int paidMonthsCount = 0;
-                    foreach (var detail in candidateDetails)
-                    {
-                        if (paidMonthsCount >= NoOfMonth)
-                        {
-                            break;
-                        }
-
-                        existingDetail.Add(detail);
-
-                        if (detail.Status == 0)
-                        {
-                            paidMonthsCount++;
-                        }
-                    }
+                    var existingDetail = await GetPayableDetailsAsync(contractDetails.ContractId!.Value, NoOfMonth);
 
                     DateOnly toDate = default;
                     DateOnly fromdate = default;
@@ -544,50 +500,64 @@ namespace RahalWeb.Controllers
             return View(query);
         }
 
+        // شهور الإجازة (Status = 2) بتتضم لمدى الدفع لكن متتحسبش من ضمن عدد الشهور المراد دفعها
+        // (نفس منطق الاختيار مستخدم هنا وفي POST Pay عشان المعاينة والفاتورة الفعلية يطلعوا بنفس القيم)
+        private async Task<List<ContractDetail>> GetPayableDetailsAsync(int contractId, int noOfMonths)
+        {
+            var candidateDetails = await _context.ContractDetails
+                .Include(c => c.Contract)
+                .Where(c => c.ContractId == contractId && (c.Status == 0 || c.Status == 2))
+                .Where(c =>
+                    // إذا كان فيه Status = 3
+                    _context.ContractDetails
+                        .Where(last => last.ContractId == contractId && last.Status == 3)
+                        .OrderByDescending(last => last.Id)
+                        .Select(last => last.DailyCreditDate)
+                        .FirstOrDefault() != null
+                    ?
+                        // نجيب السجلات اللي بعد آخر Status = 3
+                        c.DailyCreditDate > _context.ContractDetails
+                            .Where(last => last.ContractId == contractId && last.Status == 3)
+                            .OrderByDescending(last => last.Id)
+                            .Select(last => last.DailyCreditDate)
+                            .FirstOrDefault()
+                    :
+                        // إذا مكنش فيه Status = 3، نجيب أول سجل فقط
+                        c.DailyCreditDate >= _context.ContractDetails
+                            .Where(first => first.ContractId == contractId && (first.Status == 0 || first.Status == 2))
+                            .OrderBy(first => first.DailyCreditDate)
+                            .Select(first => first.DailyCreditDate)
+                            .FirstOrDefault()
+                )
+                .OrderBy(c => c.Id)
+                .ToListAsync();
+
+            var selectedDetails = new List<ContractDetail>();
+            int paidMonthsCount = 0;
+            foreach (var detail in candidateDetails)
+            {
+                if (paidMonthsCount >= noOfMonths)
+                {
+                    break;
+                }
+
+                selectedDetails.Add(detail);
+
+                if (detail.Status == 0)
+                {
+                    paidMonthsCount++;
+                }
+            }
+
+            return selectedDetails;
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetPaymentDetails(int contractId, int months)
         {
             try
             {
-                //var unpaidDetails = await _context.ContractDetails
-                //     .Where(cd => cd.ContractId == contractId && cd.Status != 3 && cd.Status != 4)
-                //     .Where(cd => cd.DailyCreditDate >
-                //         _context.ContractDetails
-                //             .Where(last => last.ContractId == cd.ContractId && last.Status == 3)
-                //             .OrderByDescending(last => last.Id)
-                //             .Select(last => last.DailyCreditDate)
-                //             .FirstOrDefault())
-                //     .OrderBy(cd => cd.DailyCreditDate)
-                //     .Take(months)
-                //     .ToListAsync();
-
-                var unpaidDetails = await _context.ContractDetails
-                        .Where(cd => cd.ContractId == contractId && cd.Status == 0)
-                        .Where(cd =>
-                            // إذا كان فيه Status = 3
-                            _context.ContractDetails
-                                .Where(last => last.ContractId == cd.ContractId && last.Status == 3)
-                                .OrderByDescending(last => last.Id)
-                                .Select(last => last.DailyCreditDate)
-                                .FirstOrDefault() != null
-                            ?
-                                // نجيب السجلات اللي بعد آخر Status = 3
-                                cd.DailyCreditDate > _context.ContractDetails
-                                    .Where(last => last.ContractId == cd.ContractId && last.Status == 3)
-                                    .OrderByDescending(last => last.Id)
-                                    .Select(last => last.DailyCreditDate)
-                                    .FirstOrDefault()
-                            :
-                                // إذا مكنش فيه Status = 3، نجيب أول سجل فقط
-                                cd.DailyCreditDate >= _context.ContractDetails
-                                    .Where(first => first.ContractId == cd.ContractId)
-                                    .OrderBy(first => first.DailyCreditDate)
-                                    .Select(first => first.DailyCreditDate)
-                                    .FirstOrDefault()
-                        )
-                        .OrderBy(cd => cd.DailyCreditDate)
-                        .Take(months)
-                        .ToListAsync();
+                var unpaidDetails = await GetPayableDetailsAsync(contractId, months);
 
                 if (!unpaidDetails.Any())
                 {
