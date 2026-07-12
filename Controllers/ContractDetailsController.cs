@@ -500,11 +500,11 @@ namespace RahalWeb.Controllers
             return View(query);
         }
 
-        // شهور الإجازة (Status = 2) بتتضم لمدى الدفع لكن متتحسبش من ضمن عدد الشهور المراد دفعها
+        // شهر الإجازة (Status = 2) بيتحسب كواحد من عدد الشهور المراد دفعها زي أي شهر عادي (مبيمدش الفترة)
         // (نفس منطق الاختيار مستخدم هنا وفي POST Pay عشان المعاينة والفاتورة الفعلية يطلعوا بنفس القيم)
         private async Task<List<ContractDetail>> GetPayableDetailsAsync(int contractId, int noOfMonths)
         {
-            var candidateDetails = await _context.ContractDetails
+            return await _context.ContractDetails
                 .Include(c => c.Contract)
                 .Where(c => c.ContractId == contractId && (c.Status == 0 || c.Status == 2))
                 .Where(c =>
@@ -530,26 +530,8 @@ namespace RahalWeb.Controllers
                             .FirstOrDefault()
                 )
                 .OrderBy(c => c.Id)
+                .Take(noOfMonths)
                 .ToListAsync();
-
-            var selectedDetails = new List<ContractDetail>();
-            int paidMonthsCount = 0;
-            foreach (var detail in candidateDetails)
-            {
-                if (paidMonthsCount >= noOfMonths)
-                {
-                    break;
-                }
-
-                selectedDetails.Add(detail);
-
-                if (detail.Status == 0)
-                {
-                    paidMonthsCount++;
-                }
-            }
-
-            return selectedDetails;
         }
 
         [HttpGet]
