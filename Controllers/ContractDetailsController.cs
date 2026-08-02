@@ -380,11 +380,10 @@ namespace RahalWeb.Controllers
 
                     for (int i = 0; i < existingDetail.Count; i++)
                     {
-                        if (existingDetail[i].Status == 0)
-                        {
-                            existingDetail[i].Status = 3;
-                        }
-
+                        // existingDetail عناصره كلها Status = 0 أو 2 (زي فلتر GetPayableDetailsAsync)
+                        // لازم الاتنين يتحولوا لـ 3 لما يتدفعوا، وإلا شهر الإجازة (Status=2) هيفضل يظهر
+                        // كأنه لسه مش مدفوع ويترجع تاني في GetPayableDetailsAsync
+                        existingDetail[i].Status = 3;
 
                         existingDetail[i].BillId = billId;
                         existingDetail[i].PayedDate = DateOnly.FromDateTime(DateTime.Now);
