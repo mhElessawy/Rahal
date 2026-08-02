@@ -288,6 +288,14 @@ namespace RahalWeb.Controllers
             var debitPayInfo = await _context.DebitPayInfos.FindAsync(id);
             if (debitPayInfo != null)
             {
+                var debitInfo = await _context.DebitInfos.FindAsync(debitPayInfo.DebitInfoId);
+                if (debitInfo != null)
+                {
+                    var debitPayQty = debitPayInfo.DebitPayQty ?? 0;
+                    debitInfo.DebitPayed = (debitInfo.DebitPayed ?? 0) - debitPayQty;
+                    debitInfo.DebitRemaining = (debitInfo.DebitRemaining ?? 0) + debitPayQty;
+                }
+
                 _context.DebitPayInfos.Remove(debitPayInfo);
             }
 
