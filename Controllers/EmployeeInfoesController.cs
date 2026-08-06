@@ -603,7 +603,7 @@ namespace RahalWeb.Controllers
                 .Include(c => c.UserRecieved)
                 .Include(v => v.ViolationInfo)
                 .ThenInclude(vi => vi!.Employee)
-                .Where(m => m.DeleteFlag == 0 && m.DebitInfo!.Emp!.DeleteFlag == 0 )
+                .Where(m => m.DeleteFlag == 0 && m.DebitInfo!.Emp!.DeleteFlag == 0 && m.DebitInfo!.DeleteFlag == 0)
                 .OrderBy(e => e.DebitPayNo);
 
             if (UserId.HasValue)
@@ -740,7 +740,7 @@ namespace RahalWeb.Controllers
                 .Include(c => c.UserRecieved)
                 .Include(v => v.ViolationInfo)
                 .ThenInclude(vi => vi!.Employee)
-                .Where(m => m.DeleteFlag == 0)
+                .Where(m => m.DeleteFlag == 0 && m.DebitInfo!.Emp!.DeleteFlag == 0 && m.DebitInfo!.DeleteFlag == 0)
                 .OrderBy(e => e.DebitPayNo);
 
 

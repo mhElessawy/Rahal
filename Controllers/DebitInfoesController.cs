@@ -490,7 +490,8 @@ namespace RahalWeb.Controllers
             var debitInfo = await _context.DebitInfos.FindAsync(id);
             if (debitInfo != null)
             {
-                _context.DebitInfos.Remove(debitInfo);
+                debitInfo.DeleteFlag = 1;
+                _context.Update(debitInfo);
             }
 
             await _context.SaveChangesAsync();
