@@ -69,10 +69,10 @@ namespace RahalWeb.Controllers
                  .FromSqlRaw($"SELECT * FROM DebitPayInfo where DebitInfoId IN(Select Id from DebitInfo where EmpId IN (Select ID From EmployeeInfo where CompanyId IN({companyIdsString})))")
                 .Include(c => c.DebitInfo)
                 .Include(c => c.DebitInfo!.Emp)
-                .Include(c=>c.DebitInfo!.DebitType)
+                .Include(c => c.DebitInfo!.DebitType)
                 .Include(c => c.User)
                 .Include(c => c.UserRecieved)
-                .Where(m => m.DeleteFlag == 0 && m.DebitInfo!.Emp!.DeleteFlag==0)
+                .Where(m => m.DeleteFlag == 0 && m.DebitInfo!.Emp!.DeleteFlag == 0)
                 .OrderBy(e => e.DebitPayNo);
 
 
@@ -159,7 +159,7 @@ namespace RahalWeb.Controllers
                 .Include(d => d.DebitInfo)
                 .Include(d => d.User)
                 .Include(d => d.UserRecieved)
-                .Include(d => d.ViolationInfo )
+                .Include(d => d.ViolationInfo)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (debitPayInfo == null)
             {
@@ -288,6 +288,14 @@ namespace RahalWeb.Controllers
             var debitPayInfo = await _context.DebitPayInfos.FindAsync(id);
             if (debitPayInfo != null)
             {
+                var debitInfo = await _context.DebitInfos.FindAsync(debitPayInfo.DebitInfoId);
+                if (debitInfo != null)
+                {
+                    var debitPayQty = debitPayInfo.DebitPayQty ?? 0;
+                    debitInfo.DebitPayed = (debitInfo.DebitPayed ?? 0) - debitPayQty;
+                    debitInfo.DebitRemaining = (debitInfo.DebitRemaining ?? 0) + debitPayQty;
+                }
+
                 _context.DebitPayInfos.Remove(debitPayInfo);
             }
 
@@ -353,7 +361,7 @@ namespace RahalWeb.Controllers
                 .Include(c => c.DebitInfo!.DebitType)
                 .Include(c => c.User)
                 .Include(c => c.UserRecieved)
-                .Where(m => m.DeleteFlag == 0 && m.DebitInfo!.Emp!.DeleteFlag==0)
+                .Where(m => m.DeleteFlag == 0 && m.DebitInfo!.Emp!.DeleteFlag == 0)
                 .OrderBy(e => e.DebitPayNo);
 
 
