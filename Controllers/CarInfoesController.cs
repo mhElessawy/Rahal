@@ -122,6 +122,12 @@ namespace RahalWeb.Controllers
                 return NotFound();
             }
 
+            var payedCredit = (decimal)(await _context.ContractDetails
+                .Where(cd => cd.Contract!.CarId == carInfo.Id && cd.Status == 3)
+                .SumAsync(cd => (decimal?)cd.CarCredit) ?? 0);
+            ViewBag.PayedCredit = payedCredit;
+            ViewBag.RemainingCredit = (carInfo.NoOfCredit * carInfo.CarCredit) - payedCredit;
+
             return View(carInfo);
         }
         // GET: CarInfoes/Create

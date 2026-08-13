@@ -37,7 +37,11 @@
                         <label>رقم السيارة</label>
                         <span>@Html.DisplayFor(model => model.CarNo)</span>
                     </div>
-                   
+                    <div class="info-item">
+                        <label>رقم الشاسيه</label>
+                        <span>@Html.DisplayFor(model => model.CarShase)</span>
+                    </div>
+
                 </div>
             </div>
             <div class="col-md-6">
@@ -92,10 +96,37 @@
                     <label>خروج السيارة من الخدمة</label>
                     <span>@Html.DisplayFor(model => model.CarEndDate)</span>
                 </div>
-            </<div>
+            </div>
         </div>
-    </div>
-    
+
+        <div class="info-section status-section" dir="rtl">
+            <div class="col-md-12">
+                <h5>بيانات الأقساط</h5>
+            </div>
+            <div class="col-md-3">
+                <div class="info-item">
+                    <label>عدد الأقساط</label>
+                    <span>@Html.DisplayFor(model => model.NoOfCredit)</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-item">
+                    <label>مبلغ القسط</label>
+                    <span>@Html.DisplayFor(model => model.CarCredit)</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-item">
+                    <label>المدفوع</label>
+                    <span>@ViewBag.PayedCredit</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-item">
+                    <label>المتبقي</label>
+                    <span>@ViewBag.RemainingCredit</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
