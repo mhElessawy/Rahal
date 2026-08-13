@@ -84,7 +84,7 @@ namespace RahalWeb.Controllers
                 // Pagination
                 int pageSize = 50; // Set your page size
                 return View(await PaginatedList<EmployeeInfo>.CreateAsync(query.AsNoTracking(), pageNumber ?? 1, pageSize));
-               
+
             }
             catch (Exception ex)
             {
@@ -93,7 +93,7 @@ namespace RahalWeb.Controllers
                 throw; // Re-throw after logging
             }
 
-           
+
         }
 
         // GET: EmployeeInfoes/Details/5
@@ -135,7 +135,7 @@ namespace RahalWeb.Controllers
             ViewData["CompanyId"] = new SelectList(_context.CompanyInfos
                  .FromSqlRaw($"SELECT * FROM CompanyInfo WHERE DeleteFlag = 0 AND Id IN ({companyIdsString})")
                  , "Id", "CompNameAr");
-            ViewData["JobTitleId"] = new SelectList(_context.Deffs.Where(a=>a.DeffType== 5), "Id", "DeffName");
+            ViewData["JobTitleId"] = new SelectList(_context.Deffs.Where(a => a.DeffType == 5), "Id", "DeffName");
             ViewData["NationalityId"] = new SelectList(_context.Deffs.Where(a => a.DeffType == 2), "Id", "DeffName");
             ViewData["RelationId"] = new SelectList(_context.Deffs.Where(a => a.DeffType == 7), "Id", "DeffName");
             ViewData["LocationId"] = new SelectList(_context.Deffs.Where(a => a.DeffType == 3), "Id", "DeffName");
@@ -148,7 +148,7 @@ namespace RahalWeb.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create( EmployeeInfo employeeInfo)
+        public async Task<IActionResult> Create(EmployeeInfo employeeInfo)
         {
             TempData["Username"] = HttpContext.Session.GetString("Username");
             ViewData["UserId"] = HttpContext.Session.GetInt32("UserId");
@@ -486,7 +486,7 @@ namespace RahalWeb.Controllers
             }
 
             // Assuming you're using Entity Framework with a DbContext
-            var attachment = _context.EmployeeInfoAtts.Include(c=>c.Emp).FirstOrDefault(a => a.Id == id);
+            var attachment = _context.EmployeeInfoAtts.Include(c => c.Emp).FirstOrDefault(a => a.Id == id);
 
             if (attachment == null)
             {
@@ -508,7 +508,7 @@ namespace RahalWeb.Controllers
             }
 
             await _context.SaveChangesAsync();
-         //   return RedirectToAction(nameof(IndexAtt));
+            //   return RedirectToAction(nameof(IndexAtt));
             return RedirectToAction(nameof(IndexAtt), new { id = employeeInfoAtt!.EmpId });
         }
         public IActionResult DownLoadAttatchment(int? id)
@@ -570,7 +570,7 @@ namespace RahalWeb.Controllers
                 .Include(e => e.Contract)
                 .Include(e => e.User)
                 .Include(e => e.Employee)
-                .Where(a => a.DeleteFlag == 0 && a.Contract!.Status==0 && a.Contract.DeleteFlag == 0 && a.Employee!.DeleteFlag==0);
+                .Where(a => a.DeleteFlag == 0 && a.Contract!.Status == 0 && a.Contract.DeleteFlag == 0 && a.Employee!.DeleteFlag == 0);
 
             if (UserId.HasValue)
             {
@@ -603,7 +603,7 @@ namespace RahalWeb.Controllers
                 .Include(c => c.UserRecieved)
                 .Include(v => v.ViolationInfo)
                 .ThenInclude(vi => vi!.Employee)
-                .Where(m => m.DeleteFlag == 0 && m.DebitInfo!.Emp!.DeleteFlag == 0 )
+                .Where(m => m.DeleteFlag == 0 && m.DebitInfo!.Emp!.DeleteFlag == 0 && m.DebitInfo!.DeleteFlag == 0)
                 .OrderBy(e => e.DebitPayNo);
 
             if (UserId.HasValue)
@@ -618,7 +618,7 @@ namespace RahalWeb.Controllers
                     queryDebit = (IOrderedQueryable<DebitPayInfo>)queryDebit.Where(e => e.DebitPayDate <= ToDate);
                 }
             }
-            else 
+            else
             {
                 queryDebit = (IOrderedQueryable<DebitPayInfo>)queryDebit.Where(a => false);
             }
@@ -656,7 +656,7 @@ namespace RahalWeb.Controllers
 
 
 
-            var totalCombined = totalBillPayed + totalDebitPayed + totalCompanyDebitPayed ;
+            var totalCombined = totalBillPayed + totalDebitPayed + totalCompanyDebitPayed;
 
             var viewModel = new ReceivedMoneyViewModel
             {
@@ -677,7 +677,7 @@ namespace RahalWeb.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RecievedMoney(int? UserId,DateOnly? FromDate,DateOnly? ToDate,int? UserRecievedId,string PasswordRecieved)
+        public async Task<IActionResult> RecievedMoney(int? UserId, DateOnly? FromDate, DateOnly? ToDate, int? UserRecievedId, string PasswordRecieved)
         {
             TempData.Keep();
             // Get companies for dropdown
@@ -740,7 +740,7 @@ namespace RahalWeb.Controllers
                 .Include(c => c.UserRecieved)
                 .Include(v => v.ViolationInfo)
                 .ThenInclude(vi => vi!.Employee)
-                .Where(m => m.DeleteFlag == 0)
+                .Where(m => m.DeleteFlag == 0 && m.DebitInfo!.Emp!.DeleteFlag == 0 && m.DebitInfo!.DeleteFlag == 0)
                 .OrderBy(e => e.DebitPayNo);
 
 
@@ -788,7 +788,7 @@ namespace RahalWeb.Controllers
                 }
 
 
-               // int maxRecievedNoBill = _context.Bills.Max(a => Convert.ToInt32(a.UserRecievedNo));
+                // int maxRecievedNoBill = _context.Bills.Max(a => Convert.ToInt32(a.UserRecievedNo));
                 int maxRecievedNoBill = _context.Bills.Max(a => (int)a.UserRecievedNo!);
                 maxRecievedNoBill = maxRecievedNoBill + 1;
 
@@ -803,7 +803,7 @@ namespace RahalWeb.Controllers
                 }
 
 
-             //    int maxRecievedNoDebit = _context.DebitPayInfos.Max(a => Convert.ToInt32(a.UserRecievedNo));
+                //    int maxRecievedNoDebit = _context.DebitPayInfos.Max(a => Convert.ToInt32(a.UserRecievedNo));
                 int maxRecievedNoDebit = _context.DebitPayInfos.Max(a => (int)a.UserRecievedNo!);
                 maxRecievedNoDebit = maxRecievedNoDebit + 1;
 
@@ -819,7 +819,7 @@ namespace RahalWeb.Controllers
 
                 //int maxRecievedNoCompDebit = _context.CompanyDebitDetails.Max(a => Convert.ToInt32(a.UserRecievedNo));
                 int maxRecievedNoCompDebit = _context.CompanyDebitDetails.Max(a => (int)a.UserRecievedNo!);
-               
+
 
                 maxRecievedNoCompDebit = maxRecievedNoCompDebit + 1;
 
@@ -837,7 +837,7 @@ namespace RahalWeb.Controllers
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "تم استلام المبلغ بنجاح";
-               //print Recieved data 
+                //print Recieved data 
                 return RedirectToAction("PrintRecievedMoney", new { UserRecievedId, FromDate = DateOnly.FromDateTime(DateTime.Now), ToDate = DateOnly.FromDateTime(DateTime.Now), maxRecievedNoBill, maxRecievedNoDebit, maxRecievedNoCompDebit });
 
             }
@@ -848,7 +848,7 @@ namespace RahalWeb.Controllers
 
             return RedirectToAction("RecievedMoney", new { UserId, FromDate, ToDate });
         }
-        public async Task<IActionResult> PrintRecievedMoney(int? UserRecievedId, DateOnly? FromDate,DateOnly? ToDate,int? maxRecievedNoBill , int? maxRecievedNoDebit,int? maxRecievedNoCompDebit)
+        public async Task<IActionResult> PrintRecievedMoney(int? UserRecievedId, DateOnly? FromDate, DateOnly? ToDate, int? maxRecievedNoBill, int? maxRecievedNoDebit, int? maxRecievedNoCompDebit)
         {
             TempData.Keep();
             // Get companies for dropdown
@@ -1017,7 +1017,7 @@ namespace RahalWeb.Controllers
             catch (Exception ex)
             {
                 // Log error
-               // _logger.LogError(ex, "Error exporting employees to Excel");
+                // _logger.LogError(ex, "Error exporting employees to Excel");
                 return RedirectToAction("Index");
             }
         }

@@ -72,7 +72,7 @@ namespace RahalWeb.Controllers
                 .Include(c => c.DebitInfo!.DebitType)
                 .Include(c => c.User)
                 .Include(c => c.UserRecieved)
-                .Where(m => m.DeleteFlag == 0 && m.DebitInfo!.Emp!.DeleteFlag == 0)
+                .Where(m => m.DeleteFlag == 0 && m.DebitInfo!.Emp!.DeleteFlag == 0 && m.DebitInfo!.DeleteFlag == 0)
                 .OrderBy(e => e.DebitPayNo);
 
 
@@ -361,7 +361,7 @@ namespace RahalWeb.Controllers
                 .Include(c => c.DebitInfo!.DebitType)
                 .Include(c => c.User)
                 .Include(c => c.UserRecieved)
-                .Where(m => m.DeleteFlag == 0 && m.DebitInfo!.Emp!.DeleteFlag == 0)
+                .Where(m => m.DeleteFlag == 0 && m.DebitInfo!.Emp!.DeleteFlag == 0 && m.DebitInfo!.DeleteFlag == 0)
                 .OrderBy(e => e.DebitPayNo);
 
 
