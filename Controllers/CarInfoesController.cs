@@ -87,7 +87,7 @@ namespace RahalWeb.Controllers
                     PayedCredit = (decimal)(_context.ContractDetails
                         .Where(cd => cd.Contract!.CarId == car.Id && cd.Status == 3)
                         .Sum(cd => (decimal?)cd.CarCredit) ?? 0),
-                    RemainingCredit =( car.NoOfCredit * car.CarCredit ) - ((decimal)(_context.ContractDetails
+                    RemainingCredit = (car.NoOfCredit * car.CarCredit) - ((decimal)(_context.ContractDetails
                         .Where(cd => cd.Contract!.CarId == car.Id && cd.Status == 3)
                         .Sum(cd => (decimal?)cd.CarCredit) ?? 0))
                 });
@@ -114,13 +114,19 @@ namespace RahalWeb.Controllers
                 .Include(c => c.CarShape)
                 .Include(c => c.CarType)
                 .Include(c => c.Company)
-                .Include (C=>C.CarKind)
+                .Include(C => C.CarKind)
                 .Include(c => c.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (carInfo == null)
             {
                 return NotFound();
             }
+
+            var payedCredit = (decimal)(await _context.ContractDetails
+                .Where(cd => cd.Contract!.CarId == carInfo.Id && cd.Status == 3)
+                .SumAsync(cd => (decimal?)cd.CarCredit) ?? 0);
+            ViewBag.PayedCredit = payedCredit;
+            ViewBag.RemainingCredit = (carInfo.NoOfCredit * carInfo.CarCredit) - payedCredit;
 
             return View(carInfo);
         }
@@ -130,7 +136,7 @@ namespace RahalWeb.Controllers
         {
 
             var branches = _context.Deffs
-                                  .Where(b => b.DeffParent  == Id)
+                                  .Where(b => b.DeffParent == Id)
                                   .Select(b => new { Id = b.Id, KindName = b.DeffName })
                                   .ToList();
             return Json(branches);
@@ -207,7 +213,7 @@ namespace RahalWeb.Controllers
             ViewData["CompanyId"] = new SelectList(_context.CompanyInfos
                 .FromSqlRaw($"SELECT * FROM CompanyInfo WHERE DeleteFlag = 0 AND Id IN ({companyIdsString})")
                 , "Id", "CompNameAr", carInfo.CompanyId);
-            ViewData["CarKindId"] = new SelectList(_context.Deffs.Where(a=>a.DeffParent== carInfo.CarTypeId), "Id", "DeffName", carInfo.CarKindId);
+            ViewData["CarKindId"] = new SelectList(_context.Deffs.Where(a => a.DeffParent == carInfo.CarTypeId), "Id", "DeffName", carInfo.CarKindId);
             ViewData["UserId"] = new SelectList(_context.PasswordData, "Id", "UserFullName", carInfo.UserId);
             return View(carInfo);
         }
@@ -273,7 +279,7 @@ namespace RahalWeb.Controllers
                 .Include(c => c.CarShape)
                 .Include(c => c.CarType)
                 .Include(c => c.Company)
-                .Include(c=>c.CarKind )
+                .Include(c => c.CarKind)
                 .Include(c => c.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (carInfo == null)
@@ -321,7 +327,7 @@ namespace RahalWeb.Controllers
             ViewBag.CarId = CarId;
             ViewBag.CarAtts = _context.CarInfoAtts.Where(a => a.Car!.Id == CarId).ToList();
             ViewBag.CarData = _context.CarInfos.FirstOrDefault(a => a.Id == CarId);
-            
+
             return View();
         }
 
