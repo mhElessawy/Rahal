@@ -1,0 +1,60 @@
+﻿@model List<Contract>
+
+@{
+    var employee = ViewBag.Employee as EmployeeInfo;
+    ViewData["Title"] = "عقود الموظف - " + employee?.FullNameAr;
+}
+
+<div class="container mt-4" dir="rtl">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">@ViewData["Title"] (@Model.Count)</h4>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>رقم العقد</th>
+                                <th>تاريخ العقد</th>
+                                <th>من تاريخ</th>
+                                <th>إلى تاريخ</th>
+                                <th>رقم السيارة</th>
+                                <th>الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var contract in Model)
+                            {
+                                <tr>
+                                    <td>@contract.ContractNo</td>
+                                    <td>@contract.ContractDate</td>
+                                    <td>@contract.StartDate</td>
+                                    <td>@contract.EndDate</td>
+                                    <td>@contract.Car?.CarNo</td>
+                                    <td>
+                                        <a asp-action="Generate" asp-route-id="@contract.Id" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-file-word"></i> طباعة
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning text-center">
+                    <i class="fas fa-exclamation-triangle"></i> لا توجد عقود لهذا الموظف
+                </div>
+            }
+
+            <div class="text-center mt-3">
+                <a asp-action="Index" class="btn btn-primary">الصفحة الرئيسية</a>
+            </div>
+        </div>
+    </div>
+</div>
