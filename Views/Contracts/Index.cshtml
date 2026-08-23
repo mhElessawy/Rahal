@@ -145,6 +145,7 @@
             <td class="action-links">
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn-edit"><i class="fas fa-edit"></i> تعديل</a>
                     <a asp-action="Details" asp-route-id="@item.Id" class="btn-details"><i class="fas fa-info-circle"></i> تفاصيل</a>
+                    <a asp-controller="ContractGeneration" asp-action="Generate" asp-route-id="@item.Id" class="btn-info"><i class="fas fa-file-word"></i> طباعة</a>
                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn-delete"><i class="fas fa-trash-alt"></i> حذف</a>
             </td>
         </tr>

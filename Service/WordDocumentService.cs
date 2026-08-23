@@ -22,6 +22,242 @@ public class WordDocumentService
         return GenerateDocument(employeeId, "ReNewPermSp.docx");
     }
 
+    public byte[] GenerateContractDocument(int contractId)
+    {
+        var contract = _context.Contracts
+            .Include(c => c.Employee).ThenInclude(e => e!.Nationality)
+            .Include(c => c.Employee).ThenInclude(e => e!.JobTitle)
+            .Include(c => c.Employee).ThenInclude(e => e!.Company).ThenInclude(comp => comp!.CompActivate)
+            .Include(c => c.Employee).ThenInclude(e => e!.Company).ThenInclude(comp => comp!.Location)
+            .FirstOrDefault(c => c.Id == contractId);
+
+        if (contract == null)
+            throw new Exception("Contract not found");
+
+        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "ContractNewEn.docx");
+
+        if (!File.Exists(templatePath))
+            throw new FileNotFoundException("Template file not found", templatePath);
+
+        string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.docx");
+        File.Copy(templatePath, tempFilePath, true);
+
+        try
+        {
+            using (WordprocessingDocument doc = WordprocessingDocument.Open(tempFilePath, true))
+            {
+                var body = doc.MainDocumentPart.Document.Body;
+                var bookmarkStarts = body.Descendants<BookmarkStart>().ToList();
+
+                foreach (var bookmarkStart in bookmarkStarts)
+                {
+                    string value = GetContractBookmarkValue(bookmarkStart.Name, contract);
+                    if (!string.IsNullOrEmpty(value))
+                        ReplaceBookmarkText(bookmarkStart, value);
+                }
+
+                doc.Save();
+            }
+
+            return File.ReadAllBytes(tempFilePath);
+        }
+        finally
+        {
+            if (File.Exists(tempFilePath))
+                File.Delete(tempFilePath);
+        }
+    }
+
+    private static readonly string[] ArabicDayNames =
+    {
+        "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"
+    };
+
+    private string GetContractBookmarkValue(string bookmarkName, Contract contract)
+    {
+        var employee = contract.Employee;
+        var company = employee?.Company;
+
+        switch (bookmarkName)
+        {
+            case "CompNameAr":
+            case "CompNameAr1":
+                return company?.CompNameAr ?? "";
+            case "CompNameEng":
+            case "CompNameEng1":
+                return company?.CompNameEn ?? "";
+
+            case "CompOwnerAr":
+            case "CompOwnerAr1":
+            case "CompOwnerEng":
+            case "CompOwnerEng1":
+                return company?.OwnerName1 ?? "";
+            case "CompOwnerCivilIDAr":
+            case "CompOwnerCivilIDEng":
+                return company?.OwnerCivilId1 ?? "";
+
+            case "CompFileNoAr":
+            case "CompFileNoEng":
+                return company?.CompFileNo ?? "";
+
+            case "CompActivateAr":
+                return company?.CompActivate?.DeffName ?? "";
+            case "CompActivateEng":
+                return company?.CompActivate?.DeffNameEng ?? "";
+
+            case "CompPlaceAr":
+            case "CompPlaceEng":
+                return company?.Address ?? "";
+
+            case "ContractDateAr":
+            case "ContractDateAr1":
+            case "ContractDateEng1":
+                return contract.ContractDate?.ToString("dd/MM/yyyy") ?? "";
+
+            case "ContractDayAr":
+                return contract.ContractDate.HasValue
+                    ? ArabicDayNames[(int)contract.ContractDate.Value.DayOfWeek]
+                    : "";
+
+            case "ContractStartDateAr":
+            case "ContractStartDateEng":
+                return contract.StartDate?.ToString("dd/MM/yyyy") ?? "";
+
+            case "ContractPeriodAr":
+                return contract.NoOfDays.HasValue ? $"{contract.NoOfDays} يوم" : "";
+            case "ContractPeriodEng":
+                return contract.NoOfDays?.ToString() ?? "";
+
+            case "EmpNameAr":
+            case "EmpNameAr1":
+                return employee?.FullNameAr ?? "";
+            case "EmpNameEng":
+            case "EmpNameEng1":
+                return employee?.FullNameEn ?? "";
+
+            case "EmpCivilIDAr":
+            case "EmpCivilIDEng":
+                return employee?.CivilId ?? "";
+
+            case "EmpJobTitleAr":
+            case "EmpJobTitleAr1":
+                return employee?.JobTitle?.DeffName ?? "";
+            case "EmpJobTitleEng":
+            case "EmpJobTitleEng1":
+                return employee?.JobTitle?.DeffNameEng ?? "";
+
+            case "EmpNationalityAr":
+                return employee?.Nationality?.DeffName ?? "";
+            case "EmpNationalityEng":
+                return employee?.Nationality?.DeffNameEng ?? "";
+
+            case "EmpResidenceAr":
+            case "EmpResidenceEng":
+                return employee?.ResNo ?? "";
+
+            case "EmpSalaryAr":
+            case "EmpSalaryEng":
+                return employee?.Salary?.ToString("N3") ?? "";
+            case "EmpSalarTafketAr":
+                return employee?.Salary.HasValue == true ? AmountToArabicWords(employee.Salary.Value) : "";
+
+            default:
+                return null;
+        }
+    }
+
+    private static readonly string[] ArabicOnes =
+    {
+        "", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة"
+    };
+    private static readonly string[] ArabicTeens =
+    {
+        "عشرة", "أحد عشر", "اثنا عشر", "ثلاثة عشر", "أربعة عشر", "خمسة عشر", "ستة عشر", "سبعة عشر", "ثمانية عشر", "تسعة عشر"
+    };
+    private static readonly string[] ArabicTens =
+    {
+        "", "", "عشرون", "ثلاثون", "أربعون", "خمسون", "ستون", "سبعون", "ثمانون", "تسعون"
+    };
+    private static readonly string[] ArabicHundreds =
+    {
+        "", "مائة", "مئتان", "ثلاثمائة", "أربعمائة", "خمسمائة", "ستمائة", "سبعمائة", "ثمانمائة", "تسعمائة"
+    };
+
+    private static string ConvertGroupToArabicWords(int number)
+    {
+        var parts = new List<string>();
+
+        int hundreds = number / 100;
+        int remainder = number % 100;
+
+        if (hundreds > 0)
+            parts.Add(ArabicHundreds[hundreds]);
+
+        if (remainder > 0)
+        {
+            if (remainder < 10)
+                parts.Add(ArabicOnes[remainder]);
+            else if (remainder < 20)
+                parts.Add(ArabicTeens[remainder - 10]);
+            else
+            {
+                int onesDigit = remainder % 10;
+                int tensDigit = remainder / 10;
+                parts.Add(onesDigit > 0
+                    ? $"{ArabicOnes[onesDigit]} و{ArabicTens[tensDigit]}"
+                    : ArabicTens[tensDigit]);
+            }
+        }
+
+        return string.Join(" و", parts);
+    }
+
+    private static string ConvertToArabicWords(long number)
+    {
+        if (number == 0)
+            return "صفر";
+
+        var millions = (int)(number / 1_000_000);
+        var thousands = (int)(number / 1000 % 1000);
+        var rest = (int)(number % 1000);
+
+        var parts = new List<string>();
+
+        if (millions > 0)
+        {
+            parts.Add(millions == 1 ? "مليون"
+                : millions == 2 ? "مليونان"
+                : millions <= 10 ? $"{ConvertGroupToArabicWords(millions)} ملايين"
+                : $"{ConvertGroupToArabicWords(millions)} مليون");
+        }
+
+        if (thousands > 0)
+        {
+            parts.Add(thousands == 1 ? "ألف"
+                : thousands == 2 ? "ألفان"
+                : thousands <= 10 ? $"{ConvertGroupToArabicWords(thousands)} آلاف"
+                : $"{ConvertGroupToArabicWords(thousands)} ألف");
+        }
+
+        if (rest > 0)
+            parts.Add(ConvertGroupToArabicWords(rest));
+
+        return string.Join(" و", parts);
+    }
+
+    private static string AmountToArabicWords(decimal amount)
+    {
+        long dinars = (long)Math.Truncate(amount);
+        int fils = (int)Math.Round((amount - dinars) * 1000, MidpointRounding.AwayFromZero);
+
+        var result = $"فقط {ConvertToArabicWords(dinars)} دينار كويتي";
+        if (fils > 0)
+            result += $" و{ConvertToArabicWords(fils)} فلس";
+        result += " لا غير";
+
+        return result;
+    }
+
     private byte[] GenerateDocument(int employeeId, string templateFileName)
     {
         // Get employee with related data
