@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Packaging;
+﻿using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.EntityFrameworkCore;
 using RahalWeb.Models;
@@ -352,10 +353,25 @@ public class WordDocumentService
             current = current.NextSibling();
         }
 
-        // If no text element found, insert one
+        // If no text element found, insert one, cloning nearby run formatting (font/size)
+        // so the inserted value doesn't fall back to Word's default font.
         if (bookmarkStart.Parent != null)
         {
-            var newRun = new Run(new Text(newValue));
+            var templateRun = bookmarkStart.PreviousSibling<Run>() ?? bookmarkEnd.NextSibling<Run>();
+            var newRun = new Run(new Text(newValue) { Space = SpaceProcessingModeValues.Preserve });
+
+            if (templateRun?.RunProperties != null)
+            {
+                newRun.RunProperties = (RunProperties)templateRun.RunProperties.CloneNode(true);
+            }
+            else
+            {
+                var paragraphMarkRunProperties = bookmarkStart.Ancestors<Paragraph>().FirstOrDefault()
+                    ?.ParagraphProperties?.ParagraphMarkRunProperties;
+                if (paragraphMarkRunProperties != null)
+                    newRun.RunProperties = new RunProperties(paragraphMarkRunProperties.ChildElements.Select(c => c.CloneNode(true)));
+            }
+
             bookmarkStart.Parent.InsertAfter(newRun, bookmarkStart);
         }
     }
