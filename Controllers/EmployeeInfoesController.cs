@@ -566,6 +566,19 @@ namespace RahalWeb.Controllers
 
             ViewBag.UserRecievedId = ViewBag.UserId;
 
+            var viewModel = await GetReceivedMoneyViewModelAsync(UserId, FromDate, ToDate);
+
+            ViewData["UserIdFilter"] = UserId;
+            ViewData["FromDateFilter"] = FromDate?.ToString("yyyy-MM-dd");
+            ViewData["ToDateFilter"] = ToDate?.ToString("yyyy-MM-dd");
+
+
+
+            return View(viewModel);
+        }
+
+        private async Task<ReceivedMoneyViewModel> GetReceivedMoneyViewModelAsync(int? UserId, DateOnly? FromDate, DateOnly? ToDate)
+        {
             var query = _context.Bills
                 .Include(e => e.Contract)
                 .Include(e => e.User)
@@ -658,22 +671,103 @@ namespace RahalWeb.Controllers
 
             var totalCombined = totalBillPayed + totalDebitPayed + totalCompanyDebitPayed;
 
-            var viewModel = new ReceivedMoneyViewModel
+            return new ReceivedMoneyViewModel
             {
                 DebitPayInfos = await queryDebit.ToListAsync(),
                 Bills = await query.ToListAsync(),
                 companyDebitDetails = await queryCompanyDebitDetails.ToListAsync(),
                 TotalBillPayed = totalCombined
             };
+        }
 
+        [HttpGet]
+        public async Task<IActionResult> ExportRecievedMoneyToExcel(int? UserId, DateOnly? FromDate, DateOnly? ToDate)
+        {
+            try
+            {
+                var viewModel = await GetReceivedMoneyViewModelAsync(UserId, FromDate, ToDate);
 
-            ViewData["UserIdFilter"] = UserId;
-            ViewData["FromDateFilter"] = FromDate?.ToString("yyyy-MM-dd");
-            ViewData["ToDateFilter"] = ToDate?.ToString("yyyy-MM-dd");
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("تقرير التحصيل");
+                    worksheet.RightToLeft = true;
 
+                    var headers = new string[]
+                    {
+                        "رقم الفاتورة", "رقم العقد", "رقم السيارة", "رقم السائق", "اسم السائق",
+                        "تاريخ الفاتورة", "من تاريخ", "إلى تاريخ", "المبلغ", "ملاحظات"
+                    };
 
+                    for (int i = 0; i < headers.Length; i++)
+                    {
+                        worksheet.Cell(1, i + 1).Value = headers[i];
+                        worksheet.Cell(1, i + 1).Style.Font.Bold = true;
+                        worksheet.Cell(1, i + 1).Style.Fill.BackgroundColor = XLColor.LightGray;
+                    }
 
-            return View(viewModel);
+                    int row = 2;
+                    foreach (var item in viewModel.Bills)
+                    {
+                        worksheet.Cell(row, 1).Value = item.BillNo;
+                        worksheet.Cell(row, 2).Value = item.Contract?.ContractNo;
+                        worksheet.Cell(row, 3).Value = item.Contract?.Car?.CarNo;
+                        worksheet.Cell(row, 4).Value = item.Employee?.EmpCode;
+                        worksheet.Cell(row, 5).Value = item.Employee?.FullNameAr;
+                        worksheet.Cell(row, 6).Value = item.BillDate.ToString();
+                        worksheet.Cell(row, 7).Value = item.FromDate.ToString();
+                        worksheet.Cell(row, 8).Value = item.ToDate.ToString();
+                        worksheet.Cell(row, 9).Value = item.BillPayed;
+                        worksheet.Cell(row, 10).Value = item.BillHent;
+                        row++;
+                    }
+
+                    foreach (var item in viewModel.DebitPayInfos)
+                    {
+                        var emp = item.ViolationId != 0 ? item.ViolationInfo?.Employee : item.DebitInfo?.Emp;
+
+                        worksheet.Cell(row, 1).Value = item.DebitPayNo;
+                        worksheet.Cell(row, 4).Value = emp?.EmpCode;
+                        worksheet.Cell(row, 5).Value = emp?.FullNameAr;
+                        worksheet.Cell(row, 6).Value = item.DebitPayDate.ToString();
+                        worksheet.Cell(row, 9).Value = item.DebitPayQty;
+                        worksheet.Cell(row, 10).Value = item.DebitInfo?.DebitDescrp;
+                        row++;
+                    }
+
+                    foreach (var item in viewModel.companyDebitDetails)
+                    {
+                        worksheet.Cell(row, 1).Value = item.CompDebitDetailsNo;
+                        worksheet.Cell(row, 4).Value = item.CompanyDebits?.Employee?.EmpCode;
+                        worksheet.Cell(row, 5).Value = item.CompanyDebits?.Employee?.FullNameAr;
+                        worksheet.Cell(row, 6).Value = item.CompDebitDate.ToString();
+                        worksheet.Cell(row, 9).Value = item.CompDebitPayed;
+                        worksheet.Cell(row, 10).Value = item.CompanyDebits?.DebitReson;
+                        row++;
+                    }
+
+                    worksheet.Cell(row + 1, 8).Value = "إجمالي الإيراد";
+                    worksheet.Cell(row + 1, 8).Style.Font.Bold = true;
+                    worksheet.Cell(row + 1, 9).Value = viewModel.TotalBillPayed;
+                    worksheet.Cell(row + 1, 9).Style.Font.Bold = true;
+
+                    worksheet.Columns().AdjustToContents();
+
+                    var stream = new MemoryStream();
+                    workbook.SaveAs(stream);
+                    stream.Position = 0;
+
+                    string fileName = $"تقرير_التحصيل_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+                    return File(
+                        fileStream: stream,
+                        contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        fileDownloadName: fileName);
+                }
+            }
+            catch (Exception)
+            {
+                return RedirectToAction("RecievedMoney");
+            }
         }
 
         [HttpPost]

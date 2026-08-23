@@ -562,6 +562,14 @@
 
 <button onclick="printBills()" class="btn btn-success">طباعة</button>
 
+<a asp-action="ExportRecievedMoneyToExcel"
+   asp-route-UserId="@ViewData["UserIdFilter"]"
+   asp-route-FromDate="@ViewData["FromDateFilter"]"
+   asp-route-ToDate="@ViewData["ToDateFilter"]"
+   class="btn btn-success">
+    <i class="fas fa-file-excel"></i> تصدير إلى Excel
+</a>
+
 <script>
        function printBills() {
         var printContents = document.querySelector('.bordered-table').outerHTML;
