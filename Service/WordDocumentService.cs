@@ -109,6 +109,7 @@ public class WordDocumentService
                 return company?.CompActivate?.DeffNameEng ?? "";
 
             case "CompPlaceAr":
+                return company?.Location?.DeffName ?? "";
             case "CompPlaceEng":
                 return company?.Address ?? "";
 
