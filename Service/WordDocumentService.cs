@@ -8,10 +8,10 @@ public class WordDocumentService
     private readonly RahalWebContext _context;
     private readonly string _templatesRoot;
 
-    public WordDocumentService(RahalWebContext context, string contentRootPath)
+    public WordDocumentService(RahalWebContext context, string webRootPath)
     {
         _context = context;
-        _templatesRoot = Path.Combine(contentRootPath, "Templates");
+        _templatesRoot = Path.Combine(webRootPath, "Templates");
     }
 
     public byte[] GeneratePermitDocument(int employeeId)

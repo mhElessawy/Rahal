@@ -13,7 +13,7 @@ public class PermitGenerationController : Controller
     public PermitGenerationController(RahalWebContext context, IWebHostEnvironment env)
     {
         _context = context;
-        _wordService = new WordDocumentService(context, env.ContentRootPath);
+        _wordService = new WordDocumentService(context, env.WebRootPath);
     }
 
     public IActionResult Index()
@@ -269,7 +269,7 @@ public class PermitGenerationController : Controller
     // GET: Check if template files exist
     public IActionResult CheckTemplate([FromServices] IWebHostEnvironment env)
     {
-        var templatesRoot = IO.Path.Combine(env.ContentRootPath, "Templates");
+        var templatesRoot = IO.Path.Combine(env.WebRootPath, "Templates");
         var templateFiles = new[] { "NewPerm.docx", "ReNewPermSp.docx", "ContractNewEn.docx" };
 
         var info = new System.Text.StringBuilder();

@@ -12,7 +12,7 @@ public class ContractGenerationController : Controller
     public ContractGenerationController(RahalWebContext context, IWebHostEnvironment env)
     {
         _context = context;
-        _wordService = new WordDocumentService(context, env.ContentRootPath);
+        _wordService = new WordDocumentService(context, env.WebRootPath);
     }
 
     public IActionResult Index()
