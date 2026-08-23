@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RahalWeb.Models;
 using IO = System.IO;
@@ -9,10 +10,10 @@ public class PermitGenerationController : Controller
     private readonly RahalWebContext _context;
     private readonly WordDocumentService _wordService;
 
-    public PermitGenerationController(RahalWebContext context)
+    public PermitGenerationController(RahalWebContext context, IWebHostEnvironment env)
     {
         _context = context;
-        _wordService = new WordDocumentService(context);
+        _wordService = new WordDocumentService(context, env.ContentRootPath);
     }
 
     public IActionResult Index()
@@ -266,20 +267,22 @@ public class PermitGenerationController : Controller
     }
 
     // GET: Check if template files exist
-    public IActionResult CheckTemplate()
+    public IActionResult CheckTemplate([FromServices] IWebHostEnvironment env)
     {
-        var templatePath1 = IO.Path.Combine(Directory.GetCurrentDirectory(), "Templates", "NewPerm.docx");
-        var templatePath2 = IO.Path.Combine(Directory.GetCurrentDirectory(), "Templates", "ReNewPermSp.docx");
+        var templatesRoot = IO.Path.Combine(env.ContentRootPath, "Templates");
+        var templateFiles = new[] { "NewPerm.docx", "ReNewPermSp.docx", "ContractNewEn.docx" };
 
         var info = new System.Text.StringBuilder();
         info.AppendLine("Template Files Check:");
-        info.AppendLine($"\nNewPerm.docx: {(IO.File.Exists(templatePath1) ? "✓ Found" : "✗ Not Found")}");
-        if (IO.File.Exists(templatePath1))
-            info.AppendLine($"  Path: {templatePath1}");
+        info.AppendLine($"Templates folder: {templatesRoot}");
 
-        info.AppendLine($"\nReNewPermSp.docx: {(IO.File.Exists(templatePath2) ? "✓ Found" : "✗ Not Found")}");
-        if (IO.File.Exists(templatePath2))
-            info.AppendLine($"  Path: {templatePath2}");
+        foreach (var fileName in templateFiles)
+        {
+            var templatePath = IO.Path.Combine(templatesRoot, fileName);
+            info.AppendLine($"\n{fileName}: {(IO.File.Exists(templatePath) ? "✓ Found" : "✗ Not Found")}");
+            if (IO.File.Exists(templatePath))
+                info.AppendLine($"  Path: {templatePath}");
+        }
 
         return Content(info.ToString(), "text/plain");
     }

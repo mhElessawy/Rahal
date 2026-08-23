@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RahalWeb.Models;
@@ -8,10 +9,10 @@ public class ContractGenerationController : Controller
     private readonly RahalWebContext _context;
     private readonly WordDocumentService _wordService;
 
-    public ContractGenerationController(RahalWebContext context)
+    public ContractGenerationController(RahalWebContext context, IWebHostEnvironment env)
     {
         _context = context;
-        _wordService = new WordDocumentService(context);
+        _wordService = new WordDocumentService(context, env.ContentRootPath);
     }
 
     public IActionResult Index()

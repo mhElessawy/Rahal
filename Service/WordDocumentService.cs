@@ -6,10 +6,12 @@ using RahalWeb.Models;
 public class WordDocumentService
 {
     private readonly RahalWebContext _context;
+    private readonly string _templatesRoot;
 
-    public WordDocumentService(RahalWebContext context)
+    public WordDocumentService(RahalWebContext context, string contentRootPath)
     {
         _context = context;
+        _templatesRoot = Path.Combine(contentRootPath, "Templates");
     }
 
     public byte[] GeneratePermitDocument(int employeeId)
@@ -34,7 +36,7 @@ public class WordDocumentService
         if (contract == null)
             throw new Exception("Contract not found");
 
-        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "ContractNewEn.docx");
+        string templatePath = Path.Combine(_templatesRoot, "ContractNewEn.docx");
 
         if (!File.Exists(templatePath))
             throw new FileNotFoundException("Template file not found", templatePath);
@@ -271,7 +273,7 @@ public class WordDocumentService
             throw new Exception("Employee not found");
 
         // Path to template
-        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", templateFileName);
+        string templatePath = Path.Combine(_templatesRoot, templateFileName);
 
         if (!File.Exists(templatePath))
             throw new FileNotFoundException("Template file not found", templatePath);
@@ -545,7 +547,7 @@ public class WordDocumentService
     // Method to list all bookmarks in template (for debugging)
     public List<string> GetTemplateBookmarks()
     {
-        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "NewPerm.docx");
+        string templatePath = Path.Combine(_templatesRoot, "NewPerm.docx");
 
         if (!File.Exists(templatePath))
             return new List<string> { "Template file not found" };
