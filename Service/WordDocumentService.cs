@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Packaging;
+﻿using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.EntityFrameworkCore;
 using RahalWeb.Models;
@@ -99,7 +100,7 @@ public class WordDocumentService
                 return company?.OwnerCivilId1 ?? "";
 
             case "CompFileNoAr":
-            case "CompFileNoEng":
+            case "CompFileNoEn":
                 return company?.CompFileNo ?? "";
 
             case "CompActivateAr":
@@ -108,6 +109,7 @@ public class WordDocumentService
                 return company?.CompActivate?.DeffNameEng ?? "";
 
             case "CompPlaceAr":
+                return company?.Location?.DeffName ?? "";
             case "CompPlaceEng":
                 return company?.Address ?? "";
 
@@ -161,7 +163,9 @@ public class WordDocumentService
             case "EmpSalaryEng":
                 return employee?.Salary?.ToString("N3") ?? "";
             case "EmpSalarTafketAr":
-                return employee?.Salary.HasValue == true ? AmountToArabicWords(employee.Salary.Value) : "";
+                // The template already wraps this in "(...) دينار", so only the spelled-out
+                // number goes here, not the full "فقط ... دينار كويتي لا غير" phrase.
+                return employee?.Salary.HasValue == true ? ConvertToArabicWords((long)Math.Truncate(employee.Salary.Value)) : "";
 
             default:
                 return null;
@@ -247,18 +251,6 @@ public class WordDocumentService
         return string.Join(" و", parts);
     }
 
-    private static string AmountToArabicWords(decimal amount)
-    {
-        long dinars = (long)Math.Truncate(amount);
-        int fils = (int)Math.Round((amount - dinars) * 1000, MidpointRounding.AwayFromZero);
-
-        var result = $"فقط {ConvertToArabicWords(dinars)} دينار كويتي";
-        if (fils > 0)
-            result += $" و{ConvertToArabicWords(fils)} فلس";
-        result += " لا غير";
-
-        return result;
-    }
 
     private byte[] GenerateDocument(int employeeId, string templateFileName)
     {
@@ -352,10 +344,25 @@ public class WordDocumentService
             current = current.NextSibling();
         }
 
-        // If no text element found, insert one
+        // If no text element found, insert one, cloning nearby run formatting (font/size)
+        // so the inserted value doesn't fall back to Word's default font.
         if (bookmarkStart.Parent != null)
         {
-            var newRun = new Run(new Text(newValue));
+            var templateRun = bookmarkStart.PreviousSibling<Run>() ?? bookmarkEnd.NextSibling<Run>();
+            var newRun = new Run(new Text(newValue) { Space = SpaceProcessingModeValues.Preserve });
+
+            if (templateRun?.RunProperties != null)
+            {
+                newRun.RunProperties = (RunProperties)templateRun.RunProperties.CloneNode(true);
+            }
+            else
+            {
+                var paragraphMarkRunProperties = bookmarkStart.Ancestors<Paragraph>().FirstOrDefault()
+                    ?.ParagraphProperties?.ParagraphMarkRunProperties;
+                if (paragraphMarkRunProperties != null)
+                    newRun.RunProperties = new RunProperties(paragraphMarkRunProperties.ChildElements.Select(c => c.CloneNode(true)));
+            }
+
             bookmarkStart.Parent.InsertAfter(newRun, bookmarkStart);
         }
     }
