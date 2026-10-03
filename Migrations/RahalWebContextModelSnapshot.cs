@@ -1454,6 +1454,12 @@ namespace RahalWeb.Migrations
                     b.Property<bool>("EmpTakeMoney")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("EmpTakeMoneyDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("EmpTakeMoneySave")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("EmpTreatment")
                         .HasColumnType("bit");
 
