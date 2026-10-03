@@ -1,15 +1,20 @@
-﻿@model RahalWeb.Models.EmployeeTakeMoney
-
+﻿﻿@using RahalWeb.Models.MyModel
+@model RahalWeb.Models.EmployeeTakeMoney
+@inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var user = HttpContextAccessor.HttpContext!.Session.GetObjectFromJson<PasswordDatum>("CurrentUser");
 }
 
 <div class="company-info-container" dir="rtl">
     <div class="company-info-header">
         <h4>بيانات العهده</h4>
         <div class="action-buttons">
-            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">تعديل</a> 
+            @if (user?.EmpTakeMoneySave == true)
+            {
+                <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">تعديل</a>
+            }
             <a asp-action="Index" class="btn btn-secondary">العوده لصفحة العهده</a>
         </div>
     </div>

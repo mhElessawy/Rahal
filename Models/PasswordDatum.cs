@@ -97,6 +97,10 @@ public partial class PasswordDatum
 
     public bool EmpTakeMoney { get; set; } = false;
 
+    public bool EmpTakeMoneySave { get; set; } = false;
+
+    public bool EmpTakeMoneyDelete { get; set; } = false;
+
     public bool ViolationView { get; set; } = false;
 
     public bool ViolationSave { get; set; } = false;

@@ -1,8 +1,10 @@
-﻿@model IEnumerable<RahalWeb.Models.EmployeeTakeMoney>
-
+﻿﻿@using RahalWeb.Models.MyModel
+@model IEnumerable<RahalWeb.Models.EmployeeTakeMoney>
+@inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var user = HttpContextAccessor.HttpContext!.Session.GetObjectFromJson<PasswordDatum>("CurrentUser");
 }
 
 <style>
@@ -337,12 +339,14 @@
 
 <h1 dir="rtl">العهد</h1>
 
-<p dir="rtl">
-
-    <a asp-action="Create" class="btn btn-create-outline">
-        <i class="fas fa-plus-circle"></i> إضافة عهده
-    </a>
-</p>
+@if (user?.EmpTakeMoneySave == true)
+{
+    <p dir="rtl">
+        <a asp-action="Create" class="btn btn-create-outline">
+            <i class="fas fa-plus-circle"></i> إضافة عهده
+        </a>
+    </p>
+}
 
 
 <table class="bordered-table" dir="rtl">
@@ -352,7 +356,7 @@
                 <label>رقم العهده</label>
             </th>
             <th>
-               <label>التاريخ</label>
+                <label>التاريخ</label>
             </th>
             <th>
                 <label>اسم المستخدم</label>
@@ -360,32 +364,39 @@
             <th>
                 <label>المبلغ</label>
             </th>
-           
+
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
                     @Html.DisplayFor(modelItem => item.TakeMoneyNo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TakeDate)
-            </td>
-            <td>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TakeDate)
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.TakeUser!.UserFullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TakeMoney)
-            </td>
-           
-            <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn-edit"><i class="fas fa-edit"></i> تعديل</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TakeMoney)
+                </td>
+
+                <td>
+                    @if (user?.EmpTakeMoneySave == true)
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn-edit"><i class="fas fa-edit"></i> تعديل</a>
+                    }
                     <a asp-action="Details" asp-route-id="@item.Id" class="btn-details"><i class="fas fa-info-circle"></i> تفاصيل</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn-delete"><i class="fas fa-trash-alt"></i> حذف</a>
-            </td>
-        </tr>
-}
+                    @if (user?.EmpTakeMoneyDelete == true)
+                    {
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn-delete"><i class="fas fa-trash-alt"></i> حذف</a>
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

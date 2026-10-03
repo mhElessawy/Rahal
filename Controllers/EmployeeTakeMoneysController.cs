@@ -19,20 +19,32 @@ namespace RahalWeb.Controllers
             _context = context;
         }
 
+        // صلاحيات العهد للمستخدم الحالي
+        private PasswordDatum? CurrentUser =>
+            HttpContext.Session.GetObjectFromJson<PasswordDatum>("CurrentUser");
+
+        private bool CanView => CurrentUser?.EmpTakeMoney == true;
+        private bool CanSave => CurrentUser?.EmpTakeMoneySave == true;
+        private bool CanDelete => CurrentUser?.EmpTakeMoneyDelete == true;
+
+        private IActionResult NoPermission() => RedirectToAction("Index", "Home");
+
         // GET: EmployeeTakeMoneys
         public async Task<IActionResult> Index()
         {
+            if (!CanView) return NoPermission();
             TempData.Keep();
             var rahalWebContext = _context.EmployeeTakeMoney
                                 .Include(e => e.TakeUser)
                                 .Include(e => e.User)
-                                .OrderByDescending(a=>a.TakeDate);
+                                .OrderByDescending(a => a.TakeDate);
             return View(await rahalWebContext.ToListAsync());
         }
 
         // GET: EmployeeTakeMoneys/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (!CanView) return NoPermission();
             if (id == null)
             {
                 return NotFound();
@@ -53,6 +65,7 @@ namespace RahalWeb.Controllers
         // GET: EmployeeTakeMoneys/Create
         public IActionResult Create()
         {
+            if (!CanSave) return NoPermission();
             TempData.Keep();
             ViewBag.Username = HttpContext.Session.GetString("Username");
             ViewBag.UserId = HttpContext.Session.GetInt32("UserId");
@@ -68,8 +81,9 @@ namespace RahalWeb.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create( EmployeeTakeMoney employeeTakeMoney)
+        public async Task<IActionResult> Create(EmployeeTakeMoney employeeTakeMoney)
         {
+            if (!CanSave) return NoPermission();
             if (ModelState.IsValid)
             {
                 _context.Add(employeeTakeMoney);
@@ -79,20 +93,21 @@ namespace RahalWeb.Controllers
             ViewBag.Username = HttpContext.Session.GetString("Username");
             ViewBag.UserId = HttpContext.Session.GetInt32("UserId");
             ViewData["TakeUserId"] = new SelectList(_context.PasswordData, "Id", "UserFullName", employeeTakeMoney.TakeUserId);
-          
+
             return View(employeeTakeMoney);
         }
 
         // GET: EmployeeTakeMoneys/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (!CanSave) return NoPermission();
             if (id == null)
             {
                 return NotFound();
             }
             TempData.Keep();
 
-          
+
             ViewBag.Username = HttpContext.Session.GetString("Username");
             ViewBag.UserId = HttpContext.Session.GetInt32("UserId");
             var employeeTakeMoney = await _context.EmployeeTakeMoney.FindAsync(id);
@@ -101,7 +116,7 @@ namespace RahalWeb.Controllers
                 return NotFound();
             }
             ViewData["TakeUserId"] = new SelectList(_context.PasswordData, "Id", "UserFullName", employeeTakeMoney.TakeUserId);
-           
+
             return View(employeeTakeMoney);
         }
 
@@ -112,6 +127,7 @@ namespace RahalWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,TakeUserId,TakeMoney,TakeDate,DeleteFlag,UserId,TakeMoneyNo")] EmployeeTakeMoney employeeTakeMoney)
         {
+            if (!CanSave) return NoPermission();
             if (id != employeeTakeMoney.Id)
             {
                 return NotFound();
@@ -145,6 +161,7 @@ namespace RahalWeb.Controllers
         // GET: EmployeeTakeMoneys/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (!CanDelete) return NoPermission();
             if (id == null)
             {
                 return NotFound();
@@ -167,6 +184,7 @@ namespace RahalWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!CanDelete) return NoPermission();
             var employeeTakeMoney = await _context.EmployeeTakeMoney.FindAsync(id);
             if (employeeTakeMoney != null)
             {
@@ -181,7 +199,7 @@ namespace RahalWeb.Controllers
         {
             return _context.EmployeeTakeMoney.Any(e => e.Id == id);
         }
-     public async Task<IActionResult> IndexReportTakeMoney()
+        public async Task<IActionResult> IndexReportTakeMoney()
         {
             // Get data from database
             var takeMoneyList = await _context.EmployeeTakeMoney
@@ -246,6 +264,6 @@ namespace RahalWeb.Controllers
             return Json(new { message = "Export functionality to be implemented" });
         }
 
-    
+
     }
 }
