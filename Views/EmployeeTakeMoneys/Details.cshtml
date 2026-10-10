@@ -1,4 +1,4 @@
-﻿﻿@using RahalWeb.Models.MyModel
+﻿﻿﻿@using RahalWeb.Models.MyModel
 @model RahalWeb.Models.EmployeeTakeMoney
 @inject IHttpContextAccessor HttpContextAccessor
 @{
@@ -11,7 +11,7 @@
     <div class="company-info-header">
         <h4>بيانات العهده</h4>
         <div class="action-buttons">
-            @if (user?.EmpTakeMoneySave == true)
+            @if (user?.EmpTakeMoneyUpdate == true)
             {
                 <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">تعديل</a>
             }

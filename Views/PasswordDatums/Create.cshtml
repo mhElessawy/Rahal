@@ -1,4 +1,4 @@
-﻿@model RahalWeb.Models.PasswordDatum
+﻿@model  RahalWeb.Models.PasswordDatum
 
 @{
     ViewData["Title"] = "Create";
@@ -339,6 +339,11 @@
                     <label asp-for="EmpTakeMoneySave" class="form-label">حفظ العهد</label>
                     <input type="checkbox" asp-for="EmpTakeMoneySave" class="form-check-input" />
                     <span asp-validation-for="EmpTakeMoneySave" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="EmpTakeMoneyUpdate" class="form-label">تعديل العهد</label>
+                    <input type="checkbox" asp-for="EmpTakeMoneyUpdate" class="form-check-input" />
+                    <span asp-validation-for="EmpTakeMoneyUpdate" class="text-danger small"></span>
                 </div>
                 <div class="col-md-2">
                     <label asp-for="EmpTakeMoneyDelete" class="form-label">حذف العهد</label>

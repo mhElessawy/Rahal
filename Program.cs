@@ -27,8 +27,15 @@ builder.Services.AddHttpContextAccessor(); // .NET 6+
 
 // Removed duplicate AddControllersWithViews()
 builder.Services.AddControllersWithViews();
- 
+
 var app = builder.Build();
+
+// ÊØÈíŞ Ãí migrations ÌÏíÏÉ Úáì ŞÇÚÏÉ ÇáÈíÇäÇÊ ÊáŞÇÆíğÇ ÚäÏ ÊÔÛíá ÇáÈÑäÇãÌ
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<RahalWebContext>();
+    db.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
