@@ -25,6 +25,7 @@ namespace RahalWeb.Controllers
 
         private bool CanView => CurrentUser?.EmpTakeMoney == true;
         private bool CanSave => CurrentUser?.EmpTakeMoneySave == true;
+        private bool CanUpdate => CurrentUser?.EmpTakeMoneyUpdate == true;
         private bool CanDelete => CurrentUser?.EmpTakeMoneyDelete == true;
 
         private IActionResult NoPermission() => RedirectToAction("Index", "Home");
@@ -100,7 +101,7 @@ namespace RahalWeb.Controllers
         // GET: EmployeeTakeMoneys/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (!CanSave) return NoPermission();
+            if (!CanUpdate) return NoPermission();
             if (id == null)
             {
                 return NotFound();
@@ -127,7 +128,7 @@ namespace RahalWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,TakeUserId,TakeMoney,TakeDate,DeleteFlag,UserId,TakeMoneyNo")] EmployeeTakeMoney employeeTakeMoney)
         {
-            if (!CanSave) return NoPermission();
+            if (!CanUpdate) return NoPermission();
             if (id != employeeTakeMoney.Id)
             {
                 return NotFound();
